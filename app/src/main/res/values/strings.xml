@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Battery Health</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="home_fragment_label">Battery Health</string>
+    <string name="settings_fragment_label">Settings</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+</resources>
