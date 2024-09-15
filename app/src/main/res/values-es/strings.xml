@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Battery Health</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="battery_health_good">Buena</string>
+    <string name="battery_health_overheat">Sobrecalentada</string>
+    <string name="battery_health_dead">Muerta</string>
+    <string name="battery_health_over_voltage">Sobrevoltaje</string>
+    <string name="battery_health_unspecified_failure">Fallo</string>
+    <string name="battery_health_unknown">Desconocido</string>
+    <string name="battery_charging">Cargando</string>
+    <string name="battery_unplugged">Desconectado</string>
+    <string name="charging_source_none">Ninguno</string>
+    <string name="battery_charging_cycles">Ciclos de carga</string>
+    <string name="battery_health">Salud de la batería</string>
+    <string name="battery_status">Estado</string>
+    <string name="charging_source">Fuente de carga</string>
+    <string name="battery_level">Nivel de batería</string>
+    <string name="settings_software_update">Actualización de software</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_rate_us">Calificanos</string>
+    <string name="settings_contribute_translation">Contribuir a la traducción</string>
+    <string name="settings_help_us_translate">Ayúdanos a traducir la aplicación a tu idioma.</string>
+    <string name="battery_temperature">Temperatura</string>
+    <string name="battery_type">Tipo</string>
+    <string name="battery_voltage">Voltaje</string>
+    <string name="battery_capacity">Capacidad de batería</string>
+</resources>

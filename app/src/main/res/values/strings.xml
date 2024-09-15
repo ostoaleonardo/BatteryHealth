@@ -2,8 +2,36 @@
     <string name="app_name">Battery Health</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="home_fragment_label">Battery Health</string>
-    <string name="settings_fragment_label">Settings</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
+    <string name="zero" translatable="false">0</string>
+
+    <!-- Strings used for the home fragment -->
+    <string name="battery_health_good">Good</string>
+    <string name="battery_health_overheat">Overheat</string>
+    <string name="battery_health_dead">Dead</string>
+    <string name="battery_health_over_voltage">Over Voltage</string>
+    <string name="battery_health_unspecified_failure">Failure</string>
+    <string name="battery_health_unknown">Unknown</string>
+    <string name="battery_charging">Charging</string>
+    <string name="battery_unplugged">Unplugged</string>
+    <string name="charging_source_usb" translatable="false">USB</string>
+    <string name="charging_source_ac" translatable="false">AC</string>
+    <string name="charging_source_wireless" translatable="false">Wireless</string>
+    <string name="charging_source_dock" translatable="false">Dock</string>
+    <string name="charging_source_none">None</string>
+    <string name="battery_charging_cycles">Charging cycles</string>
+    <string name="battery_health">Battery health</string>
+    <string name="battery_status">Status</string>
+    <string name="charging_source">Charging source</string>
+    <string name="battery_level">Battery level</string>
+    <string name="battery_temperature">Temperature</string>
+    <string name="battery_type">Type</string>
+    <string name="battery_voltage">Voltage</string>
+    <string name="battery_capacity">Battery capacity</string>
+
+    <!-- Strings used for the settings fragment -->
+    <string name="settings_software_update">Software update</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_rate_us">Rate us</string>
+    <string name="settings_contribute_translation">Contribute to the translation</string>
+    <string name="settings_help_us_translate">Help us translate the app to your language.</string>
 </resources>
