@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.BatteryHealth" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
@@ -8,9 +8,20 @@
     <style name="Theme.BatteryHealth" parent="Base.Theme.BatteryHealth" />
 
     <style name="AppBar.App.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/n_type82_headline</item>
+    </style>
+
+    <style name="Text.Card.Caption" parent="TextAppearance.Material3.TitleLarge">
         <item name="fontFamily">@font/azeret_mono_light</item>
-        <item name="android:fontFamily">@font/azeret_mono_light</item>
-        <item name="textAllCaps">true</item>
+        <item name="android:textAllCaps">true</item>
         <item name="android:textSize">12sp</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+    <style name="Text.Card.Indicator" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/n_type82_headline</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
     </style>
 </resources>
