@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.BatteryHealth" parent="Base.Theme.BatteryHealth" />
+
+    <style name="AppBar.App.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="fontFamily">@font/azeret_mono_light</item>
+        <item name="android:fontFamily">@font/azeret_mono_light</item>
+        <item name="textAllCaps">true</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>
