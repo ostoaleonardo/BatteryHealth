@@ -1,44 +1,74 @@
 package com.monospace.battery
 
+import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
+import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentSecondBinding
 
-/**
- * A simple [Fragment] subclass as the second destination in the navigation.
- */
 class SecondFragment : Fragment() {
 
     private var _binding: FragmentSecondBinding? = null
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
-        return binding.root
 
-    }
+        displayVersion()
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.buttonSecond.setOnClickListener {
-            findNavController().navigate(R.id.action_SecondFragment_to_FirstFragment)
+        binding.updateCard.setOnClickListener {
+            openGooglePlay()
         }
+
+        binding.rateCard.setOnClickListener {
+            openGooglePlay()
+        }
+
+        binding.translationCard.setOnClickListener {
+            // TODO: Add translation link
+        }
+
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun displayVersion() {
+        val versionName = requireContext().packageManager
+            .getPackageInfo(requireContext().packageName, 0)
+            .versionName
+
+        binding.version.text = "${getString(R.string.settings_version)} $versionName"
+    }
+
+    private fun openGooglePlay() {
+        val appPackageName = requireContext().packageName
+        val marketUri =
+            Uri.parse("market://details?id=$appPackageName")
+        val googlePlayUri =
+            Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
+
+        try {
+            requireContext().startActivity(
+                Intent(Intent.ACTION_VIEW, marketUri)
+            )
+        } catch (e: ActivityNotFoundException) {
+            requireContext().startActivity(
+                Intent(Intent.ACTION_VIEW, googlePlayUri)
+            )
+        }
     }
 }
