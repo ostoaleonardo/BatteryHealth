@@ -19,8 +19,6 @@
     <string name="settings_software_update">Actualización de software</string>
     <string name="settings_version">Versión</string>
     <string name="settings_rate_us">Calificanos</string>
-    <string name="settings_contribute_translation">Contribuir a la traducción</string>
-    <string name="settings_help_us_translate">Ayúdanos a traducir la aplicación a tu idioma.</string>
     <string name="battery_temperature">Temperatura</string>
     <string name="battery_type">Tipo</string>
     <string name="battery_voltage">Voltaje</string>

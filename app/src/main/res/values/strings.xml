@@ -32,6 +32,4 @@
     <string name="settings_software_update">Software update</string>
     <string name="settings_version">Version</string>
     <string name="settings_rate_us">Rate us</string>
-    <string name="settings_contribute_translation">Contribute to the translation</string>
-    <string name="settings_help_us_translate">Help us translate the app to your language.</string>
 </resources>

@@ -33,10 +33,6 @@ class SecondFragment : Fragment() {
             openGooglePlay()
         }
 
-        binding.translationCard.setOnClickListener {
-            // TODO: Add translation link
-        }
-
         return binding.root
     }
 
