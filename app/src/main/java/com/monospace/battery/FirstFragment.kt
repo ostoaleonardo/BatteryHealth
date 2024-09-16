@@ -137,7 +137,7 @@ class FirstFragment : Fragment() {
         val batteryImage = if (isCharging) {
             when {
                 batteryPercentage >= 100 -> R.drawable.battery_full
-                batteryPercentage >= 90 -> R.drawable.battery_charging_80
+                batteryPercentage >= 90 -> R.drawable.battery_charging_90
                 batteryPercentage >= 80 -> R.drawable.battery_charging_80
                 batteryPercentage >= 60 -> R.drawable.battery_charging_60
                 batteryPercentage >= 50 -> R.drawable.battery_charging_50
