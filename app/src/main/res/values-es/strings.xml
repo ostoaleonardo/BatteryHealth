@@ -17,7 +17,7 @@
     <string name="charging_source">Fuente de carga</string>
     <string name="battery_level">Nivel de batería</string>
     <string name="settings_software_update">Actualización de software</string>
-    <string name="settings_version">Versión</string>
+    <string name="settings_version">Versión %s</string>
     <string name="settings_rate_us">Calificanos</string>
     <string name="battery_temperature">Temperatura</string>
     <string name="battery_type">Tipo</string>

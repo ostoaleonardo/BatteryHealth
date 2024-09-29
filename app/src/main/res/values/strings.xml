@@ -1,8 +1,13 @@
 <resources>
     <string name="app_name">Battery Health</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
+
+    <!-- Battery parameters -->
     <string name="zero" translatable="false">0</string>
+    <string name="battery_percentage" translatable="false">%d%%</string>
+    <string name="temperature_celsius" translatable="false">%d °C</string>
+    <string name="voltage_mv" translatable="false">%d mV</string>
+    <string name="capacity_mah" translatable="false">%d mAh</string>
 
     <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Good</string>
@@ -30,6 +35,6 @@
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_software_update">Software update</string>
-    <string name="settings_version">Version</string>
+    <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
 </resources>
