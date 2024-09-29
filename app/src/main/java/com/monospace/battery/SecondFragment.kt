@@ -1,6 +1,5 @@
 package com.monospace.battery
 
-import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -16,7 +15,6 @@ class SecondFragment : Fragment() {
     private var _binding: FragmentSecondBinding? = null
     private val binding get() = _binding!!
 
-    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,13 +39,12 @@ class SecondFragment : Fragment() {
         _binding = null
     }
 
-    @SuppressLint("SetTextI18n")
     private fun displayVersion() {
         val versionName = requireContext().packageManager
             .getPackageInfo(requireContext().packageName, 0)
             .versionName
 
-        binding.version.text = "${getString(R.string.settings_version)} $versionName"
+        binding.version.text = getString(R.string.settings_version, versionName)
     }
 
     private fun openGooglePlay() {

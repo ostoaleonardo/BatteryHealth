@@ -1,6 +1,5 @@
 package com.monospace.battery
 
-import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,9 +10,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentFirstBinding
+import com.monospace.battery.helpers.BatteryInfo
+import com.monospace.battery.helpers.BatteryStrings
 
 class FirstFragment : Fragment() {
 
@@ -21,13 +21,11 @@ class FirstFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val batteryReceiver = object : BroadcastReceiver() {
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         override fun onReceive(context: Context?, intent: Intent?) {
             displayBatteryInfo(intent)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,10 +34,9 @@ class FirstFragment : Fragment() {
         _binding = FragmentFirstBinding.inflate(inflater, container, false)
 
         // Register the battery receiver to get battery status updates
-        val batteryStatusIntentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryStatusIntent =
-            requireActivity().registerReceiver(batteryReceiver, batteryStatusIntentFilter)
-        displayBatteryInfo(batteryStatusIntent)
+        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        val batteryIntent = requireActivity().registerReceiver(batteryReceiver, intentFilter)
+        displayBatteryInfo(batteryIntent)
 
         return binding.root
     }
@@ -50,63 +47,40 @@ class FirstFragment : Fragment() {
         _binding = null
     }
 
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private fun displayBatteryInfo(batteryStatusIntent: Intent?) {
-        batteryStatusIntent?.let {
-            // Battery health
-            val health = it.getIntExtra(BatteryManager.EXTRA_HEALTH, -1)
-            displayBatteryHealth(health)
+        val batteryInfo = BatteryInfo(batteryStatusIntent)
 
-            // Battery level
-            val level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-            val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            val batteryPercentage = level * 100 / scale
+        // Battery health
+        displayBatteryHealth(batteryInfo.health)
 
-            // Battery status
-            val status = it.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-            val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
-            displayBatteryStatus(isCharging)
-            displayBatteryLevel(batteryPercentage, isCharging)
+        // Battery level
+        displayBatteryLevel(batteryInfo.level, batteryInfo.isCharging)
 
-            // Charging source
-            val chargePlug = it.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
-            val usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
-            val acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC
-            val wsCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_WIRELESS
-            val dockCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_DOCK
-            displayChargingSource(usbCharge, acCharge, wsCharge, dockCharge)
+        // Battery status
+        displayBatteryStatus(batteryInfo.isCharging)
 
-            // Battery cycles
-            val cycles = it.getIntExtra(BatteryManager.EXTRA_CYCLE_COUNT, -1)
-            displayBatteryCycles(cycles)
+        // Charging source
+        displayChargingSource(batteryInfo.chargeSource)
 
-            // Battery technology
-            val technology = it.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY)
-            displayBatteryTechnology(technology)
+        // Battery cycles
+        displayBatteryCycles(batteryInfo.chargeCycles)
 
-            // Battery temperature
-            val temperature = it.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
-            displayBatteryTemperature(temperature)
+        // Battery technology
+        displayBatteryTechnology(batteryInfo.technology)
 
-            // Battery voltage
-            val voltage = it.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1)
-            displayBatteryVoltage(voltage)
+        // Battery temperature
+        displayBatteryTemperature(batteryInfo.temperature)
 
-            // Battery capacity
-            val capacity = it.getIntExtra(BatteryManager.BATTERY_PROPERTY_CAPACITY.toString(), -1)
-            displayBatteryCapacity(capacity)
-        }
+        // Battery voltage
+        displayBatteryVoltage(batteryInfo.voltage)
+
+        // Battery capacity
+        displayBatteryCapacity(batteryInfo.capacity)
     }
 
     private fun displayBatteryHealth(health: Int) {
-        val healthString = when (health) {
-            BatteryManager.BATTERY_HEALTH_GOOD -> R.string.battery_health_good
-            BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.string.battery_health_overheat
-            BatteryManager.BATTERY_HEALTH_DEAD -> R.string.battery_health_dead
-            BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> R.string.battery_health_over_voltage
-            BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE -> R.string.battery_health_unspecified_failure
-            else -> R.string.battery_health_unknown
-        }
+        val batteryString = BatteryStrings()
+        val healthString = batteryString.getHealthStatus(health)
 
         val healthImage = when (health) {
             BatteryManager.BATTERY_HEALTH_GOOD -> R.drawable.battery_status_good
@@ -124,36 +98,35 @@ class FirstFragment : Fragment() {
         healthImageView.setImageResource(healthImage)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun displayBatteryLevel(
-        batteryPercentage: Int,
+        level: Int,
         isCharging: Boolean
     ) {
         val batteryTextView = binding.battery
         val batteryImageView = binding.batteryImage
 
-        batteryTextView.text = "$batteryPercentage%"
+        batteryTextView.text = getString(R.string.battery_percentage, level)
 
         val batteryImage = if (isCharging) {
             when {
-                batteryPercentage >= 100 -> R.drawable.battery_full
-                batteryPercentage >= 90 -> R.drawable.battery_charging_90
-                batteryPercentage >= 80 -> R.drawable.battery_charging_80
-                batteryPercentage >= 60 -> R.drawable.battery_charging_60
-                batteryPercentage >= 50 -> R.drawable.battery_charging_50
-                batteryPercentage >= 30 -> R.drawable.battery_charging_30
-                batteryPercentage >= 10 -> R.drawable.battery_charging_20
+                level >= 100 -> R.drawable.battery_full
+                level >= 90 -> R.drawable.battery_charging_90
+                level >= 80 -> R.drawable.battery_charging_80
+                level >= 60 -> R.drawable.battery_charging_60
+                level >= 50 -> R.drawable.battery_charging_50
+                level >= 30 -> R.drawable.battery_charging_30
+                level >= 10 -> R.drawable.battery_charging_20
                 else -> R.drawable.battery_charging_0
             }
         } else {
             when {
-                batteryPercentage >= 100 -> R.drawable.battery_full
-                batteryPercentage >= 90 -> R.drawable.battery_6
-                batteryPercentage >= 70 -> R.drawable.battery_5
-                batteryPercentage >= 60 -> R.drawable.battery_4
-                batteryPercentage >= 40 -> R.drawable.battery_3
-                batteryPercentage >= 20 -> R.drawable.battery_2
-                batteryPercentage >= 10 -> R.drawable.battery_1
+                level >= 100 -> R.drawable.battery_full
+                level >= 90 -> R.drawable.battery_6
+                level >= 70 -> R.drawable.battery_5
+                level >= 60 -> R.drawable.battery_4
+                level >= 40 -> R.drawable.battery_3
+                level >= 20 -> R.drawable.battery_2
+                level >= 10 -> R.drawable.battery_1
                 else -> R.drawable.battery_0
             }
         }
@@ -162,35 +135,31 @@ class FirstFragment : Fragment() {
     }
 
     private fun displayBatteryStatus(isCharging: Boolean) {
-        val statusTextView = binding.status
+        val batteryString = BatteryStrings()
+        val statusString = batteryString.getChargingStatus(isCharging)
 
-        statusTextView.text =
-            if (isCharging) getString(R.string.battery_charging)
-            else getString(R.string.battery_unplugged)
+        val statusTextView = binding.status
+        statusTextView.text = getString(statusString)
     }
 
-    private fun displayChargingSource(
-        usbCharge: Boolean,
-        acCharge: Boolean,
-        wsCharge: Boolean,
-        dockCharge: Boolean
-    ) {
-        val chargingSourceTextView = binding.chargingSource
+    private fun displayChargingSource(chargingSource: Int) {
+        val batteryString = BatteryStrings()
+        val chargingSourceString = batteryString.getChargingSource(chargingSource)
 
-        chargingSourceTextView.text = when {
-            usbCharge -> getString(R.string.charging_source_usb)
-            acCharge -> getString(R.string.charging_source_ac)
-            wsCharge -> getString(R.string.charging_source_wireless)
-            dockCharge -> getString(R.string.charging_source_dock)
-            else -> getString(R.string.charging_source_none)
-        }
+        val chargingSourceTextView = binding.chargingSource
+        chargingSourceTextView.text = getString(chargingSourceString)
     }
 
     private fun displayBatteryCycles(cycles: Int) {
+        val cyclesCardView = binding.cyclesCard
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            cyclesCardView.visibility = View.GONE
+            return
+        }
+
         val cyclesTextView = binding.cycles
-        cyclesTextView.text =
-            if (cycles == -1) getString(R.string.battery_health_unknown)
-            else cycles.toString()
+        cyclesTextView.text = "$cycles"
     }
 
     private fun displayBatteryTechnology(batteryTechnology: String?) {
@@ -198,27 +167,25 @@ class FirstFragment : Fragment() {
         batteryTypeTextView.text = batteryTechnology ?: getString(R.string.battery_health_unknown)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun displayBatteryTemperature(temperature: Int) {
         val temperatureTextView = binding.temperature
-        temperatureTextView.text = "${temperature / 10}°C"
+        temperatureTextView.text = getString(R.string.temperature_celsius, temperature / 10)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun displayBatteryVoltage(voltage: Int) {
         val temperatureTextView = binding.voltage
-        temperatureTextView.text = "$voltage mV"
+        temperatureTextView.text = getString(R.string.voltage_mv, voltage)
     }
 
-    @SuppressLint("SetTextI18n")
     private fun displayBatteryCapacity(capacity: Int) {
         val capacityCardView = binding.capacityCard
         val capacityTextView = binding.capacity
 
-        capacityCardView.visibility =
-            if (capacity == -1) View.GONE
-            else View.VISIBLE
+        if (capacity == -1) {
+            capacityCardView.visibility = View.GONE
+            return
+        }
 
-        capacityTextView.text = "$capacity mAh"
+        capacityTextView.text = getString(R.string.capacity_mah, capacity)
     }
 }
