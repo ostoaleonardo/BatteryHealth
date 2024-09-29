@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.BatteryHealth.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Theme.BatteryHealth.AppWidgetContainer">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/cycles"
+                style="@style/Widget.BatteryHealth.TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/battery_charging_cycles"
+                android:text="@string/zero"
+                android:textSize="56sp" />
+
+        </LinearLayout>
+
+        <TextView
+            style="@style/Text.Card.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/battery_charging_cycles"
+            android:text="@string/battery_charging_cycles" />
+
+    </LinearLayout>
+</RelativeLayout>

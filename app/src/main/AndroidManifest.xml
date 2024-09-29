@@ -13,6 +13,33 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BatteryHealth"
         tools:targetApi="31">
+
+        <receiver
+            android:name=".widgets.ChargeCyclesWidget"
+            android:enabled="@bool/sdk34"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/charge_cycles_widget_info" />
+        </receiver>
+        <receiver
+            android:name=".widgets.HealthStatusWidget"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/health_status_widget_info" />
+        </receiver>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
