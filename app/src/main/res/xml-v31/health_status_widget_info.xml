@@ -6,6 +6,9 @@
     android:minWidth="110dp"
     android:minHeight="110dp"
     android:previewImage="@drawable/health_status_preview"
+    android:previewLayout="@layout/health_status_widget"
     android:resizeMode="none"
+    android:targetCellWidth="2"
+    android:targetCellHeight="2"
     android:updatePeriodMillis="10800000"
     android:widgetCategory="home_screen" />
