@@ -22,5 +22,6 @@
     <string name="battery_temperature">Temperatura</string>
     <string name="battery_type">Tipo</string>
     <string name="battery_voltage">Voltaje</string>
-    <string name="battery_capacity">Capacidad de batería</string>
+    <string name="battery_capacity">Capacidad</string>
+    <string name="battery_charge_time_remaining">Tiempo de carga restante</string>
 </resources>

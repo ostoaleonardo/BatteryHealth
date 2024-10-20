@@ -31,7 +31,8 @@
     <string name="battery_temperature">Temperature</string>
     <string name="battery_type">Type</string>
     <string name="battery_voltage">Voltage</string>
-    <string name="battery_capacity">Battery capacity</string>
+    <string name="battery_capacity">Capacity</string>
+    <string name="battery_charge_time_remaining">Charge time remaining</string>
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_software_update">Software update</string>

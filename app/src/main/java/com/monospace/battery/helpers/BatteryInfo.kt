@@ -14,7 +14,6 @@ class BatteryInfo(intent: Intent?) : Intent(intent) {
     private var _technology = ""
     private var _temperature = 0
     private var _voltage = 0
-    private var _capacity = 0
 
     val health: Int
         get() = _health
@@ -39,9 +38,6 @@ class BatteryInfo(intent: Intent?) : Intent(intent) {
 
     val voltage: Int
         get() = _voltage
-
-    val capacity: Int
-        get() = _capacity
 
     init {
         _health = getIntExtra(
@@ -74,7 +70,5 @@ class BatteryInfo(intent: Intent?) : Intent(intent) {
         _temperature = getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
 
         _voltage = getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1)
-
-        _capacity = getIntExtra(BatteryManager.BATTERY_PROPERTY_CAPACITY.toString(), -1)
     }
 }

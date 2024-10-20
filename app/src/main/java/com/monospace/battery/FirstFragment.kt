@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentFirstBinding
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryStrings
+import com.monospace.battery.helpers.BatteryUtils
 
 class FirstFragment : Fragment() {
 
@@ -57,7 +58,8 @@ class FirstFragment : Fragment() {
         displayBatteryLevel(batteryInfo.level, batteryInfo.isCharging)
 
         // Battery status
-        displayBatteryStatus(batteryInfo.isCharging)
+        val isCharging = batteryInfo.isCharging
+        displayBatteryStatus(isCharging)
 
         // Charging source
         displayChargingSource(batteryInfo.chargeSource)
@@ -74,8 +76,13 @@ class FirstFragment : Fragment() {
         // Battery voltage
         displayBatteryVoltage(batteryInfo.voltage)
 
+        val batteryUtils = BatteryUtils(context)
+
         // Battery capacity
-        displayBatteryCapacity(batteryInfo.capacity)
+        displayBatteryCapacity(batteryUtils.getBatteryCapacity())
+
+        // Battery charge time remaining
+        displayChargeTimeRemaining(batteryUtils.getChargeTimeRemaining(isCharging))
     }
 
     private fun displayBatteryHealth(health: Int) {
@@ -187,5 +194,17 @@ class FirstFragment : Fragment() {
         }
 
         capacityTextView.text = getString(R.string.capacity_mah, capacity)
+    }
+
+    private fun displayChargeTimeRemaining(timeRemaining: String) {
+        val chargeTimeCardView = binding.chargeTimeCard
+        val chargeTimeTextView = binding.chargeTime
+
+        if (timeRemaining == "00:00") {
+            chargeTimeCardView.visibility = View.GONE
+            return
+        }
+
+        chargeTimeTextView.text = timeRemaining
     }
 }
