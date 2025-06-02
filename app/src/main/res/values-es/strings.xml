@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Battery Health</string>
     <string name="action_settings">Ajustes</string>
+
+    <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Buena</string>
     <string name="battery_health_overheat">Sobrecalentada</string>
     <string name="battery_health_dead">Muerta</string>
@@ -16,12 +18,23 @@
     <string name="battery_status">Estado</string>
     <string name="charging_source">Fuente de carga</string>
     <string name="battery_level">Nivel de batería</string>
-    <string name="settings_software_update">Actualización de software</string>
-    <string name="settings_version">Versión %s</string>
-    <string name="settings_rate_us">Calificanos</string>
     <string name="battery_temperature">Temperatura</string>
     <string name="battery_type">Tipo</string>
     <string name="battery_voltage">Voltaje</string>
     <string name="battery_capacity">Capacidad</string>
     <string name="battery_charge_time_remaining">Tiempo de carga restante</string>
+
+    <!-- Strings used for the widget purchase bottom sheet -->
+    <string name="widget_purchase_title">Consigue la versión completa</string>
+    <string name="widget_purchase_description">Acceda a funciones premium y a la colección de widgets.</string>
+    <string name="widget_purchase_unlock_full">Comprar la versión completa</string>
+    <string name="widget_purchase_restore_purchases">Restaurar compras</string>
+    <string name="widget_purchase_complete_purchase">Gracias por tu compra</string>
+    <string name="widget_purchase_complete_purchase_description">Ahora puedes acceder a los widgets.</string>
+
+    <!-- Strings used for the settings fragment -->
+    <string name="settings_unlock_full">Desbloquear versión completa</string>
+    <string name="settings_software_update">Actualización de software</string>
+    <string name="settings_version">Versión %s</string>
+    <string name="settings_rate_us">Calificanos</string>
 </resources>

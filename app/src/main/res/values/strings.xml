@@ -9,6 +9,12 @@
     <string name="voltage_mv" translatable="false">%d mV</string>
     <string name="capacity_mah" translatable="false">%d mAh</string>
 
+    <!-- Charging sources -->
+    <string name="charging_source_usb" translatable="false">USB</string>
+    <string name="charging_source_ac" translatable="false">AC</string>
+    <string name="charging_source_wireless" translatable="false">Wireless</string>
+    <string name="charging_source_dock" translatable="false">Dock</string>
+
     <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Good</string>
     <string name="battery_health_overheat">Overheat</string>
@@ -18,10 +24,6 @@
     <string name="battery_health_unknown">Unknown</string>
     <string name="battery_charging">Charging</string>
     <string name="battery_unplugged">Unplugged</string>
-    <string name="charging_source_usb" translatable="false">USB</string>
-    <string name="charging_source_ac" translatable="false">AC</string>
-    <string name="charging_source_wireless" translatable="false">Wireless</string>
-    <string name="charging_source_dock" translatable="false">Dock</string>
     <string name="charging_source_none">None</string>
     <string name="battery_charging_cycles">Charging cycles</string>
     <string name="battery_health">Battery health</string>
@@ -34,7 +36,16 @@
     <string name="battery_capacity">Capacity</string>
     <string name="battery_charge_time_remaining">Charge time remaining</string>
 
+    <!-- Strings used for the widget purchase bottom sheet -->
+    <string name="widget_purchase_title">Get the full version</string>
+    <string name="widget_purchase_description">Access premium features and widget collection.</string>
+    <string name="widget_purchase_unlock_full">Buy the full version</string>
+    <string name="widget_purchase_restore_purchases">Restore purchases</string>
+    <string name="widget_purchase_complete_purchase">Thank you for your purchase</string>
+    <string name="widget_purchase_complete_purchase_description">You can now access the widgets.</string>
+
     <!-- Strings used for the settings fragment -->
+    <string name="settings_unlock_full">Unlock full version</string>
     <string name="settings_software_update">Software update</string>
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
