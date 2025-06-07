@@ -11,6 +11,7 @@ import com.monospace.battery.R
 import com.monospace.battery.helpers.Actions.actions
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryStrings
+import com.monospace.battery.helpers.WidgetsUtils
 
 class HealthStatusWidget : AppWidgetProvider() {
 
@@ -49,16 +50,23 @@ class HealthStatusWidget : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
-        // Construct the RemoteViews object
-        val views = RemoteViews(context.packageName, R.layout.health_status_widget)
+        val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
 
-        // Get the battery info
-        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val intent = context.registerReceiver(null, intentFilter)
-        val health = BatteryInfo(intent).health
-        val healthString = BatteryStrings().getHealthStatus(health)
+        val views = if (isPurchased) {
+            // Get the battery info
+            val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            val intent = context.registerReceiver(null, intentFilter)
+            val health = BatteryInfo(intent).health
+            val healthString = BatteryStrings().getHealthStatus(health)
 
-        views.setTextViewText(R.id.health, context.getString(healthString))
+            // Construct the RemoteViews object
+            RemoteViews(context.packageName, R.layout.health_status_widget).apply {
+                setTextViewText(R.id.health, context.getString(healthString))
+            }
+        } else {
+            // Construct the RemoteViews object for locked widget
+            RemoteViews(context.packageName, R.layout.locked_widget)
+        }
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views)
