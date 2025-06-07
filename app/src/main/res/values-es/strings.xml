@@ -25,12 +25,13 @@
     <string name="battery_charge_time_remaining">Tiempo de carga restante</string>
 
     <!-- Strings used for the widget purchase bottom sheet -->
-    <string name="widget_purchase_title">Consigue la versión completa</string>
-    <string name="widget_purchase_description">Acceda a funciones premium y a la colección de widgets.</string>
-    <string name="widget_purchase_unlock_full">Comprar la versión completa</string>
+    <string name="widget_purchase_title">🔋 Desbloquear Widgets</string>
+    <string name="widget_purchase_description">Mejora tu pantalla de inicio con widgets que muestran la salud de la batería, los ciclos de carga y más.</string>
+    <string name="widget_purchase_unlock_full">Obtener Widgets</string>
     <string name="widget_purchase_restore_purchases">Restaurar compras</string>
     <string name="widget_purchase_complete_purchase">Gracias por tu compra</string>
     <string name="widget_purchase_complete_purchase_description">Ahora puedes acceder a los widgets.</string>
+    <string name="widget_purchase_no_purchases_found">No has comprado esto aún</string>
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Desbloquear versión completa</string>

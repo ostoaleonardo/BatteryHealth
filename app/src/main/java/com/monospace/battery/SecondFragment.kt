@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentSecondBinding
-import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.helpers.NetworkUtils
 import com.monospace.battery.purchase.PurchaseManager
 
 class SecondFragment : Fragment() {
@@ -24,14 +24,18 @@ class SecondFragment : Fragment() {
 
         displayVersion()
 
-        if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
-            binding.unlockCard.visibility = View.GONE
-        }
-
-        binding.unlockCard.setOnClickListener {
-            PurchaseManager(requireContext(), PurchaseManager.WIDGETS).launchBuyBillingFlow(
-                requireActivity()
+        if (NetworkUtils.isInternetAvailable(requireContext())) {
+            val purchaseManager = PurchaseManager(
+                requireContext(),
+                PurchaseManager.WIDGETS,
+                onPurchaseSuccess = {
+                    binding.unlockCard.visibility = View.GONE
+                }
             )
+
+            binding.unlockCard.setOnClickListener {
+                purchaseManager.launchBuyBillingFlow(requireActivity())
+            }
         }
 
         binding.updateCard.setOnClickListener {

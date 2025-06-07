@@ -178,6 +178,10 @@ class PurchaseManager(
         }
     }
 
+    fun restorePurchases() {
+        getPurchases()
+    }
+
     fun launchBuyBillingFlow(activity: Activity) {
         if (productDetails !== null) {
             launchPurchaseFlow(activity, productDetails!!)

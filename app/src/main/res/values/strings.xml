@@ -37,12 +37,13 @@
     <string name="battery_charge_time_remaining">Charge time remaining</string>
 
     <!-- Strings used for the widget purchase bottom sheet -->
-    <string name="widget_purchase_title">Get the full version</string>
-    <string name="widget_purchase_description">Access premium features and widget collection.</string>
-    <string name="widget_purchase_unlock_full">Buy the full version</string>
+    <string name="widget_purchase_title">✨ Unlock Widgets</string>
+    <string name="widget_purchase_description">Enhance your home screen with widgets that display battery health, charging cycles, and more.</string>
+    <string name="widget_purchase_unlock_full">Get Widgets</string>
     <string name="widget_purchase_restore_purchases">Restore purchases</string>
     <string name="widget_purchase_complete_purchase">Thank you for your purchase</string>
     <string name="widget_purchase_complete_purchase_description">You can now access the widgets.</string>
+    <string name="widget_purchase_no_purchases_found">You haven\'t purchased this yet</string>
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Unlock full version</string>
