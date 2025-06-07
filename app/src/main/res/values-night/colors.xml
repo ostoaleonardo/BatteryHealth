@@ -140,4 +140,19 @@
     <color name="md_theme_surfaceContainer_highContrast">#1D2024</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#282A2F</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#32353A</color>
+
+    <!-- Custom Colors -->
+    <color name="bg_transparent_5">#0DFFFFFF</color>
+    <color name="battery_health_good">#00FF8C</color>
+    <color name="bg_battery_health_good">#0D00FF8C</color>
+    <color name="battery_health_overheat">#FF9800</color>
+    <color name="bg_battery_health_overheat">#0DFF9800</color>
+    <color name="battery_health_dead">#F44336</color>
+    <color name="bg_battery_health_dead">#0DF44336</color>
+    <color name="battery_health_over_voltage">#FF5722</color>
+    <color name="bg_battery_health_over_voltage">#0DFF5722</color>
+    <color name="battery_health_unspecified_failure">#9E9E9E</color>
+    <color name="bg_battery_health_unspecified_failure">#0D9E9E9E</color>
+    <color name="battery_health_unknown">#9E9E9E</color>
+    <color name="bg_battery_health_unknown">#0D9E9E9E</color>
 </resources>
