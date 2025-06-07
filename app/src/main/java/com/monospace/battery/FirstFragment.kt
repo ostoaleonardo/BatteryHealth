@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,8 @@ class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
     private val binding get() = _binding!!
+
+    private var healthColor: Int = R.color.battery_health_good
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -54,15 +57,19 @@ class FirstFragment : Fragment() {
         // Battery health
         displayBatteryHealth(batteryInfo.health)
 
+        val isCharging = batteryInfo.isCharging
+        val chargeSource = batteryInfo.chargeSource
+
+        updateIconsColor(isCharging, chargeSource)
+
         // Battery level
-        displayBatteryLevel(batteryInfo.level, batteryInfo.isCharging)
+        displayBatteryLevel(batteryInfo.level, isCharging)
 
         // Battery status
-        val isCharging = batteryInfo.isCharging
         displayBatteryStatus(isCharging)
 
         // Charging source
-        displayChargingSource(batteryInfo.chargeSource)
+        displayChargingSource(chargeSource)
 
         // Battery cycles
         displayBatteryCycles(batteryInfo.chargeCycles)
@@ -98,10 +105,34 @@ class FirstFragment : Fragment() {
             else -> R.drawable.battery_unknown
         }
 
+        val healthCard = when (health) {
+            BatteryManager.BATTERY_HEALTH_GOOD -> R.color.bg_battery_health_good
+            BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.color.bg_battery_health_overheat
+            BatteryManager.BATTERY_HEALTH_DEAD -> R.color.bg_battery_health_dead
+            BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> R.color.bg_battery_health_over_voltage
+            BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE -> R.color.bg_battery_health_unspecified_failure
+            else -> R.color.bg_battery_health_unknown
+        }
+
+        healthColor = when (health) {
+            BatteryManager.BATTERY_HEALTH_GOOD -> R.color.battery_health_good
+            BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.color.battery_health_overheat
+            BatteryManager.BATTERY_HEALTH_DEAD -> R.color.battery_health_dead
+            BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> R.color.battery_health_over_voltage
+            BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE -> R.color.battery_health_unspecified_failure
+            else -> R.color.battery_health_unknown
+        }
+
+        val healthCardView = binding.healthCard
         val healthTextView = binding.health
+        val healthDescriptionTextView = binding.healthDescription
         val healthImageView = binding.healthImage
 
+        healthCardView.setCardBackgroundColor(resources.getColor(healthCard, null))
+
         healthTextView.text = getString(healthString)
+        healthTextView.setTextColor(resources.getColor(healthColor, null))
+        healthDescriptionTextView.setTextColor(resources.getColor(healthColor, null))
         healthImageView.setImageResource(healthImage)
     }
 
@@ -109,11 +140,6 @@ class FirstFragment : Fragment() {
         level: Int,
         isCharging: Boolean
     ) {
-        val batteryTextView = binding.battery
-        val batteryImageView = binding.batteryImage
-
-        batteryTextView.text = getString(R.string.battery_percentage, level)
-
         val batteryImage = if (isCharging) {
             when {
                 level >= 100 -> R.drawable.battery_full
@@ -138,7 +164,11 @@ class FirstFragment : Fragment() {
             }
         }
 
+        val batteryPercentageTextView = binding.batteryPercentage
+        val batteryImageView = binding.batteryImage
+
         batteryImageView.setImageResource(batteryImage)
+        batteryPercentageTextView.text = getString(R.string.battery_percentage, level)
     }
 
     private fun displayBatteryStatus(isCharging: Boolean) {
@@ -206,5 +236,49 @@ class FirstFragment : Fragment() {
         }
 
         chargeTimeTextView.text = timeRemaining
+    }
+
+    private fun updateIconsColor(isCharging: Boolean, chargingSource: Int) {
+        val healthImage = binding.healthImage
+        val statusImage = binding.statusImage
+        val typeImage = binding.typeImage
+        val batteryImage = binding.batteryImage
+        val cyclesImage = binding.cyclesImage
+        val batteryTypeImage = binding.batteryTypeImage
+        val temperatureImage = binding.temperatureImage
+        val voltageImage = binding.voltageImage
+        val chargeTimeImage = binding.chargeTimeImage
+        val capacityImage = binding.capacityImage
+
+        healthImage.setColorFilter(resources.getColor(healthColor, null))
+        cyclesImage.setColorFilter(resources.getColor(healthColor, null))
+        batteryTypeImage.setColorFilter(resources.getColor(healthColor, null))
+        temperatureImage.setColorFilter(resources.getColor(healthColor, null))
+        voltageImage.setColorFilter(resources.getColor(healthColor, null))
+        chargeTimeImage.setColorFilter(resources.getColor(healthColor, null))
+        capacityImage.setColorFilter(resources.getColor(healthColor, null))
+
+        if (isCharging) {
+            statusImage.setColorFilter(resources.getColor(healthColor, null))
+            batteryImage.setColorFilter(resources.getColor(healthColor, null))
+        } else {
+            statusImage.setColorFilter(getColorOnSurfaceVariant(statusImage.context))
+            batteryImage.setColorFilter(getColorOnSurfaceVariant(batteryImage.context))
+        }
+
+        if (chargingSource == BatteryManager.BATTERY_STATUS_CHARGING) {
+            typeImage.setColorFilter(resources.getColor(healthColor, null))
+        } else {
+            typeImage.setColorFilter(getColorOnSurfaceVariant(typeImage.context))
+        }
+    }
+
+    private fun getColorOnSurfaceVariant(context: Context): Int {
+        return with(TypedValue()) {
+            context.theme.resolveAttribute(
+                com.google.android.material.R.attr.colorOnSurfaceVariant, this, true
+            )
+            data
+        }
     }
 }

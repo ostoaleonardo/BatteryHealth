@@ -9,6 +9,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.monospace.battery.databinding.ActivityMainBinding
+import com.monospace.battery.helpers.NetworkUtils
+import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.modals.CompleteWidgetsPurchaseBottomSheet
+import com.monospace.battery.modals.WidgetsPurchaseBottomSheet
+import com.monospace.battery.purchase.PurchaseManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +38,10 @@ class MainActivity : AppCompatActivity() {
             if (settingsItem != null) {
                 settingsItem?.isVisible = destination.id == R.id.FirstFragment
             }
+        }
+
+        if (NetworkUtils.isInternetAvailable(this)) {
+            checkWidgetsPurchase()
         }
     }
 
@@ -61,5 +70,23 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    private fun checkWidgetsPurchase() {
+        PurchaseManager(this, PurchaseManager.WIDGETS, null)
+
+        if (!WidgetsUtils.isWidgetsPurchased(this)) {
+            WidgetsPurchaseBottomSheet(
+                onPurchaseSuccess = {
+                    CompleteWidgetsPurchaseBottomSheet().show(
+                        supportFragmentManager,
+                        CompleteWidgetsPurchaseBottomSheet.TAG
+                    )
+                }
+            ).show(
+                supportFragmentManager,
+                WidgetsPurchaseBottomSheet.TAG
+            )
+        }
     }
 }

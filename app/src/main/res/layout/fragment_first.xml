@@ -45,6 +45,7 @@
                     android:textSize="32sp" />
 
                 <TextView
+                    android:id="@+id/health_description"
                     style="@style/Text.Card.Caption"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -82,6 +83,7 @@
                     style="?attr/materialCardViewFilledStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/bg_transparent_5"
                     app:cardCornerRadius="32dp"
                     app:layout_constraintBottom_toTopOf="@id/typeCard"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -129,6 +131,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
+                    app:cardBackgroundColor="@color/bg_transparent_5"
                     app:cardCornerRadius="32dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -177,6 +180,7 @@
                 style="?attr/materialCardViewFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -192,6 +196,7 @@
                     android:paddingVertical="24dp">
 
                     <TextView
+                        android:id="@+id/batteryLevel"
                         style="@style/Text.Card.Caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -201,7 +206,7 @@
                         app:layout_constraintTop_toBottomOf="@id/healthCard" />
 
                     <TextView
-                        android:id="@+id/battery"
+                        android:id="@+id/batteryPercentage"
                         style="@style/Text.Card.Indicator"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -228,6 +233,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            app:cardBackgroundColor="@color/bg_transparent_5"
             app:cardCornerRadius="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -242,6 +248,7 @@
                 android:paddingVertical="24dp">
 
                 <ImageView
+                    android:id="@+id/cyclesImage"
                     android:layout_width="72dp"
                     android:layout_height="72dp"
                     android:contentDescription="@string/battery_charging_cycles"
@@ -282,6 +289,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -314,6 +322,7 @@
                         app:layout_constraintTop_toBottomOf="@id/healthCard" />
 
                     <ImageView
+                        android:id="@+id/batteryTypeImage"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="16dp"
@@ -330,6 +339,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/voltageCard"
@@ -362,6 +372,7 @@
                         app:layout_constraintTop_toBottomOf="@id/healthCard" />
 
                     <ImageView
+                        android:id="@+id/temperatureImage"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="16dp"
@@ -377,6 +388,7 @@
                 style="?attr/materialCardViewFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -408,6 +420,7 @@
                         app:layout_constraintTop_toBottomOf="@id/healthCard" />
 
                     <ImageView
+                        android:id="@+id/voltageImage"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="16dp"
@@ -436,6 +449,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="8dp"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/capacityCard"
@@ -464,6 +478,7 @@
                         android:text="@string/zero" />
 
                     <ImageView
+                        android:id="@+id/chargeTimeImage"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="16dp"
@@ -479,6 +494,7 @@
                 style="?attr/materialCardViewFilledStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/bg_transparent_5"
                 app:cardCornerRadius="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -507,6 +523,7 @@
                         android:text="@string/zero" />
 
                     <ImageView
+                        android:id="@+id/capacityImage"
                         android:layout_width="32dp"
                         android:layout_height="32dp"
                         android:layout_marginTop="16dp"

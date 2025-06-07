@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentSecondBinding
+import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.purchase.PurchaseManager
 
 class SecondFragment : Fragment() {
 
@@ -16,12 +18,21 @@ class SecondFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
 
         displayVersion()
+
+        if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
+            binding.unlockCard.visibility = View.GONE
+        }
+
+        binding.unlockCard.setOnClickListener {
+            PurchaseManager(requireContext(), PurchaseManager.WIDGETS).launchBuyBillingFlow(
+                requireActivity()
+            )
+        }
 
         binding.updateCard.setOnClickListener {
             openGooglePlay()
@@ -40,17 +51,16 @@ class SecondFragment : Fragment() {
     }
 
     private fun displayVersion() {
-        val versionName = requireContext().packageManager
-            .getPackageInfo(requireContext().packageName, 0)
-            .versionName
+        val versionName = requireContext().packageManager.getPackageInfo(
+            requireContext().packageName, 0
+        ).versionName
 
         binding.version.text = getString(R.string.settings_version, versionName)
     }
 
     private fun openGooglePlay() {
         val appPackageName = requireContext().packageName
-        val marketUri =
-            Uri.parse("market://details?id=$appPackageName")
+        val marketUri = Uri.parse("market://details?id=$appPackageName")
         val googlePlayUri =
             Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
 
