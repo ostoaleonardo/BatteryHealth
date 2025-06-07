@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.monospace.battery.R
 import com.monospace.battery.databinding.WidgetsPurchaseBottomSheetBinding
+import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.purchase.PurchaseManager
 
 class WidgetsPurchaseBottomSheet(
@@ -15,8 +18,6 @@ class WidgetsPurchaseBottomSheet(
     private var _binding: WidgetsPurchaseBottomSheetBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var purchaseManager: PurchaseManager
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -24,7 +25,7 @@ class WidgetsPurchaseBottomSheet(
     ): View {
         _binding = WidgetsPurchaseBottomSheetBinding.inflate(inflater, container, false)
 
-        purchaseManager = PurchaseManager(
+        val purchaseManager = PurchaseManager(
             requireContext(),
             PurchaseManager.WIDGETS,
             onPurchaseSuccess = {
@@ -38,7 +39,19 @@ class WidgetsPurchaseBottomSheet(
         }
 
         binding.restoreButton.setOnClickListener {
-            purchaseManager.launchBuyBillingFlow(requireActivity())
+            purchaseManager.restorePurchases()
+
+            if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
+                onPurchaseSuccess?.invoke()
+                dismiss()
+            } else {
+                binding.restoreButton.isEnabled = false
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.widget_purchase_no_purchases_found),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         return binding.root
