@@ -56,8 +56,7 @@ class ChargeCyclesWidget : AppWidgetProvider() {
             // Get the battery info
             val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             val intent = context.registerReceiver(null, intentFilter)
-            val batteryInfo = BatteryInfo(intent)
-            val cycles = batteryInfo.chargeCycles
+            val cycles = BatteryInfo(intent).chargeCycles
 
             // Construct the RemoteViews object
             RemoteViews(context.packageName, R.layout.charge_cycles_widget).apply {

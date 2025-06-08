@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.monospace.battery.databinding.FragmentSecondBinding
 import com.monospace.battery.helpers.NetworkUtils
+import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.purchase.PurchaseManager
 
 class SecondFragment : Fragment() {
@@ -23,6 +24,10 @@ class SecondFragment : Fragment() {
         _binding = FragmentSecondBinding.inflate(inflater, container, false)
 
         displayVersion()
+
+        if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
+            binding.unlockCard.visibility = View.GONE
+        }
 
         if (NetworkUtils.isInternetAvailable(requireContext())) {
             val purchaseManager = PurchaseManager(
@@ -65,8 +70,7 @@ class SecondFragment : Fragment() {
     private fun openGooglePlay() {
         val appPackageName = requireContext().packageName
         val marketUri = Uri.parse("market://details?id=$appPackageName")
-        val googlePlayUri =
-            Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
+        val googlePlayUri = Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")
 
         try {
             requireContext().startActivity(

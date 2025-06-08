@@ -60,7 +60,7 @@ class FirstFragment : Fragment() {
         val isCharging = batteryInfo.isCharging
         val chargeSource = batteryInfo.chargeSource
 
-        updateIconsColor(isCharging, chargeSource)
+        updateIconsColor(isCharging)
 
         // Battery level
         displayBatteryLevel(batteryInfo.level, isCharging)
@@ -83,13 +83,16 @@ class FirstFragment : Fragment() {
         // Battery voltage
         displayBatteryVoltage(batteryInfo.voltage)
 
-        val batteryUtils = BatteryUtils(context)
+        val batteryUtils = BatteryUtils(requireContext())
 
         // Battery capacity
         displayBatteryCapacity(batteryUtils.getBatteryCapacity())
 
         // Battery charge time remaining
         displayChargeTimeRemaining(batteryUtils.getChargeTimeRemaining(isCharging))
+
+        // Battery charge speed
+        displayChargeSpeed(batteryUtils.getChargeSpeed(batteryStatusIntent!!, isCharging))
     }
 
     private fun displayBatteryHealth(health: Int) {
@@ -238,7 +241,12 @@ class FirstFragment : Fragment() {
         chargeTimeTextView.text = timeRemaining
     }
 
-    private fun updateIconsColor(isCharging: Boolean, chargingSource: Int) {
+    private fun displayChargeSpeed(speed: Double) {
+        val chargeSpeedTextView = binding.speed
+        chargeSpeedTextView.text = getString(R.string.charge_speed_watts, speed)
+    }
+
+    private fun updateIconsColor(isCharging: Boolean) {
         val healthImage = binding.healthImage
         val statusImage = binding.statusImage
         val typeImage = binding.typeImage
@@ -249,6 +257,7 @@ class FirstFragment : Fragment() {
         val voltageImage = binding.voltageImage
         val chargeTimeImage = binding.chargeTimeImage
         val capacityImage = binding.capacityImage
+        val speedImage = binding.speedImage
 
         healthImage.setColorFilter(resources.getColor(healthColor, null))
         cyclesImage.setColorFilter(resources.getColor(healthColor, null))
@@ -260,16 +269,14 @@ class FirstFragment : Fragment() {
 
         if (isCharging) {
             statusImage.setColorFilter(resources.getColor(healthColor, null))
+            typeImage.setColorFilter(resources.getColor(healthColor, null))
             batteryImage.setColorFilter(resources.getColor(healthColor, null))
+            speedImage.setColorFilter(resources.getColor(healthColor, null))
         } else {
             statusImage.setColorFilter(getColorOnSurfaceVariant(statusImage.context))
-            batteryImage.setColorFilter(getColorOnSurfaceVariant(batteryImage.context))
-        }
-
-        if (chargingSource == BatteryManager.BATTERY_STATUS_CHARGING) {
-            typeImage.setColorFilter(resources.getColor(healthColor, null))
-        } else {
             typeImage.setColorFilter(getColorOnSurfaceVariant(typeImage.context))
+            batteryImage.setColorFilter(getColorOnSurfaceVariant(batteryImage.context))
+            speedImage.setColorFilter(getColorOnSurfaceVariant(speedImage.context))
         }
     }
 
