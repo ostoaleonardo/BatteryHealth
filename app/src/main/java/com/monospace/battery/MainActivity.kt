@@ -75,20 +75,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkWidgetsPurchase() {
-        PurchaseManager(this, PurchaseManager.WIDGETS, null)
-
-        if (!WidgetsUtils.isWidgetsPurchased(this)) {
-            WidgetsPurchaseBottomSheet(
-                onPurchaseSuccess = {
-                    CompleteWidgetsPurchaseBottomSheet().show(
-                        supportFragmentManager,
-                        CompleteWidgetsPurchaseBottomSheet.TAG
-                    )
-                }
-            ).show(
-                supportFragmentManager,
-                WidgetsPurchaseBottomSheet.TAG
-            )
+        try {
+            PurchaseManager(this, PurchaseManager.WIDGETS, null)
+            if (!WidgetsUtils.isWidgetsPurchased(this)) {
+                WidgetsPurchaseBottomSheet(
+                    onPurchaseSuccess = {
+                        CompleteWidgetsPurchaseBottomSheet().show(
+                            supportFragmentManager,
+                            CompleteWidgetsPurchaseBottomSheet.TAG
+                        )
+                    }
+                ).show(
+                    supportFragmentManager,
+                    WidgetsPurchaseBottomSheet.TAG
+                )
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

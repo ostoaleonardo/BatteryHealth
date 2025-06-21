@@ -37,6 +37,14 @@ class PurchaseManager(
                     val orderId = purchase.orderId ?: return@forEach
                     val sharedPrefs = SharedPreferences(context)
 
+                    if (purchase.products.contains(productId)) {
+                        sharedPrefs.setItem(
+                            productId,
+                            "purchased",
+                            true.toString()
+                        )
+                    }
+
                     if (sharedPrefs.getItem(WIDGETS, orderId) != null) {
                         Log.d("PurchaseManager", "Purchase already exists: $orderId")
                         return@forEach
