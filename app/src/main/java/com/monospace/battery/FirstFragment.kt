@@ -221,7 +221,7 @@ class FirstFragment : Fragment() {
         val capacityCardView = binding.capacityCard
         val capacityTextView = binding.capacity
 
-        if (capacity == -1) {
+        if (capacity <= 0) {
             capacityCardView.visibility = View.GONE
             return
         }
@@ -239,11 +239,20 @@ class FirstFragment : Fragment() {
         }
 
         chargeTimeTextView.text = timeRemaining
+        chargeTimeCardView.visibility = View.VISIBLE
     }
 
     private fun displayChargeSpeed(speed: Double) {
+        val chargeSpeedCardView = binding.speedCard
         val chargeSpeedTextView = binding.speed
+
+        if (speed <= 0) {
+            chargeSpeedCardView.visibility = View.GONE
+            return
+        }
+
         chargeSpeedTextView.text = getString(R.string.charge_speed_watts, speed)
+        chargeSpeedCardView.visibility = View.VISIBLE
     }
 
     private fun updateIconsColor(isCharging: Boolean) {

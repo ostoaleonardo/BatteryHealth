@@ -30,13 +30,29 @@ class BatteryUtils(private val context: Context) {
             val powerProfileClass = Class.forName("com.android.internal.os.PowerProfile")
             val constructor = powerProfileClass.getConstructor(Context::class.java)
             val powerProfile = constructor.newInstance(context)
-
             val method = powerProfileClass.getMethod("getBatteryCapacity")
             val batteryCapacity = method.invoke(powerProfile) as Double
             return batteryCapacity.toInt()
         } catch (e: Exception) {
-            return -1
+            try {
+                val filePaths = listOf(
+                    "/sys/class/power_supply/battery/charge_full",
+                    "/sys/class/power_supply/battery/charge_full_design",
+                    "/sys/class/power_supply/max170xx_battery/charge_full_design"
+                )
+                for (path in filePaths) {
+                    val file = java.io.File(path)
+                    if (file.exists()) {
+                        val capacity = file.readText().trim().toInt()
+                        return if (capacity > 10000) capacity / 1000 else capacity
+                    }
+                }
+            } catch (e: Exception) {
+                return -1
+            }
         }
+
+        return -1
     }
 
     fun getChargeSpeed(
