@@ -79,7 +79,8 @@ class MainActivity : AppCompatActivity() {
     private fun checkWidgetsPurchase() {
         try {
             PurchaseManager(this, PurchaseManager.WIDGETS, null)
-            if (!WidgetsUtils.isWidgetsPurchased(this)) {
+
+            if (!WidgetsUtils.isWidgetsPurchased(this) && !isFinishing && !isDestroyed) {
                 WidgetsPurchaseBottomSheet(
                     onPurchaseSuccess = {
                         CompleteWidgetsPurchaseBottomSheet().show(

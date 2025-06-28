@@ -191,10 +191,20 @@ class PurchaseManager(
     }
 
     fun launchBuyBillingFlow(activity: Activity) {
-        if (productDetails !== null) {
-            launchPurchaseFlow(activity, productDetails!!)
+        if (productDetails == null) {
+            Log.d("PurchaseManager", "Product details not available, fetching...")
+
+            MainScope().launch {
+                val details = processProducts()
+
+                if (details != null) {
+                    launchPurchaseFlow(activity, details)
+                } else {
+                    Log.e("PurchaseManager", "Failed to fetch product details")
+                }
+            }
         } else {
-            Log.d("PurchaseManager", "Products doesn't loaded")
+            launchPurchaseFlow(activity, productDetails!!)
         }
     }
 
