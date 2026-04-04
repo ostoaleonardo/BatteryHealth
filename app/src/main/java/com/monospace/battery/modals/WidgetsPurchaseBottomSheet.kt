@@ -5,26 +5,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.ui.platform.ComposeView
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.monospace.battery.R
-import com.monospace.battery.databinding.WidgetsPurchaseBottomSheetBinding
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.purchase.PurchaseManager
+import com.monospace.battery.ui.components.WidgetsPurchaseContent
+import com.monospace.battery.ui.theme.BatteryTheme
 
 class WidgetsPurchaseBottomSheet(
     private val onPurchaseSuccess: (() -> Unit)? = null
 ) : BottomSheetDialogFragment() {
-
-    private var _binding: WidgetsPurchaseBottomSheetBinding? = null
-    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = WidgetsPurchaseBottomSheetBinding.inflate(inflater, container, false)
-
         val purchaseManager = PurchaseManager(
             requireContext(),
             PurchaseManager.WIDGETS,
@@ -34,27 +31,31 @@ class WidgetsPurchaseBottomSheet(
             }
         )
 
-        binding.buyButton.setOnClickListener {
-            purchaseManager.launchBuyBillingFlow(requireActivity())
-        }
+        return ComposeView(requireContext()).apply {
+            setContent {
+                BatteryTheme {
+                    WidgetsPurchaseContent(
+                        onBuyClick = {
+                            purchaseManager.launchBuyBillingFlow(requireActivity())
+                        },
+                        onRestoreClick = {
+                            purchaseManager.restorePurchases()
 
-        binding.restoreButton.setOnClickListener {
-            purchaseManager.restorePurchases()
-
-            if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
-                onPurchaseSuccess?.invoke()
-                dismiss()
-            } else {
-                binding.restoreButton.isEnabled = false
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.widget_purchase_no_purchases_found),
-                    Toast.LENGTH_SHORT
-                ).show()
+                            if (WidgetsUtils.isWidgetsPurchased(requireContext())) {
+                                onPurchaseSuccess?.invoke()
+                                dismiss()
+                            } else {
+                                Toast.makeText(
+                                    requireContext(),
+                                    getString(R.string.widget_purchase_no_purchases_found),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    )
+                }
             }
         }
-
-        return binding.root
     }
 
     companion object {
