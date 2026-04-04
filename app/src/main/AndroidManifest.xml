@@ -15,12 +15,11 @@
         tools:targetApi="36">
 
         <receiver
-            android:name=".widgets.ChargeCyclesWidget"
+            android:name=".widgets.ChargeCyclesWidgetReceiver"
             android:enabled="@bool/sdk34"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
             </intent-filter>
 
             <meta-data
@@ -28,11 +27,10 @@
                 android:resource="@xml/charge_cycles_widget_info" />
         </receiver>
         <receiver
-            android:name=".widgets.HealthStatusWidget"
-            android:exported="false">
+            android:name=".widgets.HealthStatusWidgetReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.PACKAGE_REPLACED" />
             </intent-filter>
 
             <meta-data
