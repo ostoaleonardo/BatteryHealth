@@ -10,7 +10,7 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.height
+import androidx.glance.layout.size
 
 private val ColorGreen = Color(0xFF00A25B)
 private val ColorOrange = Color(0xFFFF9800)
@@ -35,12 +35,16 @@ fun DotsProgressBar(level: Int, modifier: GlanceModifier = GlanceModifier.fillMa
     ) {
         for (i in 1..dotsCount) {
             Box(
-                modifier = GlanceModifier
-                    .defaultWeight()
-                    .height(8.dp)
-                    .cornerRadius(4.dp)
-                    .background(if (i <= activeDots) activeColor else ColorInactive)
-            ) {}
+                modifier = GlanceModifier.defaultWeight(),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = GlanceModifier
+                        .size(10.dp)
+                        .cornerRadius(5.dp)
+                        .background(if (i <= activeDots) activeColor else ColorInactive)
+                ) {}
+            }
         }
     }
 }
