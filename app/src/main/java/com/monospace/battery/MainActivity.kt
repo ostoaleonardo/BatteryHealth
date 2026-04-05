@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.ArrowBack
-import androidx.compose.material.icons.sharp.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
@@ -77,7 +77,9 @@ class MainActivity : FragmentActivity() {
                         TopAppBar(
                             title = {
                                 Text(
-                                    text = if (currentRoute == Screen.Settings.route) stringResource(R.string.action_settings)
+                                    text = if (currentRoute == Screen.Settings.route) stringResource(
+                                        R.string.action_settings
+                                    )
                                     else stringResource(R.string.app_name)
                                 )
                             },
@@ -85,7 +87,7 @@ class MainActivity : FragmentActivity() {
                                 if (currentRoute == Screen.Home.route) {
                                     IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
                                         Icon(
-                                            imageVector = Icons.Sharp.Settings,
+                                            painter = painterResource(id = R.drawable.settings),
                                             contentDescription = stringResource(R.string.action_settings)
                                         )
                                     }
@@ -136,7 +138,7 @@ class MainActivity : FragmentActivity() {
     private fun updateBatteryState(intent: Intent?) {
         val batteryInfo = BatteryInfo(intent)
         val batteryUtils = BatteryUtils(this)
-        
+
         batteryState = BatteryState(
             health = batteryInfo.health,
             level = batteryInfo.level,
