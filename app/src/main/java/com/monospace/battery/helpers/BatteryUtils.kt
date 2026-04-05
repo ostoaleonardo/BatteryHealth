@@ -68,7 +68,7 @@ class BatteryUtils(private val context: Context) {
         val voltageVolts = voltageMilliVolts / 1000.0
 
         // Calculate charge speed in watts
-        val chargeWatts = if (isCharging && currentAmps > 0 && voltageVolts > 0) {
+        val chargeWatts = if (isCharging && currentAmps != 0.0 && voltageVolts > 0) {
             abs(currentAmps * voltageVolts)
         } else {
             0.0
