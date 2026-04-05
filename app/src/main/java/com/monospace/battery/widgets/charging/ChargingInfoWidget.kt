@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -42,6 +41,7 @@ import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.BatteryUtils
 import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
 
@@ -152,37 +152,6 @@ class ChargingInfoWidget : GlanceAppWidget() {
 
                 Spacer(GlanceModifier.height(12.dp))
                 DotsProgressBar(level = batteryLevel)
-            }
-        }
-    }
-
-    @Composable
-    private fun DotsProgressBar(level: Int) {
-        val dotsCount = 10
-        val activeDots = (level / 10).coerceIn(0, 10)
-
-        // Level-based color logic
-        val activeColor = when {
-            level >= 80 -> Color(0xFF00A25B) // Green (Good)
-            level >= 40 -> Color(0xFFFF9800) // Orange (Warning)
-            else -> Color(0xFFF44336)        // Red (Critical)
-        }
-
-        // Solid inactive color for maximum visibility
-        val inactiveColor = Color(0x40E0E0E0)
-
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            for (i in 1..dotsCount) {
-                Box(
-                    modifier = GlanceModifier
-                        .defaultWeight()
-                        .height(8.dp)
-                        .cornerRadius(4.dp)
-                        .background(if (i <= activeDots) activeColor else inactiveColor)
-                ) {}
             }
         }
     }
