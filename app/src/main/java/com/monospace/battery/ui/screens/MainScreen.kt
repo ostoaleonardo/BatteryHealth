@@ -21,11 +21,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.ui.components.*
+import com.monospace.battery.ui.components.BatteryState
+import com.monospace.battery.ui.components.HealthCard
+import com.monospace.battery.ui.components.InfoCard
+import com.monospace.battery.ui.components.LargeHorizontalInfoCard
+import com.monospace.battery.ui.components.LargeVerticalInfoCard
+import com.monospace.battery.ui.components.SmallInfoCard
+import com.monospace.battery.ui.components.getBatteryIcon
+import com.monospace.battery.ui.components.getChargingSourceRes
+import com.monospace.battery.ui.components.getChargingStatusRes
+import com.monospace.battery.ui.components.getHealthColor
 import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
 fun MainScreen(state: BatteryState) {
+    val healthColor = getHealthColor(state.health)
+    val defaultIconTint = MaterialTheme.colorScheme.onSurfaceVariant
+    val currentIconTint = if (state.isCharging) healthColor else defaultIconTint
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -53,13 +66,13 @@ fun MainScreen(state: BatteryState) {
                         title = stringResource(R.string.battery_status),
                         value = stringResource(getChargingStatusRes(state.isCharging)),
                         iconRes = R.drawable.bolt,
-                        iconTint = if (state.isCharging) getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD) else MaterialTheme.colorScheme.onSurfaceVariant
+                        iconTint = currentIconTint
                     )
                     InfoCard(
                         title = stringResource(R.string.charging_source),
                         value = stringResource(getChargingSourceRes(state.chargeSource)),
                         iconRes = R.drawable.cable,
-                        iconTint = if (state.isCharging) getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD) else MaterialTheme.colorScheme.onSurfaceVariant
+                        iconTint = currentIconTint
                     )
                 }
 
@@ -67,7 +80,7 @@ fun MainScreen(state: BatteryState) {
                     title = stringResource(R.string.battery_level),
                     value = stringResource(R.string.battery_percentage, state.level),
                     iconRes = getBatteryIcon(state.level, state.isCharging),
-                    iconTint = if (state.isCharging) getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD) else MaterialTheme.colorScheme.onSurfaceVariant,
+                    iconTint = currentIconTint,
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -79,7 +92,7 @@ fun MainScreen(state: BatteryState) {
                     title = stringResource(R.string.battery_charging_cycles),
                     value = "${state.chargeCycles}",
                     iconRes = R.drawable.power,
-                    iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD)
+                    iconTint = currentIconTint
                 )
             }
 
@@ -91,21 +104,21 @@ fun MainScreen(state: BatteryState) {
                     title = stringResource(R.string.battery_type),
                     value = state.technology ?: stringResource(R.string.battery_health_unknown),
                     iconRes = R.drawable.battery_10,
-                    iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD),
+                    iconTint = currentIconTint,
                     modifier = Modifier.weight(1f)
                 )
                 SmallInfoCard(
                     title = stringResource(R.string.battery_temperature),
                     value = stringResource(R.string.temperature_celsius, state.temperature / 10),
                     iconRes = R.drawable.thermometer,
-                    iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD),
+                    iconTint = currentIconTint,
                     modifier = Modifier.weight(1f)
                 )
                 SmallInfoCard(
                     title = stringResource(R.string.battery_voltage),
                     value = stringResource(R.string.voltage_mv, state.voltage),
                     iconRes = R.drawable.bolt,
-                    iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD),
+                    iconTint = currentIconTint,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -119,7 +132,7 @@ fun MainScreen(state: BatteryState) {
                         title = stringResource(R.string.battery_capacity),
                         value = stringResource(R.string.capacity_mah, state.capacity),
                         iconRes = R.drawable.battery_full,
-                        iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD),
+                        iconTint = currentIconTint,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -128,7 +141,7 @@ fun MainScreen(state: BatteryState) {
                         title = stringResource(R.string.battery_speed),
                         value = stringResource(R.string.charge_speed_watts, state.chargeSpeed),
                         iconRes = R.drawable.rocket,
-                        iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD),
+                        iconTint = currentIconTint,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -139,7 +152,7 @@ fun MainScreen(state: BatteryState) {
                     title = stringResource(R.string.battery_charge_time_remaining),
                     value = state.timeRemaining,
                     iconRes = R.drawable.schedule,
-                    iconTint = getHealthColor(BatteryManager.BATTERY_HEALTH_GOOD)
+                    iconTint = currentIconTint
                 )
             }
         }
@@ -147,9 +160,27 @@ fun MainScreen(state: BatteryState) {
 }
 
 @Preview(showBackground = true, name = "Light Mode")
+@Composable
+fun MainScreenLightPreview() {
+    BatteryTheme {
+        MainScreen(
+            state = BatteryState(
+                health = BatteryManager.BATTERY_HEALTH_GOOD,
+                level = 85,
+                isCharging = false,
+                chargeCycles = 120,
+                technology = "Li-ion",
+                temperature = 320,
+                voltage = 4100,
+                capacity = 5000
+            )
+        )
+    }
+}
+
 @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
 @Composable
-fun MainScreenPreview() {
+fun MainScreenDarkPreview() {
     BatteryTheme {
         MainScreen(
             state = BatteryState(
