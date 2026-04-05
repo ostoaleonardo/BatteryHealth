@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -13,9 +14,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.net.toUri
 import com.monospace.battery.R
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.ui.components.SettingsItem
@@ -23,9 +23,7 @@ import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
 fun SettingsScreen(
-    onUnlockClick: () -> Unit,
-    onUpdateClick: () -> Unit,
-    onRateClick: () -> Unit
+    onUnlockClick: () -> Unit
 ) {
     val context = LocalContext.current
     val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
@@ -33,8 +31,20 @@ fun SettingsScreen(
     val versionName = remember {
         try {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.0"
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             "1.0.0"
+        }
+    }
+
+    val openGooglePlay = {
+        val appPackageName = context.packageName
+        val marketUri = "market://details?id=$appPackageName".toUri()
+        val googlePlayUri = "https://play.google.com/store/apps/details?id=$appPackageName".toUri()
+
+        try {
+            context.startActivity(Intent(Intent.ACTION_VIEW, marketUri))
+        } catch (_: Exception) {
+            context.startActivity(Intent(Intent.ACTION_VIEW, googlePlayUri))
         }
     }
 
@@ -42,8 +52,8 @@ fun SettingsScreen(
         isWidgetsPurchased = isWidgetsPurchased,
         versionName = versionName,
         onUnlockClick = onUnlockClick,
-        onUpdateClick = onUpdateClick,
-        onRateClick = onRateClick
+        onUpdateClick = openGooglePlay,
+        onRateClick = openGooglePlay
     )
 }
 
@@ -55,8 +65,6 @@ fun SettingsContent(
     onUpdateClick: () -> Unit,
     onRateClick: () -> Unit
 ) {
-    val azeretMonoLight = FontFamily(Font(R.font.azeret_mono_light))
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
