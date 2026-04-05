@@ -140,12 +140,6 @@ class ChargingInfoWidget : GlanceAppWidget() {
                                 label = context.getString(R.string.battery_speed),
                                 value = context.getString(R.string.charge_speed_watts, speed)
                             )
-                        } else {
-                            Spacer(GlanceModifier.height(8.dp))
-                            WidgetInfoRow(
-                                label = context.getString(R.string.battery_level),
-                                value = context.getString(R.string.battery_percentage, batteryLevel)
-                            )
                         }
                     }
                 }

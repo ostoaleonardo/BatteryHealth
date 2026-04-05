@@ -9,7 +9,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 
 @Composable
-fun WidgetInfoRow(label: String, value: String) {
+fun WidgetInfoRow(label: String, value: String = "") {
     Column {
         Text(
             text = label.uppercase(),
@@ -18,13 +18,16 @@ fun WidgetInfoRow(label: String, value: String) {
                 color = GlanceTheme.colors.onSurfaceVariant
             )
         )
-        Text(
-            text = value,
-            style = TextStyle(
-                fontSize = 14.sp,
-                color = GlanceTheme.colors.onSurface,
-                fontWeight = FontWeight.Medium
+
+        if (value.isNotEmpty()) {
+            Text(
+                text = value,
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    color = GlanceTheme.colors.onSurface,
+                    fontWeight = FontWeight.Medium
+                )
             )
-        )
+        }
     }
 }

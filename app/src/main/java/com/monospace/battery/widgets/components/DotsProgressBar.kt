@@ -12,6 +12,11 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 
+private val ColorGreen = Color(0xFF00A25B)
+private val ColorOrange = Color(0xFFFF9800)
+private val ColorRed = Color(0xFFF44336)
+private val ColorInactive = Color(0x40E0E0E0)
+
 @Composable
 fun DotsProgressBar(level: Int, modifier: GlanceModifier = GlanceModifier.fillMaxWidth()) {
     val dotsCount = 10
@@ -19,12 +24,10 @@ fun DotsProgressBar(level: Int, modifier: GlanceModifier = GlanceModifier.fillMa
 
     // Level-based color logic
     val activeColor = when {
-        level >= 80 -> Color(0xFF00A25B) // Green (Good)
-        level >= 40 -> Color(0xFFFF9800) // Orange (Warning)
-        else -> Color(0xFFF44336)        // Red (Critical)
+        level >= 80 -> ColorGreen
+        level >= 40 -> ColorOrange
+        else -> ColorRed
     }
-
-    val inactiveColor = Color(0x40E0E0E0)
 
     Row(
         modifier = modifier,
@@ -36,7 +39,7 @@ fun DotsProgressBar(level: Int, modifier: GlanceModifier = GlanceModifier.fillMa
                     .defaultWeight()
                     .height(8.dp)
                     .cornerRadius(4.dp)
-                    .background(if (i <= activeDots) activeColor else inactiveColor)
+                    .background(if (i <= activeDots) activeColor else ColorInactive)
             ) {}
         }
     }
