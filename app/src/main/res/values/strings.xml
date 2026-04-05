@@ -52,4 +52,18 @@
     <string name="settings_software_update">Software update</string>
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
+
+    <!-- Notification strings -->
+    <string name="notification_charging_title">Charger Connected</string>
+    <string name="notification_charging_info_format">🔋 %1$d%%  •  ⚡ %2$.1f W</string>
+    <string name="notification_charging_extra_format">🌡️ %1$.1f °C</string>
+    <string name="notification_charging_time_format">⏳ %1$s</string>
+    <string name="notification_big_battery">🔋 Battery: %1$d%%</string>
+    <string name="notification_big_speed">⚡ Speed: %1$.1f W</string>
+    <string name="notification_big_temp">🌡️ Temperature: %1$.1f °C</string>
+    <string name="notification_big_time">⏳ Time remaining: %1$s</string>
+    <string name="notification_part_level">🔋 %1$d%%</string>
+    <string name="notification_part_speed">⚡ %1$.1f W</string>
+    <string name="notification_part_temp">🌡️ %1$.1f °C</string>
+    <string name="notification_part_time">⏳ %1$s</string>
 </resources>

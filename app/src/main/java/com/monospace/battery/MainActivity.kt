@@ -1,12 +1,16 @@
 package com.monospace.battery
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -24,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +41,7 @@ import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.modals.CompleteWidgetsPurchaseBottomSheet
 import com.monospace.battery.modals.WidgetsPurchaseBottomSheet
 import com.monospace.battery.purchase.PurchaseManager
+import com.monospace.battery.receivers.ChargingReceiver
 import com.monospace.battery.ui.components.BatteryState
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
@@ -48,6 +54,12 @@ sealed class Screen(val route: String) {
 
 class MainActivity : FragmentActivity() {
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        // Si no se concede, la notificación no aparecerá en Android 13+
+    }
+
     private var batteryState by mutableStateOf(BatteryState())
 
     private val batteryReceiver = object : BroadcastReceiver() {
@@ -56,10 +68,20 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private val chargingReceiver = ChargingReceiver()
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
 
         if (NetworkUtils.isInternetAvailable(this)) {
             checkWidgetsPurchase()
@@ -126,11 +148,23 @@ class MainActivity : FragmentActivity() {
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val batteryIntent = registerReceiver(batteryReceiver, intentFilter)
         updateBatteryState(batteryIntent)
+
+        // Registro dinámico del receptor de carga para asegurar que reciba eventos
+        val chargingFilter = IntentFilter().apply {
+            addAction(Intent.ACTION_POWER_CONNECTED)
+            addAction(Intent.ACTION_POWER_DISCONNECTED)
+        }
+        registerReceiver(chargingReceiver, chargingFilter)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(batteryReceiver)
+        try {
+            unregisterReceiver(chargingReceiver)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun updateBatteryState(intent: Intent?) {
