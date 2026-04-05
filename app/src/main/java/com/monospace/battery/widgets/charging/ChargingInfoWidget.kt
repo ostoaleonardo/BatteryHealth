@@ -55,8 +55,7 @@ class ChargingInfoWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            val prefs = currentState<Preferences>()
-            val updateCount = prefs[UPDATE_COUNT_KEY] ?: 0
+            currentState<Preferences>()
 
             val context = LocalContext.current
             val batteryStatus = context.registerReceiver(
