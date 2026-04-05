@@ -19,14 +19,11 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextAlign
-import androidx.glance.text.TextStyle
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.widgets.components.LockedWidgetContent
+import com.monospace.battery.widgets.components.WidgetValueLabel
 
 class ChargeCyclesWidget : GlanceAppWidget() {
 
@@ -66,21 +63,10 @@ class ChargeCyclesWidget : GlanceAppWidget() {
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = "$cycles",
-                style = TextStyle(
-                    fontSize = 56.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Medium,
-                    color = GlanceTheme.colors.onSurface
-                )
-            )
-            Text(
-                text = context.getString(R.string.battery_charging_cycles).uppercase(),
-                style = TextStyle(
-                    fontSize = 10.sp,
-                    color = GlanceTheme.colors.onSurfaceVariant
-                )
+            WidgetValueLabel(
+                value = "$cycles",
+                label = context.getString(R.string.battery_charging_cycles),
+                valueFontSize = 56.sp
             )
         }
     }

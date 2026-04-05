@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceTheme
 import androidx.glance.layout.Column
+import androidx.glance.text.FontFamily
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -15,6 +16,7 @@ fun WidgetInfoRow(label: String, value: String = "") {
             text = label.uppercase(),
             style = TextStyle(
                 fontSize = 7.sp,
+                fontFamily = FontFamily.Monospace,
                 color = GlanceTheme.colors.onSurfaceVariant
             )
         )
@@ -24,8 +26,8 @@ fun WidgetInfoRow(label: String, value: String = "") {
                 text = value,
                 style = TextStyle(
                     fontSize = 14.sp,
-                    color = GlanceTheme.colors.onSurface,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = GlanceTheme.colors.onSurface
                 )
             )
         }
