@@ -16,16 +16,21 @@ import androidx.glance.text.TextStyle
 fun WidgetValueLabel(
     value: String,
     label: String,
-    valueFontSize: TextUnit = 32.sp
+    valueFontSize: TextUnit = 32.sp,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = horizontalAlignment
     ) {
         Text(
             text = value,
             style = TextStyle(
                 fontSize = valueFontSize,
-                textAlign = TextAlign.Center,
+                textAlign = when (horizontalAlignment) {
+                    Alignment.Start -> TextAlign.Start
+                    Alignment.End -> TextAlign.End
+                    else -> TextAlign.Center
+                },
                 fontWeight = FontWeight.Medium,
                 color = GlanceTheme.colors.onSurface
             )
@@ -34,7 +39,11 @@ fun WidgetValueLabel(
             text = label.uppercase(),
             style = TextStyle(
                 fontSize = 10.sp,
-                textAlign = TextAlign.Center,
+                textAlign = when (horizontalAlignment) {
+                    Alignment.Start -> TextAlign.Start
+                    Alignment.End -> TextAlign.End
+                    else -> TextAlign.Center
+                },
                 fontFamily = FontFamily.Monospace,
                 color = GlanceTheme.colors.onSurfaceVariant
             )
