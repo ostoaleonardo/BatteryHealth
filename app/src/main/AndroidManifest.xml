@@ -15,7 +15,7 @@
         tools:targetApi="36">
 
         <receiver
-            android:name=".widgets.ChargeCyclesWidgetReceiver"
+            android:name=".widgets.cycles.ChargeCyclesWidgetReceiver"
             android:enabled="@bool/sdk34"
             android:exported="true">
             <intent-filter>
@@ -27,7 +27,7 @@
                 android:resource="@xml/charge_cycles_widget_info" />
         </receiver>
         <receiver
-            android:name=".widgets.HealthStatusWidgetReceiver"
+            android:name=".widgets.health.HealthStatusWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -36,6 +36,20 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/health_status_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widgets.charging.ChargingInfoWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+                <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/charging_info_widget_info" />
         </receiver>
 
         <activity
