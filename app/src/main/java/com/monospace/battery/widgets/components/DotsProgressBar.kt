@@ -11,23 +11,15 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.size
+import com.monospace.battery.ui.components.getBatteryLevelColor
 
-private val ColorGreen = Color(0xFF00A25B)
-private val ColorOrange = Color(0xFFFF9800)
-private val ColorRed = Color(0xFFF44336)
 private val ColorInactive = Color(0x40E0E0E0)
 
 @Composable
 fun DotsProgressBar(level: Int, modifier: GlanceModifier = GlanceModifier.fillMaxWidth()) {
     val dotsCount = 10
     val activeDots = (level / 10).coerceIn(0, 10)
-
-    // Level-based color logic
-    val activeColor = when {
-        level >= 80 -> ColorGreen
-        level >= 40 -> ColorOrange
-        else -> ColorRed
-    }
+    val activeColor = getBatteryLevelColor(level)
 
     Row(
         modifier = modifier,

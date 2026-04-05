@@ -1,7 +1,6 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import com.monospace.battery.R
 
@@ -71,14 +70,25 @@ fun getBatteryIcon(level: Int, isCharging: Boolean) = if (isCharging) {
     }
 }
 
-@Composable
 fun getHealthColor(health: Int): Color = when (health) {
-    BatteryManager.BATTERY_HEALTH_GOOD -> Color(0xFF00A25B)
-    BatteryManager.BATTERY_HEALTH_OVERHEAT -> Color(0xFFFF9800)
-    BatteryManager.BATTERY_HEALTH_DEAD -> Color(0xFFF44336)
-    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> Color(0xFFFF5722)
-    else -> Color(0xFF9E9E9E)
+    BatteryManager.BATTERY_HEALTH_GOOD -> ColorGreen
+    BatteryManager.BATTERY_HEALTH_OVERHEAT -> ColorOrange
+    BatteryManager.BATTERY_HEALTH_DEAD -> ColorRed
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> ColorDeepOrange
+    else -> ColorGray
 }
 
-@Composable
+fun getBatteryLevelColor(level: Int): Color = when {
+    level >= 80 -> ColorGreen
+    level >= 50 -> ColorOrange
+    level >= 20 -> ColorDeepOrange
+    else -> ColorRed
+}
+
 fun getHealthBgColor(health: Int): Color = getHealthColor(health).copy(alpha = 0.1f)
+
+private val ColorGreen = Color(0xFF00A25B)
+private val ColorOrange = Color(0xFFFF9800)
+private val ColorDeepOrange = Color(0xFFFF5722)
+private val ColorRed = Color(0xFFF44336)
+private val ColorGray = Color(0xFF9E9E9E)

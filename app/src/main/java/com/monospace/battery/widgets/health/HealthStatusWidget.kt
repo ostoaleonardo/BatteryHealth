@@ -3,10 +3,8 @@ package com.monospace.battery.widgets.health
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.os.BatteryManager
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
@@ -36,6 +34,8 @@ import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.ui.components.getHealthColor
+import com.monospace.battery.ui.components.getHealthIcon
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetStatusIndicator
 import com.monospace.battery.widgets.components.WidgetValueLabel
@@ -69,22 +69,8 @@ class HealthStatusWidget : GlanceAppWidget() {
 
         val health = BatteryInfo(batteryStatus).health
         val healthString = BatteryStrings().getHealthStatus(health)
-
-        val healthIconRes = when (health) {
-            BatteryManager.BATTERY_HEALTH_GOOD -> R.drawable.battery_status_good
-            BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.drawable.thermometer
-            BatteryManager.BATTERY_HEALTH_DEAD -> R.drawable.battery_alert
-            else -> R.drawable.battery_unknown
-        }
-
-        val healthColorRes = when (health) {
-            BatteryManager.BATTERY_HEALTH_GOOD -> R.color.battery_health_good
-            BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.color.battery_health_overheat
-            BatteryManager.BATTERY_HEALTH_DEAD -> R.color.battery_health_dead
-            else -> R.color.battery_health_unknown
-        }
-
-        val healthColor = Color(context.getColor(healthColorRes))
+        val healthIconRes = getHealthIcon(health)
+        val healthColor = getHealthColor(health)
 
         Box(
             modifier = GlanceModifier

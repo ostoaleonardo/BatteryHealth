@@ -23,6 +23,7 @@ fun WidgetValueLabel(
         horizontalAlignment = horizontalAlignment
     ) {
         Text(
+            maxLines = 1,
             text = value,
             style = TextStyle(
                 fontSize = valueFontSize,
@@ -36,6 +37,7 @@ fun WidgetValueLabel(
             )
         )
         Text(
+            maxLines = 1,
             text = label.uppercase(),
             style = TextStyle(
                 fontSize = 10.sp,
