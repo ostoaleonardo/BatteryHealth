@@ -99,36 +99,10 @@ class MainActivity : FragmentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    text = if (currentRoute == Screen.Settings.route) stringResource(
-                                        R.string.action_settings
-                                    )
-                                    else stringResource(R.string.app_name)
-                                )
-                            },
-                            actions = {
-                                if (currentRoute == Screen.Home.route) {
-                                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.settings),
-                                            contentDescription = stringResource(R.string.action_settings)
-                                        )
-                                    }
-                                }
-                            },
-                            navigationIcon = {
-                                if (currentRoute == Screen.Settings.route) {
-                                    IconButton(onClick = { navController.popBackStack() }) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                                            contentDescription = stringResource(R.string.action_settings),
-                                            modifier = Modifier.padding(2.dp)
-                                        )
-                                    }
-                                }
-                            }
+                        BatteryTopAppBar(
+                            currentRoute = currentRoute,
+                            onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                            onBackClick = { navController.popBackStack() }
                         )
                     }
                 ) { innerPadding ->
@@ -176,6 +150,44 @@ class MainActivity : FragmentActivity() {
             capacity = batteryUtils.getBatteryCapacity(),
             timeRemaining = batteryUtils.getChargeTimeRemaining(batteryInfo.isCharging),
             chargeSpeed = batteryUtils.getChargeSpeed(intent ?: Intent(), batteryInfo.isCharging)
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun BatteryTopAppBar(
+        currentRoute: String?,
+        onSettingsClick: () -> Unit,
+        onBackClick: () -> Unit
+    ) {
+        TopAppBar(
+            title = {
+                Text(
+                    text = if (currentRoute == Screen.Settings.route) stringResource(R.string.action_settings)
+                    else stringResource(R.string.app_name)
+                )
+            },
+            actions = {
+                if (currentRoute == Screen.Home.route) {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.settings),
+                            contentDescription = stringResource(R.string.action_settings)
+                        )
+                    }
+                }
+            },
+            navigationIcon = {
+                if (currentRoute == Screen.Settings.route) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
+                            contentDescription = stringResource(R.string.action_settings),
+                            modifier = Modifier.padding(2.dp)
+                        )
+                    }
+                }
+            }
         )
     }
 
