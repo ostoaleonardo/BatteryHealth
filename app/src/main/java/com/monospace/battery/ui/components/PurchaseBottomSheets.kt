@@ -1,19 +1,25 @@
 package com.monospace.battery.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.ui.theme.BatteryTheme
 
@@ -25,7 +31,7 @@ fun WidgetsPurchaseContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 32.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -71,7 +77,7 @@ fun CompleteWidgetsPurchaseContent() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(all = 32.dp),
+            .padding(horizontal = 32.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -98,7 +104,11 @@ fun CompleteWidgetsPurchaseContent() {
 }
 
 @Preview(showBackground = true, name = "Light Mode")
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark Mode"
+)
 @Composable
 fun WidgetsPurchaseContentPreview() {
     BatteryTheme {
@@ -109,7 +119,11 @@ fun WidgetsPurchaseContentPreview() {
 }
 
 @Preview(showBackground = true, name = "Light Mode")
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
+@Preview(
+    showBackground = true,
+    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark Mode"
+)
 @Composable
 fun CompleteWidgetsPurchaseContentPreview() {
     BatteryTheme {

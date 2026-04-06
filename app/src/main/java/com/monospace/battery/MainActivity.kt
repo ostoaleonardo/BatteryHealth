@@ -14,13 +14,19 @@ import androidx.compose.material.icons.automirrored.sharp.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,12 +37,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryUtils
-import com.monospace.battery.helpers.NetworkUtils
 import com.monospace.battery.helpers.WidgetsUtils
-import com.monospace.battery.modals.CompleteWidgetsPurchaseBottomSheet
-import com.monospace.battery.modals.WidgetsPurchaseBottomSheet
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.ui.components.BatteryState
+import com.monospace.battery.ui.components.CompleteWidgetsPurchaseContent
+import com.monospace.battery.ui.components.WidgetsPurchaseContent
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
 import com.monospace.battery.ui.theme.BatteryTheme
@@ -61,15 +66,35 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        if (NetworkUtils.isInternetAvailable(this)) {
-            checkWidgetsPurchase()
-        }
-
         setContent {
             BatteryTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+
+                var showPurchaseSheet by remember { mutableStateOf(false) }
+                var showSuccessSheet by remember { mutableStateOf(false) }
+                val context = LocalContext.current
+
+                LaunchedEffect(Unit) {
+                    if (!WidgetsUtils.isWidgetsPurchased(context)) {
+                        showPurchaseSheet = true
+                    }
+                }
+
+                PurchaseModal(
+                    show = showPurchaseSheet,
+                    onDismiss = { showPurchaseSheet = false },
+                    onPurchaseSuccess = {
+                        showPurchaseSheet = false
+                        showSuccessSheet = true
+                    }
+                )
+
+                SuccessModal(
+                    show = showSuccessSheet,
+                    onDismiss = { showSuccessSheet = false }
+                )
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -117,7 +142,7 @@ class MainActivity : FragmentActivity() {
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(
-                                onUnlockClick = { showPurchaseBottomSheet() }
+                                onUnlockClick = { showPurchaseSheet = true }
                             )
                         }
                     }
@@ -154,29 +179,55 @@ class MainActivity : FragmentActivity() {
         )
     }
 
-    private fun checkWidgetsPurchase() {
-        try {
-            PurchaseManager(this, PurchaseManager.WIDGETS, null)
-
-            if (!WidgetsUtils.isWidgetsPurchased(this) && !isFinishing && !isDestroyed) {
-                showPurchaseBottomSheet()
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun PurchaseModal(
+        show: Boolean,
+        onDismiss: () -> Unit,
+        onPurchaseSuccess: () -> Unit
+    ) {
+        if (show) {
+            val context = LocalContext.current
+            val purchaseManager = remember(context, onPurchaseSuccess) {
+                PurchaseManager(
+                    context,
+                    PurchaseManager.WIDGETS,
+                    onPurchaseSuccess = onPurchaseSuccess
+                )
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
+
+            ModalBottomSheet(
+                onDismissRequest = onDismiss,
+                sheetState = rememberModalBottomSheetState()
+            ) {
+                WidgetsPurchaseContent(
+                    onBuyClick = {
+                        purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                    },
+                    onRestoreClick = {
+                        purchaseManager.restorePurchases()
+
+                        if (WidgetsUtils.isWidgetsPurchased(context)) {
+                            onPurchaseSuccess()
+                        }
+                    }
+                )
+            }
         }
     }
 
-    private fun showPurchaseBottomSheet() {
-        WidgetsPurchaseBottomSheet(
-            onPurchaseSuccess = {
-                CompleteWidgetsPurchaseBottomSheet().show(
-                    supportFragmentManager,
-                    CompleteWidgetsPurchaseBottomSheet.TAG
-                )
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun SuccessModal(
+        show: Boolean,
+        onDismiss: () -> Unit
+    ) {
+        if (show) {
+            ModalBottomSheet(
+                onDismissRequest = onDismiss
+            ) {
+                CompleteWidgetsPurchaseContent()
             }
-        ).show(
-            supportFragmentManager,
-            WidgetsPurchaseBottomSheet.TAG
-        )
+        }
     }
 }

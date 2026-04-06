@@ -3,6 +3,7 @@ package com.monospace.battery.purchase
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -16,6 +17,7 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
+import com.monospace.battery.R
 import com.monospace.battery.helpers.SharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -53,13 +55,11 @@ class PurchaseManager(
         }
 
     private fun handlePurchase(purchase: Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.products.contains(productId)) {
             val sharedPrefs = SharedPreferences(context)
 
             // 1. Save locally
-            if (purchase.products.contains(productId)) {
-                sharedPrefs.setItem(productId, "purchased", "true")
-            }
+            sharedPrefs.setItem(productId, "purchased", "true")
 
             // 2. Acknowledge the purchase
             if (!purchase.isAcknowledged) {
@@ -104,7 +104,6 @@ class PurchaseManager(
                     if (responseCode == BILLING_RESPONSE_OK) {
                         Log.d(TAG, "Billing Setup Success")
                         MainScope().launch {
-                            getPurchases()
                             processProducts()
                         }
                     } else {
@@ -174,21 +173,33 @@ class PurchaseManager(
         billingClient.queryPurchasesAsync(
             params.build()
         ) { billingResult, purchaseList ->
-            if (billingResult.responseCode == BILLING_RESPONSE_OK) {
-                val sharedPrefs = SharedPreferences(context)
+            MainScope().launch {
+                if (billingResult.responseCode == BILLING_RESPONSE_OK) {
+                    val sharedPrefs = SharedPreferences(context)
 
-                if (purchaseList.isEmpty()) {
-                    sharedPrefs.setItem(
-                        productId,
-                        "purchased",
-                        false.toString()
-                    )
+                    if (purchaseList.isEmpty()) {
+                        sharedPrefs.setItem(
+                            productId,
+                            "purchased",
+                            false.toString()
+                        )
 
-                    return@queryPurchasesAsync
-                }
+                        Log.d(TAG, "No purchases found")
+                        Toast.makeText(context, context.getString(R.string.widget_purchase_no_restorable_purchases), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.d(TAG, "Purchases found: ${purchaseList.size}")
+                        val hasProduct = purchaseList.any { it.products.contains(productId) }
 
-                purchaseList.forEach { purchase ->
-                    handlePurchase(purchase)
+                        if (!hasProduct) {
+                            Toast.makeText(context, context.getString(R.string.widget_purchase_no_purchases_found), Toast.LENGTH_SHORT).show()
+                        } else {
+                            purchaseList.forEach { purchase ->
+                                handlePurchase(purchase)
+                            }
+                        }
+                    }
+                } else {
+                    Toast.makeText(context, context.getString(R.string.widget_purchase_error_google_play), Toast.LENGTH_SHORT).show()
                 }
             }
         }

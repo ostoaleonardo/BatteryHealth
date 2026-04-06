@@ -32,7 +32,9 @@
     <string name="widget_purchase_restore_purchases">Restaurar compras</string>
     <string name="widget_purchase_complete_purchase">Gracias por tu compra</string>
     <string name="widget_purchase_complete_purchase_description">Ahora puedes acceder a los widgets.</string>
-    <string name="widget_purchase_no_purchases_found">No has comprado esto aún</string>
+    <string name="widget_purchase_no_purchases_found">No se encontraron compras para este producto</string>
+    <string name="widget_purchase_no_restorable_purchases">No se encontraron compras restaurables</string>
+    <string name="widget_purchase_error_google_play">Error al conectar con Google Play</string>
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Desbloquear versión completa</string>
