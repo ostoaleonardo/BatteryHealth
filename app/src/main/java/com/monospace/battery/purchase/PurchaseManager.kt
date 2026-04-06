@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.glance.appwidget.updateAll
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -19,6 +20,10 @@ import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.monospace.battery.R
 import com.monospace.battery.helpers.SharedPreferences
+import com.monospace.battery.widgets.charging.BatteryLevelWidget
+import com.monospace.battery.widgets.charging.ChargingInfoWidget
+import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
+import com.monospace.battery.widgets.health.HealthStatusWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -54,15 +59,31 @@ class PurchaseManager(
             }
         }
 
-    private fun handlePurchase(purchase: Purchase) {
-        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.products.contains(productId)) {
+    private fun handlePurchase(purchase: Purchase, silent: Boolean = false) {
+        Log.d(TAG, "productId=$productId, state=${purchase.purchaseState}, silent=$silent")
+
+        if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED
+            && purchase.products.contains(productId)
+        ) {
             val sharedPrefs = SharedPreferences(context)
+            val wasPurchasedLocally = sharedPrefs.getItem(
+                SharedPreferences.WIDGETS_FILE,
+                SharedPreferences.WIDGETS_PURCHASED
+            )?.toBoolean() ?: false
+
+            Log.d(TAG, "wasPurchasedLocally=$wasPurchasedLocally")
 
             // 1. Save locally
-            sharedPrefs.setItem(productId, "purchased", "true")
+            sharedPrefs.setItem(
+                SharedPreferences.WIDGETS_FILE,
+                SharedPreferences.WIDGETS_PURCHASED,
+                "true"
+            )
 
             // 2. Acknowledge the purchase
             if (!purchase.isAcknowledged) {
+                Log.d(TAG, "Acknowledging purchase...")
+
                 val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
                     .build()
@@ -71,13 +92,40 @@ class PurchaseManager(
                     val result = withContext(Dispatchers.IO) {
                         billingClient.acknowledgePurchase(acknowledgePurchaseParams)
                     }
+
                     if (result.responseCode == BILLING_RESPONSE_OK) {
-                        Log.d(TAG, "Purchase acknowledged successfully")
-                        onPurchaseSuccess?.invoke()
+                        Log.d(TAG, "Acknowledged successfully")
+                        updateWidgets()
+                        if (!silent) onPurchaseSuccess?.invoke()
+                    } else {
+                        Log.e(TAG, "Acknowledge error: ${result.responseCode}")
                     }
                 }
             } else {
-                onPurchaseSuccess?.invoke()
+                Log.d(TAG, "Already acknowledged")
+                updateWidgets()
+
+                // Only show success UI if it was a manual action or state changed
+                if (!silent || !wasPurchasedLocally) {
+                    if (!silent) onPurchaseSuccess?.invoke()
+                }
+            }
+        }
+    }
+
+    private fun updateWidgets() {
+        Log.d(TAG, "Triggering update for all widgets")
+
+        MainScope().launch {
+            try {
+                ChargingInfoWidget().updateAll(context)
+                ChargeCyclesWidget().updateAll(context)
+                HealthStatusWidget().updateAll(context)
+                BatteryLevelWidget().updateAll(context)
+
+                Log.d(TAG, "Widgets updated successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating widgets", e)
             }
         }
     }
@@ -103,7 +151,9 @@ class PurchaseManager(
 
                     if (responseCode == BILLING_RESPONSE_OK) {
                         Log.d(TAG, "Billing Setup Success")
+
                         MainScope().launch {
+                            getPurchases(silent = true)
                             processProducts()
                         }
                     } else {
@@ -121,7 +171,7 @@ class PurchaseManager(
 
     private suspend fun processProducts(): ProductDetails? {
         if (!billingClient.isReady) {
-            Log.e(TAG, "processProducts: BillingClient is not ready")
+            Log.e(TAG, "BillingClient is not ready")
             return null
         }
 
@@ -166,7 +216,8 @@ class PurchaseManager(
         billingClient.launchBillingFlow(activity, billingFlowParams)
     }
 
-    fun getPurchases() {
+    fun getPurchases(silent: Boolean = false) {
+        Log.d(TAG, "getPurchases: silent=$silent")
         val params = QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.INAPP)
 
@@ -174,32 +225,60 @@ class PurchaseManager(
             params.build()
         ) { billingResult, purchaseList ->
             MainScope().launch {
+                Log.d(TAG, "responseCode=${billingResult.responseCode}")
+                Log.d(TAG, "listSize=${purchaseList.size}")
+
                 if (billingResult.responseCode == BILLING_RESPONSE_OK) {
                     val sharedPrefs = SharedPreferences(context)
+                    val hasProduct = purchaseList.any {
+                        it.products.contains(productId) && it.purchaseState == Purchase.PurchaseState.PURCHASED
+                    }
+                    Log.d(TAG, "hasProduct=$hasProduct")
 
-                    if (purchaseList.isEmpty()) {
-                        sharedPrefs.setItem(
-                            productId,
-                            "purchased",
-                            false.toString()
-                        )
-
-                        Log.d(TAG, "No purchases found")
-                        Toast.makeText(context, context.getString(R.string.widget_purchase_no_restorable_purchases), Toast.LENGTH_SHORT).show()
-                    } else {
-                        Log.d(TAG, "Purchases found: ${purchaseList.size}")
-                        val hasProduct = purchaseList.any { it.products.contains(productId) }
-
-                        if (!hasProduct) {
-                            Toast.makeText(context, context.getString(R.string.widget_purchase_no_purchases_found), Toast.LENGTH_SHORT).show()
-                        } else {
-                            purchaseList.forEach { purchase ->
-                                handlePurchase(purchase)
+                    if (hasProduct) {
+                        purchaseList.filter { it.products.contains(productId) }
+                            .forEach { purchase ->
+                                handlePurchase(purchase, silent = silent)
                             }
+                    } else {
+                        // Product not found in active purchases
+                        val wasPurchasedLocally = sharedPrefs.getItem(
+                            SharedPreferences.WIDGETS_FILE,
+                            SharedPreferences.WIDGETS_PURCHASED
+                        )?.toBoolean() ?: false
+
+                        Log.d(TAG, "wasPurchasedLocally=$wasPurchasedLocally")
+
+                        if (wasPurchasedLocally) {
+                            Log.d(TAG, "Revoking access - Setting purchased to false")
+
+                            sharedPrefs.setItem(
+                                SharedPreferences.WIDGETS_FILE,
+                                SharedPreferences.WIDGETS_PURCHASED,
+                                "false"
+                            )
+                            updateWidgets()
+                        }
+
+                        if (!silent) {
+                            val messageRes = if (purchaseList.isEmpty())
+                                R.string.widget_purchase_no_restorable_purchases
+                            else
+                                R.string.widget_purchase_no_purchases_found
+
+                            Toast.makeText(
+                                context,
+                                context.getString(messageRes),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
-                } else {
-                    Toast.makeText(context, context.getString(R.string.widget_purchase_error_google_play), Toast.LENGTH_SHORT).show()
+                } else if (!silent) {
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.widget_purchase_error_google_play),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

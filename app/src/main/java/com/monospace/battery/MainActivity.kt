@@ -76,25 +76,51 @@ class MainActivity : FragmentActivity() {
                 var showSuccessSheet by remember { mutableStateOf(false) }
                 val context = LocalContext.current
 
+                // Initialize PurchaseManager at top level to ensure background validation runs on startup
+                val purchaseManager = remember {
+                    PurchaseManager(
+                        context = context,
+                        productId = PurchaseManager.WIDGETS,
+                        onPurchaseSuccess = {
+                            showPurchaseSheet = false
+                            showSuccessSheet = true
+                        }
+                    )
+                }
+
                 LaunchedEffect(Unit) {
                     if (!WidgetsUtils.isWidgetsPurchased(context)) {
                         showPurchaseSheet = true
                     }
                 }
 
-                PurchaseModal(
-                    show = showPurchaseSheet,
-                    onDismiss = { showPurchaseSheet = false },
-                    onPurchaseSuccess = {
-                        showPurchaseSheet = false
-                        showSuccessSheet = true
+                if (showPurchaseSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showPurchaseSheet = false },
+                        sheetState = rememberModalBottomSheetState()
+                    ) {
+                        WidgetsPurchaseContent(
+                            onBuyClick = {
+                                purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                            },
+                            onRestoreClick = {
+                                purchaseManager.restorePurchases()
+                                if (WidgetsUtils.isWidgetsPurchased(context)) {
+                                    showPurchaseSheet = false
+                                    showSuccessSheet = true
+                                }
+                            }
+                        )
                     }
-                )
+                }
 
-                SuccessModal(
-                    show = showSuccessSheet,
-                    onDismiss = { showSuccessSheet = false }
-                )
+                if (showSuccessSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showSuccessSheet = false }
+                    ) {
+                        CompleteWidgetsPurchaseContent()
+                    }
+                }
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -189,57 +215,5 @@ class MainActivity : FragmentActivity() {
                 }
             }
         )
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun PurchaseModal(
-        show: Boolean,
-        onDismiss: () -> Unit,
-        onPurchaseSuccess: () -> Unit
-    ) {
-        if (show) {
-            val context = LocalContext.current
-            val purchaseManager = remember(context, onPurchaseSuccess) {
-                PurchaseManager(
-                    context,
-                    PurchaseManager.WIDGETS,
-                    onPurchaseSuccess = onPurchaseSuccess
-                )
-            }
-
-            ModalBottomSheet(
-                onDismissRequest = onDismiss,
-                sheetState = rememberModalBottomSheetState()
-            ) {
-                WidgetsPurchaseContent(
-                    onBuyClick = {
-                        purchaseManager.launchBuyBillingFlow(this@MainActivity)
-                    },
-                    onRestoreClick = {
-                        purchaseManager.restorePurchases()
-
-                        if (WidgetsUtils.isWidgetsPurchased(context)) {
-                            onPurchaseSuccess()
-                        }
-                    }
-                )
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun SuccessModal(
-        show: Boolean,
-        onDismiss: () -> Unit
-    ) {
-        if (show) {
-            ModalBottomSheet(
-                onDismissRequest = onDismiss
-            ) {
-                CompleteWidgetsPurchaseContent()
-            }
-        }
     }
 }
