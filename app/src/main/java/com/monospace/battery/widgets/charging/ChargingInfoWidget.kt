@@ -38,6 +38,7 @@ import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
+import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.BatteryUtils
 import com.monospace.battery.helpers.WidgetsUtils
@@ -70,6 +71,19 @@ class ChargingInfoWidget : GlanceAppWidget() {
                 } else {
                     LockedWidgetContent()
                 }
+            }
+        }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+
+            GlanceTheme {
+                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
             }
         }
     }
@@ -126,7 +140,8 @@ class ChargingInfoWidget : GlanceAppWidget() {
                         }
 
                         if (isCharging) {
-                            val sourceStr = context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
+                            val sourceStr =
+                                context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
                             val speed = batteryUtils.getChargeSpeed(batteryStatus ?: Intent(), true)
 
                             Spacer(GlanceModifier.height(8.dp))

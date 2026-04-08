@@ -28,6 +28,7 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
+import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
@@ -58,8 +59,21 @@ class BatteryLevelWidget : GlanceAppWidget() {
         }
     }
 
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+
+            GlanceTheme {
+                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+            }
+        }
+    }
+
     @Composable
-    private fun WidgetContent(batteryStatus: Intent?) {
+    fun WidgetContent(batteryStatus: Intent?) {
         val context = LocalContext.current
         val batteryInfo = BatteryInfo(batteryStatus)
         val batteryLevel = batteryInfo.level

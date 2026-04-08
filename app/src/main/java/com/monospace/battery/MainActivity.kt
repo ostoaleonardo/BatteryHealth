@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -31,6 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -45,6 +48,11 @@ import com.monospace.battery.ui.components.WidgetsPurchaseContent
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
+import com.monospace.battery.widgets.charging.ChargingInfoWidgetReceiver
+import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
+import com.monospace.battery.widgets.health.HealthStatusWidgetReceiver
+import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
@@ -151,8 +159,9 @@ class MainActivity : FragmentActivity() {
         }
 
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryIntent = registerReceiver(batteryReceiver, intentFilter)
-        updateBatteryState(batteryIntent)
+        registerReceiver(batteryReceiver, intentFilter)
+
+        setupWidgetPreviews()
     }
 
     override fun onDestroy() {
@@ -215,5 +224,24 @@ class MainActivity : FragmentActivity() {
                 }
             }
         )
+    }
+
+    private fun setupWidgetPreviews() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            lifecycleScope.launch {
+                val glanceManager = GlanceAppWidgetManager(this@MainActivity)
+
+                listOf(
+                    ChargingInfoWidgetReceiver::class,
+                    BatteryLevelWidgetReceiver::class,
+                    HealthStatusWidgetReceiver::class,
+                    ChargeCyclesWidgetReceiver::class
+                ).forEach { receiver ->
+                    runCatching {
+                        glanceManager.setWidgetPreviews(receiver)
+                    }
+                }
+            }
+        }
     }
 }

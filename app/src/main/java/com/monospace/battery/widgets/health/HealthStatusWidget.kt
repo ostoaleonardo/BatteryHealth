@@ -32,6 +32,7 @@ import androidx.glance.layout.size
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
+import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.ui.components.getHealthColor
@@ -48,10 +49,15 @@ class HealthStatusWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+
             GlanceTheme {
                 val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
                 if (isPurchased) {
-                    WidgetContent()
+                    WidgetContent(batteryStatus)
                 } else {
                     LockedWidgetContent()
                 }
@@ -59,12 +65,22 @@ class HealthStatusWidget : GlanceAppWidget() {
         }
     }
 
-    @Composable
-    fun WidgetContent() {
-        val context = LocalContext.current
-        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryStatus = context.registerReceiver(null, intentFilter)
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
 
+            GlanceTheme {
+                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+            }
+        }
+    }
+
+    @Composable
+    fun WidgetContent(batteryStatus: Intent?) {
+        val context = LocalContext.current
         Log.i(TAG, "Updating HealthStatusWidget")
 
         val health = BatteryInfo(batteryStatus).health
@@ -109,6 +125,15 @@ class HealthStatusWidget : GlanceAppWidget() {
                     horizontalAlignment = Alignment.Start
                 )
             }
+        }
+    }
+
+    private fun createMockBatteryIntent(): Intent {
+        return Intent().apply {
+            putExtra(
+                android.os.BatteryManager.EXTRA_HEALTH,
+                android.os.BatteryManager.BATTERY_HEALTH_GOOD
+            )
         }
     }
 }

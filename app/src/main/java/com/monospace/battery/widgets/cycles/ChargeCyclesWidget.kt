@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.actionStartActivity
@@ -24,6 +25,7 @@ import androidx.glance.layout.padding
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
+import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetValueLabel
@@ -36,10 +38,15 @@ class ChargeCyclesWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
+
             GlanceTheme {
                 val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
                 if (isPurchased) {
-                    WidgetContent(context)
+                    WidgetContent(batteryStatus)
                 } else {
                     LockedWidgetContent()
                 }
@@ -47,11 +54,22 @@ class ChargeCyclesWidget : GlanceAppWidget() {
         }
     }
 
-    @Composable
-    private fun WidgetContent(context: Context) {
-        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val batteryStatus = context.registerReceiver(null, intentFilter)
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent {
+            val context = LocalContext.current
+            val batteryStatus = context.registerReceiver(
+                null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
 
+            GlanceTheme {
+                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+            }
+        }
+    }
+
+    @Composable
+    private fun WidgetContent(batteryStatus: Intent?) {
+        val context = LocalContext.current
         Log.i(TAG, "Updating ChargeCyclesWidget")
 
         val cycles = BatteryInfo(batteryStatus).chargeCycles

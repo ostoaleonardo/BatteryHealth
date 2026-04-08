@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.glance.appwidget)
     implementation(libs.androidx.glance.material3)
+    implementation(libs.androidx.glance.preview)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.billing.ktx)
     implementation(libs.firebase.crashlytics)
