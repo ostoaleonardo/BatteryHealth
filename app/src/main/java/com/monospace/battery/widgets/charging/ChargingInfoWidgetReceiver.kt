@@ -13,14 +13,16 @@ class ChargingInfoWidgetReceiver : GlanceAppWidgetReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
+
         if (intent.action == Intent.ACTION_POWER_CONNECTED ||
             intent.action == Intent.ACTION_POWER_DISCONNECTED ||
             intent.action == Intent.ACTION_BATTERY_CHANGED
         ) {
             MainScope().launch {
-                GlanceAppWidgetManager(context).getGlanceIds(ChargingInfoWidget::class.java).forEach {
-                    glanceAppWidget.update(context, it)
-                }
+                GlanceAppWidgetManager(context).getGlanceIds(ChargingInfoWidget::class.java)
+                    .forEach {
+                        glanceAppWidget.update(context, it)
+                    }
             }
         }
     }

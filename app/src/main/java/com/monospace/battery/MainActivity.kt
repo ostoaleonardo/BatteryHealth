@@ -74,6 +74,8 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        setupWidgetPreviews()
+
         setContent {
             BatteryTheme {
                 val navController = rememberNavController()
@@ -160,8 +162,6 @@ class MainActivity : FragmentActivity() {
 
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         registerReceiver(batteryReceiver, intentFilter)
-
-        setupWidgetPreviews()
     }
 
     override fun onDestroy() {

@@ -45,6 +45,7 @@ class ChargeCyclesWidget : GlanceAppWidget() {
 
             GlanceTheme {
                 val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
+                
                 if (isPurchased) {
                     WidgetContent(batteryStatus)
                 } else {

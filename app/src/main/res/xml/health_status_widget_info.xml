@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/battery_health"
-    android:initialKeyguardLayout="@layout/health_status_widget"
-    android:initialLayout="@layout/health_status_widget"
     android:minWidth="110dp"
     android:minHeight="110dp"
-    android:previewImage="@drawable/health_status_preview"
+    android:previewImage="@drawable/health_status_widget"
     android:resizeMode="none"
     android:updatePeriodMillis="10800000"
     android:widgetCategory="home_screen" />
