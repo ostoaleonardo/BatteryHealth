@@ -49,6 +49,13 @@
     <string name="widget_purchase_no_purchases_found">No purchases found for this product</string>
     <string name="widget_purchase_no_restorable_purchases">No restorable purchases found</string>
     <string name="widget_purchase_error_google_play">Error connecting to Google Play</string>
+    <string name="widget_purchase_error_service_unavailable">Google Play service is unavailable</string>
+    <string name="widget_purchase_error_billing_unavailable">Billing is not available on this device</string>
+    <string name="widget_purchase_error_item_already_owned">You already own this item</string>
+    <string name="widget_purchase_error_network">Network error. Please check your connection</string>
+    <string name="widget_purchase_error_developer">Configuration error. Contact support</string>
+    <string name="widget_purchase_error_unknown">An error occurred during purchase (Code: %d)</string>
+    <string name="widget_purchase_error_product_unavailable">Product information not available. Please try again later</string>
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Unlock full version</string>

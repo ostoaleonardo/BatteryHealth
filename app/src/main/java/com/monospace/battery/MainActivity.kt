@@ -94,6 +94,11 @@ class MainActivity : FragmentActivity() {
 
                 var showPurchaseSheet by remember { mutableStateOf(false) }
                 var showSuccessSheet by remember { mutableStateOf(false) }
+                var purchaseError by remember {
+                    mutableStateOf<PurchaseManager.PurchaseEvent.Error?>(
+                        null
+                    )
+                }
 
                 LaunchedEffect(isPurchased) {
                     showPurchaseSheet = !isPurchased
@@ -108,9 +113,18 @@ class MainActivity : FragmentActivity() {
                             }
 
                             is PurchaseManager.PurchaseEvent.Error -> {
-                                Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                                purchaseError = event
                             }
                         }
+                    }
+                }
+
+                purchaseError?.let { error ->
+                    val message = getPurchaseErrorMessage(error)
+
+                    LaunchedEffect(error) {
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        purchaseError = null
                     }
                 }
 
@@ -213,6 +227,39 @@ class MainActivity : FragmentActivity() {
             )
         }.onFailure { e ->
             Log.e(TAG, "Error updating battery state", e)
+        }
+    }
+
+
+    @Composable
+    private fun getPurchaseErrorMessage(event: PurchaseManager.PurchaseEvent.Error): String {
+        return when (event) {
+            is PurchaseManager.PurchaseEvent.Error.ServiceUnavailable ->
+                stringResource(R.string.widget_purchase_error_service_unavailable)
+
+            is PurchaseManager.PurchaseEvent.Error.BillingUnavailable ->
+                stringResource(R.string.widget_purchase_error_billing_unavailable)
+
+            is PurchaseManager.PurchaseEvent.Error.ItemAlreadyOwned ->
+                stringResource(R.string.widget_purchase_error_item_already_owned)
+
+            is PurchaseManager.PurchaseEvent.Error.NetworkError ->
+                stringResource(R.string.widget_purchase_error_network)
+
+            is PurchaseManager.PurchaseEvent.Error.DeveloperError ->
+                stringResource(R.string.widget_purchase_error_developer)
+
+            is PurchaseManager.PurchaseEvent.Error.ProductUnavailable ->
+                stringResource(R.string.widget_purchase_error_product_unavailable)
+
+            is PurchaseManager.PurchaseEvent.Error.NoRestorablePurchases ->
+                stringResource(R.string.widget_purchase_no_restorable_purchases)
+
+            is PurchaseManager.PurchaseEvent.Error.NoPurchasesFound ->
+                stringResource(R.string.widget_purchase_no_purchases_found)
+
+            is PurchaseManager.PurchaseEvent.Error.Unknown ->
+                stringResource(R.string.widget_purchase_error_unknown, event.code)
         }
     }
 
