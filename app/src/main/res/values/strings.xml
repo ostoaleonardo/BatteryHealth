@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Battery Health</string>
     <string name="action_settings">Settings</string>
+    <string name="action_back">Back</string>
 
     <!-- Battery parameters -->
     <string name="zero" translatable="false">0</string>

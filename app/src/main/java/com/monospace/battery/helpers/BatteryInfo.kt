@@ -35,10 +35,12 @@ class BatteryInfo(intent: Intent?) {
             val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
             _level = if (scale > 0) (rawLevel * 100 / scale) else 0
 
-            _isCharging = it.getIntExtra(
+            val status = it.getIntExtra(
                 BatteryManager.EXTRA_STATUS,
                 BatteryManager.BATTERY_STATUS_UNKNOWN
-            ) == BatteryManager.BATTERY_STATUS_CHARGING
+            )
+            _isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                    status == BatteryManager.BATTERY_STATUS_FULL
 
             _chargeSource = it.getIntExtra(
                 BatteryManager.EXTRA_PLUGGED,

@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +43,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryUtils
-import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.ui.components.BatteryState
 import com.monospace.battery.ui.components.CompleteWidgetsPurchaseContent
@@ -82,43 +84,51 @@ class MainActivity : FragmentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
-
-                var showPurchaseSheet by remember { mutableStateOf(false) }
-                var showSuccessSheet by remember { mutableStateOf(false) }
                 val context = LocalContext.current
 
                 val purchaseManager = remember {
-                    PurchaseManager(
-                        context = context,
-                        productId = PurchaseManager.WIDGETS,
-                        onPurchaseSuccess = {
-                            showPurchaseSheet = false
-                            showSuccessSheet = true
-                        }
-                    )
+                    PurchaseManager(context, PurchaseManager.WIDGETS)
+                }
+
+                val isPurchased by purchaseManager.isPurchased.collectAsState()
+
+                var showPurchaseSheet by remember { mutableStateOf(false) }
+                var showSuccessSheet by remember { mutableStateOf(false) }
+
+                LaunchedEffect(isPurchased) {
+                    showPurchaseSheet = !isPurchased
                 }
 
                 LaunchedEffect(Unit) {
-                    if (!WidgetsUtils.isWidgetsPurchased(context)) {
-                        showPurchaseSheet = true
+                    purchaseManager.purchaseEvents.collect { event ->
+                        when (event) {
+                            is PurchaseManager.PurchaseEvent.Success -> {
+                                showPurchaseSheet = false
+                                showSuccessSheet = true
+                            }
+
+                            is PurchaseManager.PurchaseEvent.Error -> {
+                                Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                            }
+                        }
                     }
                 }
 
                 if (showPurchaseSheet) {
                     ModalBottomSheet(
-                        onDismissRequest = { showPurchaseSheet = false },
-                        sheetState = rememberModalBottomSheetState()
+                        sheetState = rememberModalBottomSheetState(),
+                        onDismissRequest = {
+                            showPurchaseSheet = false
+                        }
                     ) {
                         WidgetsPurchaseContent(
                             onBuyClick = {
+                                Log.d("MainActivity", "User clicked buy")
                                 purchaseManager.launchBuyBillingFlow(this@MainActivity)
                             },
                             onRestoreClick = {
+                                Log.d("MainActivity", "User clicked restore")
                                 purchaseManager.restorePurchases()
-                                if (WidgetsUtils.isWidgetsPurchased(context)) {
-                                    showPurchaseSheet = false
-                                    showSuccessSheet = true
-                                }
                             }
                         )
                     }
@@ -152,7 +162,9 @@ class MainActivity : FragmentActivity() {
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(
-                                onUnlockClick = { showPurchaseSheet = true }
+                                onUnlockClick = {
+                                    showPurchaseSheet = true
+                                }
                             )
                         }
                     }
@@ -160,32 +172,48 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val stickyIntent = registerReceiver(batteryReceiver, intentFilter)
-        updateBatteryState(stickyIntent)
+        try {
+            val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            val stickyIntent = registerReceiver(batteryReceiver, intentFilter)
+            updateBatteryState(stickyIntent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error registering battery receiver", e)
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(batteryReceiver)
+
+        try {
+            unregisterReceiver(batteryReceiver)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error unregistering battery receiver", e)
+        }
     }
 
     private fun updateBatteryState(intent: Intent?) {
-        val batteryInfo = BatteryInfo(intent)
+        runCatching {
+            val batteryInfo = BatteryInfo(intent)
 
-        batteryState = BatteryState(
-            health = batteryInfo.health,
-            level = batteryInfo.level,
-            isCharging = batteryInfo.isCharging,
-            chargeSource = batteryInfo.chargeSource,
-            chargeCycles = batteryInfo.chargeCycles,
-            technology = batteryInfo.technology,
-            temperature = batteryInfo.temperature,
-            voltage = batteryInfo.voltage,
-            capacity = batteryUtils.getBatteryCapacity(),
-            timeRemaining = batteryUtils.getChargeTimeRemaining(batteryInfo.isCharging),
-            chargeSpeed = batteryUtils.getChargeSpeed(batteryInfo.voltage, batteryInfo.isCharging)
-        )
+            batteryState = batteryState.copy(
+                health = batteryInfo.health,
+                level = batteryInfo.level,
+                isCharging = batteryInfo.isCharging,
+                chargeSource = batteryInfo.chargeSource,
+                chargeCycles = batteryInfo.chargeCycles,
+                technology = batteryInfo.technology,
+                temperature = batteryInfo.temperature,
+                voltage = batteryInfo.voltage,
+                capacity = batteryUtils.getBatteryCapacity(),
+                timeRemaining = batteryUtils.getChargeTimeRemaining(batteryInfo.isCharging),
+                chargeSpeed = batteryUtils.getChargeSpeed(
+                    batteryInfo.voltage,
+                    batteryInfo.isCharging
+                )
+            )
+        }.onFailure { e ->
+            Log.e(TAG, "Error updating battery state", e)
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -217,7 +245,7 @@ class MainActivity : FragmentActivity() {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                            contentDescription = stringResource(R.string.action_settings),
+                            contentDescription = stringResource(R.string.action_back),
                             modifier = Modifier.padding(2.dp)
                         )
                     }
@@ -243,5 +271,9 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

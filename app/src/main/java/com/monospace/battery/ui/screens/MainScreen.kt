@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.screens
 
+import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
@@ -102,7 +103,9 @@ fun MainScreen(state: BatteryState) {
             ) {
                 SmallInfoCard(
                     title = stringResource(R.string.battery_type),
-                    value = state.technology ?: stringResource(R.string.battery_health_unknown),
+                    value = state.technology.orEmpty().ifBlank {
+                        stringResource(R.string.battery_health_unknown)
+                    },
                     iconRes = R.drawable.battery_10,
                     iconTint = currentIconTint,
                     modifier = Modifier.weight(1f)
@@ -178,7 +181,7 @@ fun MainScreenLightPreview() {
     }
 }
 
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
 @Composable
 fun MainScreenDarkPreview() {
     BatteryTheme {
