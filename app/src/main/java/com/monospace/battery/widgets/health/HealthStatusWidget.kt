@@ -13,9 +13,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
-import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -29,7 +27,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
-import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryMockUtils
@@ -56,6 +53,7 @@ class HealthStatusWidget : GlanceAppWidget() {
 
             GlanceTheme {
                 val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
+
                 if (isPurchased) {
                     WidgetContent(batteryStatus)
                 } else {
@@ -95,7 +93,6 @@ class HealthStatusWidget : GlanceAppWidget() {
                 .cornerRadius(28.dp)
                 .padding(16.dp)
                 .background(GlanceTheme.colors.surface)
-                .clickable(actionStartActivity(Intent(context, MainActivity::class.java)))
         ) {
             Column(
                 modifier = GlanceModifier.fillMaxSize(),
@@ -125,15 +122,6 @@ class HealthStatusWidget : GlanceAppWidget() {
                     horizontalAlignment = Alignment.Start
                 )
             }
-        }
-    }
-
-    private fun createMockBatteryIntent(): Intent {
-        return Intent().apply {
-            putExtra(
-                android.os.BatteryManager.EXTRA_HEALTH,
-                android.os.BatteryManager.BATTERY_HEALTH_GOOD
-            )
         }
     }
 }

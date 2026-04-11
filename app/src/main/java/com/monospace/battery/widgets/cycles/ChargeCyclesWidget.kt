@@ -11,9 +11,7 @@ import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
-import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -22,7 +20,6 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryMockUtils
@@ -45,7 +42,7 @@ class ChargeCyclesWidget : GlanceAppWidget() {
 
             GlanceTheme {
                 val isPurchased = WidgetsUtils.isWidgetsPurchased(context)
-                
+
                 if (isPurchased) {
                     WidgetContent(batteryStatus)
                 } else {
@@ -81,8 +78,7 @@ class ChargeCyclesWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .cornerRadius(28.dp)
                 .padding(16.dp)
-                .background(GlanceTheme.colors.surface)
-                .clickable(actionStartActivity(Intent(context, MainActivity::class.java))),
+                .background(GlanceTheme.colors.surface),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
