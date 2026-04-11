@@ -105,7 +105,7 @@ class BatteryUtils(context: Context) {
         if (currentRaw == Long.MIN_VALUE || currentRaw == 0L) return 0.0
 
         val absoluteCurrent = abs(currentRaw)
-        
+
         // Scale heuristic: Handle mA vs μA
         val currentInAmps = if (absoluteCurrent < 20000) {
             absoluteCurrent / 1000.0
@@ -121,6 +121,42 @@ class BatteryUtils(context: Context) {
 
         // Mathematical rounding to 1 decimal place
         return round(chargeWatts * 10) / 10.0
+    }
+
+    fun getCurrentNow(): Int {
+        val manager = batteryManager ?: return 0
+        val currentNow = runCatching {
+            manager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+        }.onFailure {
+            Log.w(TAG, "Error reading current: ${it.message}")
+        }.getOrDefault(0L)
+
+        if (currentNow == Long.MIN_VALUE) return 0
+
+        // Handle scaling (mA vs μA)
+        return if (abs(currentNow) > 100_000) {
+            (currentNow / 1000).toInt()
+        } else {
+            currentNow.toInt()
+        }
+    }
+
+    fun getCapacityRemaining(): Int {
+        val manager = batteryManager ?: return -1
+        val remaining = runCatching {
+            manager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CHARGE_COUNTER)
+        }.onFailure {
+            Log.w(TAG, "Error reading charge counter: ${it.message}")
+        }.getOrDefault(-1L)
+
+        if (remaining <= 0) return -1
+
+        // Handle scaling (mAh vs μAh)
+        return if (remaining > 100_000) {
+            (remaining / 1000).toInt()
+        } else {
+            remaining.toInt()
+        }
     }
 
     companion object {

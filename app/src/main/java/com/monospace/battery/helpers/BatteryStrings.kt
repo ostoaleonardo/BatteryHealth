@@ -30,4 +30,12 @@ class BatteryStrings {
             else -> R.string.charging_source_none
         }
     }
+
+    fun getCapacityValue(capacity: Int, capacityRemaining: Int): String? {
+        return if (capacityRemaining > 0 && capacity > 0) {
+            "$capacityRemaining / $capacity mAh"
+        } else if (capacity > 0) {
+            "$capacity mAh"
+        } else null
+    }
 }

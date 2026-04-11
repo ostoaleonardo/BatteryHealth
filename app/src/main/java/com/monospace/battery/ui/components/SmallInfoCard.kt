@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 
@@ -25,8 +26,8 @@ fun SmallInfoCard(
     title: String,
     value: String,
     iconRes: Int,
-    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
     Card(
         modifier = modifier,
@@ -49,6 +50,7 @@ fun SmallInfoCard(
                 text = value,
                 fontFamily = FontFamily(Font(R.font.n_type82_headline)),
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                overflow = TextOverflow.Ellipsis,
                 maxLines = 1
             )
             Image(

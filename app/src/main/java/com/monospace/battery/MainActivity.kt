@@ -219,6 +219,8 @@ class MainActivity : FragmentActivity() {
                 temperature = batteryInfo.temperature,
                 voltage = batteryInfo.voltage,
                 capacity = batteryUtils.getBatteryCapacity(),
+                capacityRemaining = batteryUtils.getCapacityRemaining(),
+                currentNow = batteryUtils.getCurrentNow(),
                 timeRemaining = batteryUtils.getChargeTimeRemaining(batteryInfo.isCharging),
                 chargeSpeed = batteryUtils.getChargeSpeed(
                     batteryInfo.voltage,

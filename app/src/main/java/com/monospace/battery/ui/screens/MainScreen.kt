@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
+import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.ui.components.BatteryState
 import com.monospace.battery.ui.components.HealthCard
 import com.monospace.battery.ui.components.InfoCard
@@ -98,7 +99,9 @@ fun MainScreen(state: BatteryState) {
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Max),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 SmallInfoCard(
@@ -108,45 +111,99 @@ fun MainScreen(state: BatteryState) {
                     },
                     iconRes = R.drawable.battery_10,
                     iconTint = currentIconTint,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                 )
                 SmallInfoCard(
                     title = stringResource(R.string.battery_temperature),
                     value = stringResource(R.string.temperature_celsius, state.temperature / 10),
                     iconRes = R.drawable.thermometer,
                     iconTint = currentIconTint,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                 )
                 SmallInfoCard(
                     title = stringResource(R.string.battery_voltage),
                     value = stringResource(R.string.voltage_mv, state.voltage),
                     iconRes = R.drawable.bolt,
                     iconTint = currentIconTint,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (state.capacity > 0) {
-                    SmallInfoCard(
-                        title = stringResource(R.string.battery_capacity),
-                        value = stringResource(R.string.capacity_mah, state.capacity),
-                        iconRes = R.drawable.battery_full,
-                        iconTint = currentIconTint,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-                if (state.chargeSpeed > 0) {
-                    SmallInfoCard(
+            val capacityValue = BatteryStrings().getCapacityValue(
+                state.capacity, state.capacityRemaining
+            )
+
+            if (state.chargeSpeed > 0) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    LargeVerticalInfoCard(
                         title = stringResource(R.string.battery_speed),
                         value = stringResource(R.string.charge_speed_watts, state.chargeSpeed),
                         iconRes = R.drawable.rocket,
                         iconTint = currentIconTint,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
                     )
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        InfoCard(
+                            title = stringResource(R.string.battery_current),
+                            value = stringResource(R.string.current_ma, state.currentNow),
+                            iconRes = R.drawable.bolt,
+                            iconTint = currentIconTint
+                        )
+                        capacityValue?.let {
+                            InfoCard(
+                                title = stringResource(R.string.battery_capacity),
+                                value = it,
+                                iconRes = R.drawable.battery_full,
+                                iconTint = currentIconTint
+                            )
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Max),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SmallInfoCard(
+                        title = stringResource(R.string.battery_current),
+                        value = stringResource(R.string.current_ma, state.currentNow),
+                        iconRes = R.drawable.bolt,
+                        iconTint = currentIconTint,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+
+                    capacityValue?.let {
+                        SmallInfoCard(
+                            title = stringResource(R.string.battery_capacity),
+                            value = it,
+                            iconRes = R.drawable.battery_full,
+                            iconTint = currentIconTint,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
+                        )
+                    }
                 }
             }
 
@@ -175,7 +232,9 @@ fun MainScreenLightPreview() {
                 technology = "Li-ion",
                 temperature = 320,
                 voltage = 4100,
-                capacity = 5000
+                capacity = 5000,
+                capacityRemaining = 4250,
+                currentNow = -250
             )
         )
     }
@@ -196,6 +255,8 @@ fun MainScreenDarkPreview() {
                 temperature = 320,
                 voltage = 4100,
                 capacity = 5000,
+                capacityRemaining = 4900,
+                currentNow = 3500,
                 timeRemaining = "00:30",
                 chargeSpeed = 18.5
             )
@@ -215,7 +276,9 @@ fun MainScreenCriticalPreview() {
                 technology = "Li-ion",
                 temperature = 450,
                 voltage = 3700,
-                capacity = 5000
+                capacity = 5000,
+                capacityRemaining = 750,
+                currentNow = -1200
             )
         )
     }

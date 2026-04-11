@@ -14,6 +14,8 @@ data class BatteryState(
     val temperature: Int = 0,
     val voltage: Int = 0,
     val capacity: Int = 0,
+    val capacityRemaining: Int = 0,
+    val currentNow: Int = 0,
     val timeRemaining: String = "00:00",
     val chargeSpeed: Double = 0.0
 )
