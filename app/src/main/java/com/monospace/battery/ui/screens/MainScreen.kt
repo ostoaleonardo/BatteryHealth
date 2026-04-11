@@ -17,12 +17,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryStrings
+import com.monospace.battery.ui.components.BatteryDialog
 import com.monospace.battery.ui.components.BatteryState
 import com.monospace.battery.ui.components.HealthCard
 import com.monospace.battery.ui.components.InfoCard
@@ -33,13 +37,36 @@ import com.monospace.battery.ui.components.getBatteryIcon
 import com.monospace.battery.ui.components.getChargingSourceRes
 import com.monospace.battery.ui.components.getChargingStatusRes
 import com.monospace.battery.ui.components.getHealthColor
+import com.monospace.battery.ui.components.getHealthDescriptionRes
+import com.monospace.battery.ui.components.getHealthIcon
+import com.monospace.battery.ui.components.getHealthStatusRes
 import com.monospace.battery.ui.theme.BatteryTheme
+
+data class DialogData(
+    val title: String,
+    val value: String,
+    val description: String,
+    val iconRes: Int,
+    val iconTint: Color
+)
 
 @Composable
 fun MainScreen(state: BatteryState) {
     val healthColor = getHealthColor(state.health)
-    val defaultIconTint = MaterialTheme.colorScheme.onSurfaceVariant
-    val currentIconTint = if (state.isCharging) healthColor else defaultIconTint
+    val iconTint = if (state.isCharging) healthColor else MaterialTheme.colorScheme.onSurfaceVariant
+
+    val activeDialogData = remember { mutableStateOf<DialogData?>(null) }
+
+    activeDialogData.value?.let { data ->
+        BatteryDialog(
+            onDismissRequest = { activeDialogData.value = null },
+            title = data.title,
+            value = data.value,
+            description = data.description,
+            iconRes = data.iconRes,
+            iconTint = data.iconTint
+        )
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -52,170 +79,397 @@ fun MainScreen(state: BatteryState) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            HealthCard(health = state.health)
+            HealthSection(state, healthColor) { activeDialogData.value = it }
+            StatusLevelSection(state, iconTint) { activeDialogData.value = it }
+            CyclesSection(state, iconTint) { activeDialogData.value = it }
+            TechnicalSection(state, iconTint) { activeDialogData.value = it }
+            ChargingSection(state, iconTint) { activeDialogData.value = it }
+            TimeRemainingSection(state, iconTint) { activeDialogData.value = it }
+        }
+    }
+}
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    InfoCard(
-                        title = stringResource(R.string.battery_status),
-                        value = stringResource(getChargingStatusRes(state.isCharging)),
-                        iconRes = R.drawable.bolt,
-                        iconTint = currentIconTint
-                    )
-                    InfoCard(
-                        title = stringResource(R.string.charging_source),
-                        value = stringResource(getChargingSourceRes(state.chargeSource)),
-                        iconRes = R.drawable.cable,
-                        iconTint = currentIconTint
+@Composable
+private fun HealthSection(
+    state: BatteryState,
+    healthColor: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    val title = stringResource(R.string.battery_health)
+    val value = stringResource(getHealthStatusRes(state.health))
+    val description = stringResource(getHealthDescriptionRes(state.health))
+    val icon = getHealthIcon(state.health)
+
+    HealthCard(
+        health = state.health,
+        onClick = {
+            onShowDialog(
+                DialogData(
+                    title,
+                    value,
+                    description,
+                    icon,
+                    healthColor
+                )
+            )
+        }
+    )
+}
+
+@Composable
+private fun StatusLevelSection(
+    state: BatteryState,
+    iconTint: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            val statusTitle = stringResource(R.string.battery_status)
+            val statusValue = stringResource(getChargingStatusRes(state.isCharging))
+            val statusDesc = stringResource(R.string.description_status)
+
+            InfoCard(
+                title = statusTitle,
+                value = statusValue,
+                iconRes = R.drawable.bolt,
+                iconTint = iconTint,
+                onClick = {
+                    onShowDialog(
+                        DialogData(
+                            statusTitle,
+                            statusValue,
+                            statusDesc,
+                            R.drawable.bolt,
+                            iconTint
+                        )
                     )
                 }
-
-                LargeVerticalInfoCard(
-                    title = stringResource(R.string.battery_level),
-                    value = stringResource(R.string.battery_percentage, state.level),
-                    iconRes = getBatteryIcon(state.level, state.isCharging),
-                    iconTint = currentIconTint,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                LargeHorizontalInfoCard(
-                    title = stringResource(R.string.battery_charging_cycles),
-                    value = "${state.chargeCycles}",
-                    iconRes = R.drawable.power,
-                    iconTint = currentIconTint
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SmallInfoCard(
-                    title = stringResource(R.string.battery_type),
-                    value = state.technology.orEmpty().ifBlank {
-                        stringResource(R.string.battery_health_unknown)
-                    },
-                    iconRes = R.drawable.battery_10,
-                    iconTint = currentIconTint,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                SmallInfoCard(
-                    title = stringResource(R.string.battery_temperature),
-                    value = stringResource(R.string.temperature_celsius, state.temperature / 10),
-                    iconRes = R.drawable.thermometer,
-                    iconTint = currentIconTint,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-                SmallInfoCard(
-                    title = stringResource(R.string.battery_voltage),
-                    value = stringResource(R.string.voltage_mv, state.voltage),
-                    iconRes = R.drawable.bolt,
-                    iconTint = currentIconTint,
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                )
-            }
-
-            val capacityValue = BatteryStrings().getCapacityValue(
-                state.capacity, state.capacityRemaining
             )
 
-            if (state.chargeSpeed > 0) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    LargeVerticalInfoCard(
-                        title = stringResource(R.string.battery_speed),
-                        value = stringResource(R.string.charge_speed_watts, state.chargeSpeed),
-                        iconRes = R.drawable.rocket,
-                        iconTint = currentIconTint,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    )
+            val sourceTitle = stringResource(R.string.charging_source)
+            val sourceValue = stringResource(getChargingSourceRes(state.chargeSource))
+            val sourceDesc = stringResource(R.string.description_source)
 
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        InfoCard(
-                            title = stringResource(R.string.battery_current),
-                            value = stringResource(R.string.current_ma, state.currentNow),
-                            iconRes = R.drawable.bolt,
-                            iconTint = currentIconTint
+            InfoCard(
+                title = sourceTitle,
+                value = sourceValue,
+                iconRes = R.drawable.cable,
+                iconTint = iconTint,
+                onClick = {
+                    onShowDialog(
+                        DialogData(
+                            sourceTitle,
+                            sourceValue,
+                            sourceDesc,
+                            R.drawable.cable,
+                            iconTint
                         )
-                        capacityValue?.let {
-                            InfoCard(
-                                title = stringResource(R.string.battery_capacity),
-                                value = it,
-                                iconRes = R.drawable.battery_full,
-                                iconTint = currentIconTint
+                    )
+                }
+            )
+        }
+
+        val levelTitle = stringResource(R.string.battery_level)
+        val levelValue = stringResource(R.string.battery_percentage, state.level)
+        val levelDesc = stringResource(R.string.description_level)
+        val levelIcon = getBatteryIcon(state.level, state.isCharging)
+
+        LargeVerticalInfoCard(
+            title = levelTitle,
+            value = levelValue,
+            iconRes = levelIcon,
+            iconTint = iconTint,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        levelTitle,
+                        levelValue,
+                        levelDesc,
+                        levelIcon,
+                        iconTint
+                    )
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun CyclesSection(
+    state: BatteryState,
+    iconTint: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        val cyclesTitle = stringResource(R.string.battery_charging_cycles)
+        val cyclesValue = "${state.chargeCycles}"
+        val cyclesDesc = stringResource(R.string.description_cycles)
+
+        LargeHorizontalInfoCard(
+            title = cyclesTitle,
+            value = cyclesValue,
+            iconRes = R.drawable.power,
+            iconTint = iconTint,
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        cyclesTitle,
+                        cyclesValue,
+                        cyclesDesc,
+                        R.drawable.power,
+                        iconTint
+                    )
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun TechnicalSection(
+    state: BatteryState,
+    iconTint: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        val typeTitle = stringResource(R.string.battery_type)
+        val typeValue =
+            state.technology.orEmpty().ifBlank { stringResource(R.string.battery_health_unknown) }
+        val typeDesc = stringResource(R.string.description_type)
+
+        SmallInfoCard(
+            title = typeTitle,
+            value = typeValue,
+            iconRes = R.drawable.battery_10,
+            iconTint = iconTint,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        typeTitle,
+                        typeValue,
+                        typeDesc,
+                        R.drawable.battery_10,
+                        iconTint
+                    )
+                )
+            }
+        )
+
+        val tempTitle = stringResource(R.string.battery_temperature)
+        val tempValue = stringResource(R.string.temperature_celsius, state.temperature / 10)
+        val tempDesc = stringResource(R.string.description_temperature)
+
+        SmallInfoCard(
+            title = tempTitle,
+            value = tempValue,
+            iconRes = R.drawable.thermometer,
+            iconTint = iconTint,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        tempTitle,
+                        tempValue,
+                        tempDesc,
+                        R.drawable.thermometer,
+                        iconTint
+                    )
+                )
+            }
+        )
+
+        val voltageTitle = stringResource(R.string.battery_voltage)
+        val voltageValue = stringResource(R.string.voltage_mv, state.voltage)
+        val voltageDesc = stringResource(R.string.description_voltage)
+
+        SmallInfoCard(
+            title = voltageTitle,
+            value = voltageValue,
+            iconRes = R.drawable.bolt,
+            iconTint = iconTint,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        voltageTitle,
+                        voltageValue,
+                        voltageDesc,
+                        R.drawable.bolt,
+                        iconTint
+                    )
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun ChargingSection(
+    state: BatteryState,
+    iconTint: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    val capacityValue = BatteryStrings().getCapacityValue(state.capacity, state.capacityRemaining)
+
+    val currentTitle = stringResource(R.string.battery_current)
+    val currentValue = stringResource(R.string.current_ma, state.currentNow)
+    val currentDesc = stringResource(R.string.description_current)
+    val currentData = DialogData(currentTitle, currentValue, currentDesc, R.drawable.bolt, iconTint)
+
+    val capTitle = stringResource(R.string.battery_capacity)
+    val capDesc = stringResource(R.string.description_capacity)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (state.chargeSpeed > 0) {
+            val speedTitle = stringResource(R.string.battery_speed)
+            val speedValue = stringResource(R.string.charge_speed_watts, state.chargeSpeed)
+            val speedDesc = stringResource(R.string.description_speed)
+
+            LargeVerticalInfoCard(
+                title = speedTitle,
+                value = speedValue,
+                iconRes = R.drawable.rocket,
+                iconTint = iconTint,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                onClick = {
+                    onShowDialog(
+                        DialogData(
+                            speedTitle,
+                            speedValue,
+                            speedDesc,
+                            R.drawable.rocket,
+                            iconTint
+                        )
+                    )
+                }
+            )
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                InfoCard(
+                    title = currentTitle,
+                    value = currentValue,
+                    iconRes = R.drawable.bolt,
+                    iconTint = iconTint,
+                    onClick = { onShowDialog(currentData) }
+                )
+                capacityValue?.let {
+                    InfoCard(
+                        title = capTitle,
+                        value = it,
+                        iconRes = R.drawable.battery_full,
+                        iconTint = iconTint,
+                        onClick = {
+                            onShowDialog(
+                                DialogData(
+                                    capTitle,
+                                    it,
+                                    capDesc,
+                                    R.drawable.battery_full,
+                                    iconTint
+                                )
                             )
                         }
-                    }
-                }
-            } else {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    SmallInfoCard(
-                        title = stringResource(R.string.battery_current),
-                        value = stringResource(R.string.current_ma, state.currentNow),
-                        iconRes = R.drawable.bolt,
-                        iconTint = currentIconTint,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
                     )
-
-                    capacityValue?.let {
-                        SmallInfoCard(
-                            title = stringResource(R.string.battery_capacity),
-                            value = it,
-                            iconRes = R.drawable.battery_full,
-                            iconTint = currentIconTint,
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                        )
-                    }
                 }
             }
+        } else {
+            SmallInfoCard(
+                title = currentTitle,
+                value = currentValue,
+                iconRes = R.drawable.bolt,
+                iconTint = iconTint,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                onClick = { onShowDialog(currentData) }
+            )
 
-            if (state.timeRemaining != "00:00") {
-                LargeHorizontalInfoCard(
-                    title = stringResource(R.string.battery_charge_time_remaining),
-                    value = state.timeRemaining,
-                    iconRes = R.drawable.schedule,
-                    iconTint = currentIconTint
+            capacityValue?.let {
+                SmallInfoCard(
+                    title = capTitle,
+                    value = it,
+                    iconRes = R.drawable.battery_full,
+                    iconTint = iconTint,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    onClick = {
+                        onShowDialog(
+                            DialogData(
+                                capTitle,
+                                it,
+                                capDesc,
+                                R.drawable.battery_full,
+                                iconTint
+                            )
+                        )
+                    }
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun TimeRemainingSection(
+    state: BatteryState,
+    iconTint: Color,
+    onShowDialog: (DialogData) -> Unit
+) {
+    if (state.timeRemaining != "00:00") {
+        val timeTitle = stringResource(R.string.battery_charge_time_remaining)
+        val timeDesc = stringResource(R.string.description_time)
+
+        LargeHorizontalInfoCard(
+            title = timeTitle,
+            value = state.timeRemaining,
+            iconRes = R.drawable.schedule,
+            iconTint = iconTint,
+            onClick = {
+                onShowDialog(
+                    DialogData(
+                        timeTitle,
+                        state.timeRemaining,
+                        timeDesc,
+                        R.drawable.schedule,
+                        iconTint
+                    )
+                )
+            }
+        )
     }
 }
 

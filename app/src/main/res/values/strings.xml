@@ -64,4 +64,25 @@
     <string name="settings_software_update">Software update</string>
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
+
+    <!-- Battery Health Modal Descriptions -->
+    <string name="battery_health_description_good">The battery is in optimal condition and functioning correctly within its normal parameters.</string>
+    <string name="battery_health_description_overheat">Battery temperature is too high. This can reduce its lifespan. Avoid intensive use while it cools down.</string>
+    <string name="battery_health_description_dead">The battery has reached the end of its lifespan and needs to be replaced to ensure safe and stable operation.</string>
+    <string name="battery_health_description_over_voltage">A voltage higher than the safety limit has been detected. This is usually due to a faulty charger or cable.</string>
+    <string name="battery_health_description_cold">The battery is too cold. This can temporarily reduce performance and significantly slow down charging speed.</string>
+    <string name="battery_health_description_unknown">The system is analyzing the sensors to determine the health status. Make sure to use original accessories.</string>
+
+    <!-- Other Metric Descriptions -->
+    <string name="description_status">Indicates whether the battery is currently charging or discharging.</string>
+    <string name="description_source">The power source currently connected to the device (AC, USB, or Wireless).</string>
+    <string name="description_level">The current amount of energy stored in the battery as a percentage of its maximum capacity.</string>
+    <string name="description_cycles">The total number of full charge and discharge cycles. Higher numbers indicate more wear on the battery.</string>
+    <string name="description_type">The chemical composition of the battery (e.g., Li-ion, Li-poly).</string>
+    <string name="description_temperature">The current thermal state of the battery. Keeping it between 20°C and 35°C is ideal for longevity.</string>
+    <string name="description_voltage">The electrical potential provided by the battery. It varies based on the charge level.</string>
+    <string name="description_current">The instantaneous flow of electricity. Positive values indicate charging, while negative values indicate consumption.</string>
+    <string name="description_capacity">Total energy capacity of the battery. Real-time comparison between remaining and total mAh.</string>
+    <string name="description_speed">The rate at which the battery is being charged, measured in Watts (W).</string>
+    <string name="description_time">Estimated time until the battery reaches 100% charge based on current speed.</string>
 </resources>

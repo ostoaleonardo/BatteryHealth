@@ -50,4 +50,25 @@
     <string name="settings_software_update">Actualización de software</string>
     <string name="settings_version">Versión %s</string>
     <string name="settings_rate_us">Calificanos</string>
+
+    <!-- Battery Health Modal Descriptions -->
+    <string name="battery_health_description_good">La batería está en óptimas condiciones y funcionando correctamente dentro de sus parámetros normales.</string>
+    <string name="battery_health_description_overheat">La temperatura de la batería es demasiado alta. Esto puede reducir su vida útil. Evita el uso intensivo mientras se enfría.</string>
+    <string name="battery_health_description_dead">La batería ha llegado al final de su vida útil y necesita ser reemplazada para garantizar un funcionamiento seguro y estable.</string>
+    <string name="battery_health_description_over_voltage">Se ha detectado un voltaje superior al límite de seguridad. Esto suele deberse a un cargador o cable defectuoso.</string>
+    <string name="battery_health_description_cold">La batería está demasiado fría. Esto puede reducir temporalmente el rendimiento y ralentizar significativamente la velocidad de carga.</string>
+    <string name="battery_health_description_unknown">El sistema está analizando los sensores para determinar el estado de salud. Asegúrate de usar accesorios originales.</string>
+
+    <!-- Other Metric Descriptions -->
+    <string name="description_status">Indica si la batería se está cargando o descargando actualmente.</string>
+    <string name="description_source">La fuente de energía conectada actualmente al dispositivo (CA, USB o Inalámbrica).</string>
+    <string name="description_level">La cantidad actual de energía almacenada en la batería como un porcentaje de su capacidad máxima.</string>
+    <string name="description_cycles">El número total de ciclos completos de carga y descarga. Números más altos indican más desgaste en la batería.</string>
+    <string name="description_type">La composición química de la batería (p. ej., Li-ion, Li-poly).</string>
+    <string name="description_temperature">El estado térmico actual de la batería. Mantenerla entre 20°C y 35°C es ideal para su longevidad.</string>
+    <string name="description_voltage">El potencial eléctrico proporcionado por la batería. Varía según el nivel de carga.</string>
+    <string name="description_current">El flujo instantáneo de electricidad. Los valores positivos indican carga, mientras que los valores negativos indican consumo.</string>
+    <string name="description_capacity">Capacidad de energía total de la batería. Comparación en tiempo real entre los mAh restantes y totales.</string>
+    <string name="description_speed">La velocidad a la que se carga la batería, medida en vatios (W).</string>
+    <string name="description_time">Tiempo estimado hasta que la batería alcance el 100% de carga según la velocidad actual.</string>
 </resources>

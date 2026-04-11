@@ -25,8 +25,18 @@ fun getHealthStatusRes(health: Int) = when (health) {
     BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.string.battery_health_overheat
     BatteryManager.BATTERY_HEALTH_DEAD -> R.string.battery_health_dead
     BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> R.string.battery_health_over_voltage
+    BatteryManager.BATTERY_HEALTH_COLD -> R.string.battery_health_description_cold
     BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE -> R.string.battery_health_unspecified_failure
     else -> R.string.battery_health_unknown
+}
+
+fun getHealthDescriptionRes(health: Int) = when (health) {
+    BatteryManager.BATTERY_HEALTH_GOOD -> R.string.battery_health_description_good
+    BatteryManager.BATTERY_HEALTH_OVERHEAT -> R.string.battery_health_description_overheat
+    BatteryManager.BATTERY_HEALTH_DEAD -> R.string.battery_health_description_dead
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> R.string.battery_health_description_over_voltage
+    BatteryManager.BATTERY_HEALTH_COLD -> R.string.battery_health_description_cold
+    else -> R.string.battery_health_description_unknown
 }
 
 fun getChargingStatusRes(isCharging: Boolean) = if (isCharging) R.string.battery_charging else R.string.battery_unplugged
