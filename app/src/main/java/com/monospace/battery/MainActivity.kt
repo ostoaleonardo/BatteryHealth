@@ -62,6 +62,7 @@ sealed class Screen(val route: String) {
 class MainActivity : FragmentActivity() {
 
     private var batteryState by mutableStateOf(BatteryState())
+    private val batteryUtils by lazy { BatteryUtils(this) }
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -86,7 +87,6 @@ class MainActivity : FragmentActivity() {
                 var showSuccessSheet by remember { mutableStateOf(false) }
                 val context = LocalContext.current
 
-                // Initialize PurchaseManager at top level to ensure background validation runs on startup
                 val purchaseManager = remember {
                     PurchaseManager(
                         context = context,
@@ -161,7 +161,8 @@ class MainActivity : FragmentActivity() {
         }
 
         val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        registerReceiver(batteryReceiver, intentFilter)
+        val stickyIntent = registerReceiver(batteryReceiver, intentFilter)
+        updateBatteryState(stickyIntent)
     }
 
     override fun onDestroy() {
@@ -171,7 +172,6 @@ class MainActivity : FragmentActivity() {
 
     private fun updateBatteryState(intent: Intent?) {
         val batteryInfo = BatteryInfo(intent)
-        val batteryUtils = BatteryUtils(this)
 
         batteryState = BatteryState(
             health = batteryInfo.health,
@@ -184,7 +184,7 @@ class MainActivity : FragmentActivity() {
             voltage = batteryInfo.voltage,
             capacity = batteryUtils.getBatteryCapacity(),
             timeRemaining = batteryUtils.getChargeTimeRemaining(batteryInfo.isCharging),
-            chargeSpeed = batteryUtils.getChargeSpeed(intent ?: Intent(), batteryInfo.isCharging)
+            chargeSpeed = batteryUtils.getChargeSpeed(batteryInfo.voltage, batteryInfo.isCharging)
         )
     }
 

@@ -143,7 +143,7 @@ class ChargingInfoWidget : GlanceAppWidget() {
                         if (isCharging) {
                             val sourceStr =
                                 context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
-                            val speed = batteryUtils.getChargeSpeed(batteryStatus ?: Intent(), true)
+                            val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
 
                             Spacer(GlanceModifier.height(8.dp))
                             WidgetInfoRow(

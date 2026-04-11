@@ -2,7 +2,6 @@ package com.monospace.battery.helpers
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.os.BatteryManager
 import android.os.Build
 import java.util.Locale
@@ -56,12 +55,11 @@ class BatteryUtils(private val context: Context) {
     }
 
     fun getChargeSpeed(
-        intent: Intent,
+        voltageMilliVolts: Int,
         isCharging: Boolean
     ): Double {
         val batteryManager = context.getSystemService(Context.BATTERY_SERVICE) as BatteryManager
         val currentMicroAmps = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-        val voltageMilliVolts = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
 
         // Calculate charge speed in micro amps
         val currentAmps = currentMicroAmps / 1000000.0
