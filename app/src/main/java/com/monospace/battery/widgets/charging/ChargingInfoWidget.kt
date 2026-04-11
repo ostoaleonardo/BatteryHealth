@@ -42,6 +42,7 @@ import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.BatteryUtils
 import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
@@ -179,4 +180,8 @@ class UpdateAction : ActionCallback {
 
         ChargingInfoWidget().update(context, glanceId)
     }
+}
+
+class ChargingInfoWidgetReceiver : BatteryWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ChargingInfoWidget()
 }

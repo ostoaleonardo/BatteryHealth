@@ -10,8 +10,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -30,11 +28,10 @@ import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 
 class BatteryLevelWidget : GlanceAppWidget() {
 
@@ -106,22 +103,6 @@ class BatteryLevelWidget : GlanceAppWidget() {
     }
 }
 
-class BatteryLevelWidgetReceiver : GlanceAppWidgetReceiver() {
+class BatteryLevelWidgetReceiver : BatteryWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = BatteryLevelWidget()
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-
-        if (intent.action == Intent.ACTION_POWER_CONNECTED ||
-            intent.action == Intent.ACTION_POWER_DISCONNECTED ||
-            intent.action == Intent.ACTION_BATTERY_CHANGED
-        ) {
-            MainScope().launch {
-                GlanceAppWidgetManager(context).getGlanceIds(BatteryLevelWidget::class.java)
-                    .forEach {
-                        glanceAppWidget.update(context, it)
-                    }
-            }
-        }
-    }
 }

@@ -24,6 +24,7 @@ import com.monospace.battery.R
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryMockUtils
 import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetValueLabel
 
@@ -89,4 +90,14 @@ class ChargeCyclesWidget : GlanceAppWidget() {
             )
         }
     }
+}
+
+class ChargeCyclesWidgetReceiver : BatteryWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ChargeCyclesWidget()
+
+    override val updateActions: List<String> = listOf(
+        Intent.ACTION_POWER_CONNECTED,
+        Intent.ACTION_POWER_DISCONNECTED,
+        Intent.ACTION_SCREEN_ON
+    )
 }

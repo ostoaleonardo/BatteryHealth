@@ -34,6 +34,7 @@ import com.monospace.battery.helpers.BatteryStrings
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.ui.components.getHealthColor
 import com.monospace.battery.ui.components.getHealthIcon
+import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetStatusIndicator
 import com.monospace.battery.widgets.components.WidgetValueLabel
@@ -124,4 +125,14 @@ class HealthStatusWidget : GlanceAppWidget() {
             }
         }
     }
+}
+
+class HealthStatusWidgetReceiver : BatteryWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = HealthStatusWidget()
+
+    override val updateActions: List<String> = listOf(
+        Intent.ACTION_POWER_CONNECTED,
+        Intent.ACTION_POWER_DISCONNECTED,
+        Intent.ACTION_SCREEN_ON
+    )
 }
