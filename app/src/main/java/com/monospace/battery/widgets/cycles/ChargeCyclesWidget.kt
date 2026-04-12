@@ -36,7 +36,6 @@ class ChargeCyclesWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         provideContent {
-            val context = LocalContext.current
             val batteryStatus = context.registerReceiver(
                 null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             )
@@ -93,11 +92,7 @@ class ChargeCyclesWidget : GlanceAppWidget() {
 }
 
 class ChargeCyclesWidgetReceiver : BatteryWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = instance
-
-    companion object {
-        private val instance = ChargeCyclesWidget()
-    }
+    override val glanceAppWidget: GlanceAppWidget = ChargeCyclesWidget()
 
     override val updateActions: List<String> = listOf(
         Intent.ACTION_POWER_CONNECTED,

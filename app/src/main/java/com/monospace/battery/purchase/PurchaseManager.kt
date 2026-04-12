@@ -3,7 +3,6 @@ package com.monospace.battery.purchase
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import androidx.glance.appwidget.updateAll
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -18,10 +17,6 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
 import com.monospace.battery.helpers.WidgetsUtils
-import com.monospace.battery.widgets.charging.BatteryLevelWidget
-import com.monospace.battery.widgets.charging.ChargingInfoWidget
-import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
-import com.monospace.battery.widgets.health.HealthStatusWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -128,7 +123,6 @@ class PurchaseManager(
 
                 if (result.responseCode == BILLING_RESPONSE_OK) {
                     Log.d(TAG, "Purchase acknowledged successfully")
-                    updateWidgets()
 
                     if (!silent) _purchaseEvents.emit(PurchaseEvent.Success)
                 } else {
@@ -138,25 +132,9 @@ class PurchaseManager(
             }
         } else {
             Log.d(TAG, "Purchase already acknowledged")
-            updateWidgets()
 
             if (!silent && !wasPurchasedLocally) {
                 scope.launch { _purchaseEvents.emit(PurchaseEvent.Success) }
-            }
-        }
-    }
-
-    private fun updateWidgets() {
-        Log.d(TAG, "Refreshing all widgets UI")
-
-        scope.launch {
-            try {
-                ChargingInfoWidget().updateAll(context)
-                ChargeCyclesWidget().updateAll(context)
-                HealthStatusWidget().updateAll(context)
-                BatteryLevelWidget().updateAll(context)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating widgets", e)
             }
         }
     }
@@ -259,7 +237,6 @@ class PurchaseManager(
                         if (WidgetsUtils.isWidgetsPurchased(context)) {
                             Log.d(TAG, "Revoking access: No active purchase found in Google Play")
                             WidgetsUtils.setWidgetsPurchased(context, false)
-                            updateWidgets()
                         }
 
                         _isPurchased.value = false

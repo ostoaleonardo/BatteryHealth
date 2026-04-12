@@ -59,7 +59,6 @@ class ChargingInfoWidget : GlanceAppWidget() {
         provideContent {
             currentState<Preferences>()
 
-            val context = LocalContext.current
             val batteryStatus = context.registerReceiver(
                 null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             )
@@ -183,9 +182,5 @@ class UpdateAction : ActionCallback {
 }
 
 class ChargingInfoWidgetReceiver : BatteryWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = instance
-
-    companion object {
-        private val instance = ChargingInfoWidget()
-    }
+    override val glanceAppWidget: GlanceAppWidget = ChargingInfoWidget()
 }

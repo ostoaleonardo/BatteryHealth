@@ -210,8 +210,8 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStop() {
+        super.onStop()
         updateAllWidgets()
     }
 
@@ -333,12 +333,14 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun updateAllWidgets() {
+        val context = applicationContext
+
         lifecycleScope.launch {
             runCatching {
-                ChargingInfoWidget().updateAll(this@MainActivity)
-                BatteryLevelWidget().updateAll(this@MainActivity)
-                HealthStatusWidget().updateAll(this@MainActivity)
-                ChargeCyclesWidget().updateAll(this@MainActivity)
+                ChargingInfoWidget().updateAll(context)
+                ChargeCyclesWidget().updateAll(context)
+                HealthStatusWidget().updateAll(context)
+                BatteryLevelWidget().updateAll(context)
             }
         }
     }

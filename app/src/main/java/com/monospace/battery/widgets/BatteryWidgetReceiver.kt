@@ -9,7 +9,6 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 
 abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
-
     abstract override val glanceAppWidget: GlanceAppWidget
 
     open val updateActions: List<String> = listOf(
