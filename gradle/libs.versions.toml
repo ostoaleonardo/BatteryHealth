@@ -10,9 +10,9 @@ glance = "1.2.0-rc01"
 composeBom = "2026.03.01"
 activityCompose = "1.13.0"
 navigationCompose = "2.9.7"
-firebaseCrashlytics = "20.0.4"
+firebaseCrashlytics = "20.0.5"
 googleGmsGoogleServices = "4.4.4"
-googleFirebaseCrashlytics = "3.0.6"
+googleFirebaseCrashlytics = "3.0.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
