@@ -23,8 +23,10 @@ abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onReceive(context, intent)
 
         if (updateActions.contains(intent.action)) {
+            val manager = GlanceAppWidgetManager(context)
+
             MainScope().launch {
-                GlanceAppWidgetManager(context).getGlanceIds(glanceAppWidget::class.java)
+                manager.getGlanceIds(glanceAppWidget::class.java)
                     .forEach {
                         glanceAppWidget.update(context, it)
                     }

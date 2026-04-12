@@ -183,5 +183,9 @@ class UpdateAction : ActionCallback {
 }
 
 class ChargingInfoWidgetReceiver : BatteryWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = ChargingInfoWidget()
+    override val glanceAppWidget: GlanceAppWidget = instance
+
+    companion object {
+        private val instance = ChargingInfoWidget()
+    }
 }

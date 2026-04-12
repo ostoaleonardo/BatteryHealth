@@ -91,8 +91,9 @@ fun getHealthColor(health: Int): Color = when (health) {
 }
 
 fun getBatteryLevelColor(level: Int): Color = when {
-    level >= 80 -> ColorGreen
-    level >= 50 -> ColorOrange
+    level >= 90 -> ColorGreen
+    level >= 60 -> ColorLightGreen
+    level >= 35 -> ColorOrange
     level >= 20 -> ColorDeepOrange
     else -> ColorRed
 }
@@ -100,6 +101,7 @@ fun getBatteryLevelColor(level: Int): Color = when {
 fun getHealthBgColor(health: Int): Color = getHealthColor(health).copy(alpha = 0.1f)
 
 private val ColorGreen = Color(0xFF00A25B)
+private val ColorLightGreen = Color(0xFF8BC34A)
 private val ColorOrange = Color(0xFFFF9800)
 private val ColorDeepOrange = Color(0xFFFF5722)
 private val ColorRed = Color(0xFFF44336)

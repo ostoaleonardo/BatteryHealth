@@ -128,7 +128,11 @@ class HealthStatusWidget : GlanceAppWidget() {
 }
 
 class HealthStatusWidgetReceiver : BatteryWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = HealthStatusWidget()
+    override val glanceAppWidget: GlanceAppWidget = instance
+
+    companion object {
+        private val instance = HealthStatusWidget()
+    }
 
     override val updateActions: List<String> = listOf(
         Intent.ACTION_POWER_CONNECTED,

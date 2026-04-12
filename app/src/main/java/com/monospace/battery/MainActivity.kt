@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,9 +51,13 @@ import com.monospace.battery.ui.components.WidgetsPurchaseContent
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.widgets.charging.BatteryLevelWidget
 import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
+import com.monospace.battery.widgets.charging.ChargingInfoWidget
 import com.monospace.battery.widgets.charging.ChargingInfoWidgetReceiver
+import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
+import com.monospace.battery.widgets.health.HealthStatusWidget
 import com.monospace.battery.widgets.health.HealthStatusWidgetReceiver
 import kotlinx.coroutines.launch
 
@@ -205,6 +210,11 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updateAllWidgets()
+    }
+
     private fun updateBatteryState(intent: Intent?) {
         runCatching {
             val batteryInfo = BatteryInfo(intent)
@@ -318,6 +328,17 @@ class MainActivity : FragmentActivity() {
                         glanceManager.setWidgetPreviews(receiver)
                     }
                 }
+            }
+        }
+    }
+
+    private fun updateAllWidgets() {
+        lifecycleScope.launch {
+            runCatching {
+                ChargingInfoWidget().updateAll(this@MainActivity)
+                BatteryLevelWidget().updateAll(this@MainActivity)
+                HealthStatusWidget().updateAll(this@MainActivity)
+                ChargeCyclesWidget().updateAll(this@MainActivity)
             }
         }
     }

@@ -104,5 +104,9 @@ class BatteryLevelWidget : GlanceAppWidget() {
 }
 
 class BatteryLevelWidgetReceiver : BatteryWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = BatteryLevelWidget()
+    override val glanceAppWidget: GlanceAppWidget = instance
+
+    companion object {
+        private val instance = BatteryLevelWidget()
+    }
 }
