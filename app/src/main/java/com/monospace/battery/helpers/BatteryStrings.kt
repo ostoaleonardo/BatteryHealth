@@ -38,4 +38,13 @@ class BatteryStrings {
             "$capacity mAh"
         } else null
     }
+
+    fun getChargerQuality(chargeSpeed: Double): Int {
+        return when {
+            chargeSpeed <= 0 -> R.string.charging_source_none
+            chargeSpeed < 10 -> R.string.charger_quality_slow
+            chargeSpeed < 25 -> R.string.charger_quality_normal
+            else -> R.string.charger_quality_fast
+        }
+    }
 }

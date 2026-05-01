@@ -26,6 +26,9 @@
     <string name="battery_capacity">Capacidad</string>
     <string name="battery_charge_time_remaining">Tiempo de carga restante</string>
     <string name="battery_speed">Velocidad de carga</string>
+    <string name="charger_quality_slow">Lento</string>
+    <string name="charger_quality_normal">Normal</string>
+    <string name="charger_quality_fast">Rápido</string>
 
     <!-- Strings used for the widget purchase bottom sheet -->
     <string name="widget_purchase_title">🔋 Desbloquear Widgets</string>

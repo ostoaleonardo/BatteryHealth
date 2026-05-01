@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -143,6 +144,9 @@ class ChargingInfoWidget : GlanceAppWidget() {
                             val sourceStr =
                                 context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
                             val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
+                            val speedWatts = stringResource(R.string.charge_speed_watts, speed)
+                            val qualitySpeed = stringResource(BatteryStrings().getChargerQuality(speed))
+                            val speedValue = "$speedWatts (${qualitySpeed})"
 
                             Spacer(GlanceModifier.height(8.dp))
                             WidgetInfoRow(
@@ -153,7 +157,7 @@ class ChargingInfoWidget : GlanceAppWidget() {
                             Spacer(GlanceModifier.height(8.dp))
                             WidgetInfoRow(
                                 label = context.getString(R.string.battery_speed),
-                                value = context.getString(R.string.charge_speed_watts, speed)
+                                value = speedValue
                             )
                         }
                     }

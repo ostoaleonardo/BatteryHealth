@@ -350,8 +350,10 @@ private fun ChargingSection(
     ) {
         if (state.chargeSpeed > 0) {
             val speedTitle = stringResource(R.string.battery_speed)
-            val speedValue = stringResource(R.string.charge_speed_watts, state.chargeSpeed)
+            val speedWatts = stringResource(R.string.charge_speed_watts, state.chargeSpeed)
+            val qualitySpeed = stringResource(BatteryStrings().getChargerQuality(state.chargeSpeed))
             val speedDesc = stringResource(R.string.description_speed)
+            val speedValue = "$speedWatts (${qualitySpeed})"
 
             LargeVerticalInfoCard(
                 title = speedTitle,
