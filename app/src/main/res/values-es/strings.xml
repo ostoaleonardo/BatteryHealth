@@ -3,6 +3,9 @@
     <string name="app_name">Battery Health</string>
     <string name="action_settings">Ajustes</string>
     <string name="action_back">Volver</string>
+    <string name="nav_home">Inicio</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_alerts">Alertas</string>
 
     <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Buena</string>

@@ -154,55 +154,6 @@ fun SettingsContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSection(title = stringResource(R.string.settings_alerts_title)) {
-                val healthyTitle = stringResource(R.string.settings_healthy_charge)
-                val healthyDesc = stringResource(R.string.settings_healthy_charge_desc)
-                val lowTitle = stringResource(R.string.settings_low_battery)
-                val lowDesc = stringResource(R.string.settings_low_battery_desc)
-                val tempTitle = stringResource(R.string.settings_temp_alert)
-                val tempDesc = stringResource(R.string.settings_temp_alert_desc)
-
-                switchItem(
-                    title = healthyTitle,
-                    description = healthyDesc,
-                    checked = state.healthyChargeEnabled,
-                    onCheckedChange = actions.onHealthyChargeChange
-                )
-
-                if (state.healthyChargeEnabled) {
-                    sliderItem(
-                        title = healthyTitle,
-                        value = state.healthyChargeLevel,
-                        onValueChange = actions.onHealthyChargeLevelChange
-                    )
-                }
-
-                switchItem(
-                    title = lowTitle,
-                    description = lowDesc,
-                    checked = state.lowBatteryEnabled,
-                    onCheckedChange = actions.onLowBatteryChange
-                )
-
-                if (state.lowBatteryEnabled) {
-                    sliderItem(
-                        title = lowTitle,
-                        value = state.lowBatteryLevel,
-                        onValueChange = actions.onLowBatteryLevelChange,
-                        range = 0f..50f
-                    )
-                }
-
-                switchItem(
-                    title = tempTitle,
-                    description = tempDesc,
-                    checked = state.tempAlertEnabled,
-                    onCheckedChange = actions.onTempAlertChange
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             SettingsSection(title = stringResource(R.string.action_settings)) {
                 val unlockTitle = stringResource(R.string.settings_unlock_full)
                 val unlockDesc = stringResource(R.string.widget_purchase_description)

@@ -16,28 +16,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.sharp.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
@@ -46,13 +39,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.monospace.battery.core.constants.AppConstants
 import com.monospace.battery.core.utils.BatteryUtils
+import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.data.models.SettingsUiActions
+import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.service.alerts.BatteryAlertService
+import com.monospace.battery.ui.components.BottomNavigation
 import com.monospace.battery.ui.components.CompleteWidgetsPurchaseContent
+import com.monospace.battery.ui.components.Screen
+import com.monospace.battery.ui.components.TopAppBar
 import com.monospace.battery.ui.components.WidgetsPurchaseContent
+import com.monospace.battery.ui.screens.AlertsScreen
+import com.monospace.battery.ui.screens.HistoryScreen
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
 import com.monospace.battery.ui.theme.BatteryTheme
@@ -65,11 +67,6 @@ import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
 import com.monospace.battery.widgets.health.HealthStatusWidget
 import com.monospace.battery.widgets.health.HealthStatusWidgetReceiver
 import kotlinx.coroutines.launch
-
-sealed class Screen(val route: String) {
-    object Home : Screen("home")
-    object Settings : Screen("settings")
-}
 
 class MainActivity : ComponentActivity() {
 
@@ -111,13 +108,120 @@ class MainActivity : ComponentActivity() {
 
                 val isPurchased by purchaseManager.isPurchased.collectAsState()
 
+                val prefs = remember { PreferenceManager(context) }
+
                 var showPurchaseSheet by remember { mutableStateOf(false) }
                 var showSuccessSheet by remember { mutableStateOf(false) }
                 var purchaseError by remember {
-                    mutableStateOf<PurchaseManager.PurchaseEvent.Error?>(
-                        null
+                    mutableStateOf<PurchaseManager.PurchaseEvent.Error?>(null)
+                }
+
+                val healthyChargeEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_HEALTHY_CHARGE_ENABLED
+                        )
                     )
                 }
+                val tempAlertEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_TEMP_ALERT_ENABLED
+                        )
+                    )
+                }
+                val healthyChargeLevelState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
+                            80
+                        )
+                    )
+                }
+                val lowBatteryEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_LOW_BATTERY_ENABLED
+                        )
+                    )
+                }
+                val lowBatteryLevelState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_LOW_BATTERY_LEVEL,
+                            20
+                        )
+                    )
+                }
+
+                val settingsState = SettingsUiState(
+                    isWidgetsPurchased = isPurchased,
+                    versionName = remember {
+                        com.monospace.battery.core.utils.AppUtils.getVersionName(
+                            context
+                        )
+                    },
+                    healthyChargeEnabled = healthyChargeEnabledState.value,
+                    tempAlertEnabled = tempAlertEnabledState.value,
+                    lowBatteryEnabled = lowBatteryEnabledState.value,
+                    healthyChargeLevel = healthyChargeLevelState.intValue,
+                    lowBatteryLevel = lowBatteryLevelState.intValue
+                )
+
+                val settingsActions = SettingsUiActions(
+                    onHealthyChargeChange = {
+                        healthyChargeEnabledState.value = it
+                        prefs.setBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_HEALTHY_CHARGE_ENABLED,
+                            it
+                        )
+                    },
+                    onTempAlertChange = {
+                        tempAlertEnabledState.value = it
+                        prefs.setBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_TEMP_ALERT_ENABLED,
+                            it
+                        )
+                    },
+                    onLowBatteryChange = {
+                        lowBatteryEnabledState.value = it
+                        prefs.setBoolean(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_LOW_BATTERY_ENABLED,
+                            it
+                        )
+                    },
+                    onHealthyChargeLevelChange = {
+                        healthyChargeLevelState.intValue = it
+                        prefs.setInt(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
+                            it
+                        )
+                    },
+                    onLowBatteryLevelChange = {
+                        lowBatteryLevelState.intValue = it
+                        prefs.setInt(
+                            AppConstants.PREFS_ALERTS,
+                            AppConstants.KEY_LOW_BATTERY_LEVEL,
+                            it
+                        )
+                    },
+                    onUnlockClick = { showPurchaseSheet = true },
+                    onUpdateClick = {
+                        com.monospace.battery.core.utils.AppUtils.openPlayStore(
+                            context
+                        )
+                    },
+                    onRateClick = { com.monospace.battery.core.utils.AppUtils.openPlayStore(context) }
+                )
 
                 LaunchedEffect(isPurchased) {
                     showPurchaseSheet = !isPurchased
@@ -178,11 +282,19 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        BatteryTopAppBar(
+                        TopAppBar(
                             currentRoute = currentRoute,
                             onSettingsClick = { navController.navigate(Screen.Settings.route) },
                             onBackClick = { navController.popBackStack() }
                         )
+                    },
+                    bottomBar = {
+                        if (currentRoute != Screen.Settings.route) {
+                            BottomNavigation(
+                                currentRoute = currentRoute,
+                                navController = navController
+                            )
+                        }
                     }
                 ) { innerPadding ->
                     NavHost(
@@ -192,6 +304,12 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Home.route) {
                             MainScreen(state = batteryState)
+                        }
+                        composable(Screen.History.route) {
+                            HistoryScreen()
+                        }
+                        composable(Screen.Alerts.route) {
+                            AlertsScreen(state = settingsState, actions = settingsActions)
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(
@@ -289,56 +407,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    private fun BatteryTopAppBar(
-        currentRoute: String?,
-        onSettingsClick: () -> Unit,
-        onBackClick: () -> Unit
-    ) {
-        TopAppBar(
-            title = {
-                Text(
-                    text = if (currentRoute == Screen.Settings.route) stringResource(R.string.action_settings)
-                    else stringResource(R.string.app_name)
-                )
-            },
-            actions = {
-                if (currentRoute == Screen.Home.route) {
-                    IconButton(onClick = onSettingsClick) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.settings),
-                            contentDescription = stringResource(R.string.action_settings)
-                        )
-                    }
-                }
-            },
-            navigationIcon = {
-                if (currentRoute == Screen.Settings.route) {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Sharp.ArrowBack,
-                            contentDescription = stringResource(R.string.action_back),
-                            modifier = Modifier.padding(2.dp)
-                        )
-                    }
-                }
-            }
-        )
-    }
-
     private fun checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
+            if (ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    startBatteryAlertService()
-                }
-                else -> {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                startBatteryAlertService()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         } else {
             startBatteryAlertService()
@@ -347,7 +425,12 @@ class MainActivity : ComponentActivity() {
 
     private fun startBatteryAlertService() {
         val intent = Intent(this, BatteryAlertService::class.java)
-        startService(intent)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
     }
 
     private fun setupWidgetPreviews() {
