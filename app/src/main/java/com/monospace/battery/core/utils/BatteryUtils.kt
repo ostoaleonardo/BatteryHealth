@@ -1,4 +1,4 @@
-package com.monospace.battery.helpers
+package com.monospace.battery.core.utils
 
 import android.annotation.SuppressLint
 import android.content.Context

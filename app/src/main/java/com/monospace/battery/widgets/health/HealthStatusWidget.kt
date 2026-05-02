@@ -31,10 +31,10 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
-import com.monospace.battery.helpers.BatteryInfo
-import com.monospace.battery.helpers.BatteryMockUtils
-import com.monospace.battery.helpers.BatteryStrings
-import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.core.utils.BatteryMockUtils
+import com.monospace.battery.core.utils.BatteryStrings
+import com.monospace.battery.data.local.WidgetsUtils
+import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.ui.components.getHealthColor
 import com.monospace.battery.ui.components.getHealthIcon
 import com.monospace.battery.widgets.BatteryWidgetReceiver

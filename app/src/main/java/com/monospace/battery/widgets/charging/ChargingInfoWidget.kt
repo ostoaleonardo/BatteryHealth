@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -38,11 +37,11 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
-import com.monospace.battery.helpers.BatteryInfo
-import com.monospace.battery.helpers.BatteryMockUtils
-import com.monospace.battery.helpers.BatteryStrings
-import com.monospace.battery.helpers.BatteryUtils
-import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.core.utils.BatteryMockUtils
+import com.monospace.battery.core.utils.BatteryStrings
+import com.monospace.battery.core.utils.BatteryUtils
+import com.monospace.battery.data.local.WidgetsUtils
+import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
@@ -144,8 +143,8 @@ class ChargingInfoWidget : GlanceAppWidget() {
                             val sourceStr =
                                 context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
                             val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
-                            val speedWatts = stringResource(R.string.charge_speed_watts, speed)
-                            val qualitySpeed = stringResource(BatteryStrings().getChargerQuality(speed))
+                            val speedWatts = context.getString(R.string.charge_speed_watts, speed)
+                            val qualitySpeed = context.getString(batteryStrings.getChargerQuality(speed))
                             val speedValue = "$speedWatts (${qualitySpeed})"
 
                             Spacer(GlanceModifier.height(8.dp))

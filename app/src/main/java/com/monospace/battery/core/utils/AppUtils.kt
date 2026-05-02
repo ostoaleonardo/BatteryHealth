@@ -1,10 +1,11 @@
-package com.monospace.battery.helpers
+package com.monospace.battery.core.utils
 
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.net.toUri
+import com.monospace.battery.core.constants.AppConstants
 
 object AppUtils {
 
@@ -18,13 +19,13 @@ object AppUtils {
             } else {
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }.versionName
-        }.getOrNull() ?: "1.0.0"
+        }.getOrNull() ?: AppConstants.DEFAULT_VERSION_NAME
     }
 
     fun openPlayStore(context: Context) {
         val appPackageName = context.packageName
-        val marketUri = "market://details?id=$appPackageName".toUri()
-        val webUri = "https://play.google.com/store/apps/details?id=$appPackageName".toUri()
+        val marketUri = "${AppConstants.PLAY_STORE_MARKET_URL}$appPackageName".toUri()
+        val webUri = "${AppConstants.PLAY_STORE_WEB_URL}$appPackageName".toUri()
 
         val intent = Intent(Intent.ACTION_VIEW, marketUri).apply {
             addFlags(

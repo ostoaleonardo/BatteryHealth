@@ -25,9 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.helpers.BatteryStrings
+import com.monospace.battery.core.utils.BatteryStrings
+import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.ui.components.BatteryDialog
-import com.monospace.battery.ui.components.BatteryState
 import com.monospace.battery.ui.components.HealthCard
 import com.monospace.battery.ui.components.InfoCard
 import com.monospace.battery.ui.components.LargeHorizontalInfoCard

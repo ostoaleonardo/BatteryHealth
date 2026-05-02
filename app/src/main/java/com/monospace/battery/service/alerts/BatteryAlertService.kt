@@ -1,4 +1,4 @@
-package com.monospace.battery.helpers
+package com.monospace.battery.service.alerts
 
 import android.app.Notification
 import android.app.PendingIntent
@@ -7,18 +7,22 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ServiceInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.AppConstants
+import com.monospace.battery.data.local.PreferenceManager
+import com.monospace.battery.notifications.NotificationHelper
 
 class BatteryAlertService : Service() {
 
     private lateinit var notificationHelper: NotificationHelper
-    private lateinit var prefs: SharedPreferences
-    
+    private lateinit var prefs: PreferenceManager
+
     private var lastLevel = -1
     private var lastTemp = -1
 
@@ -27,10 +31,10 @@ class BatteryAlertService : Service() {
             val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
             val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
             val batteryPct = if (scale > 0) (level * 100 / scale) else -1
-            
+
             val temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
             val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-            val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || 
+            val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                              status == BatteryManager.BATTERY_STATUS_FULL
 
             checkAlerts(batteryPct, temperature, isCharging)
@@ -40,18 +44,18 @@ class BatteryAlertService : Service() {
     override fun onCreate() {
         super.onCreate()
         notificationHelper = NotificationHelper(this)
-        prefs = SharedPreferences(this)
-        
+        prefs = PreferenceManager(this)
+
         // Start as foreground service to ensure it keeps running
         startForegroundService()
-        
+
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         registerReceiver(batteryReceiver, filter)
     }
 
     private fun startForegroundService() {
-        val channelId = NotificationHelper.CHANNEL_ID
-        
+        val channelId = AppConstants.NOTIFICATION_CHANNEL_ID
+
         val notificationIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             this, 0, notificationIntent,
@@ -68,9 +72,9 @@ class BatteryAlertService : Service() {
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(AppConstants.NOTIFICATION_SERVICE_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
         } else {
-            startForeground(1, notification)
+            startForeground(AppConstants.NOTIFICATION_SERVICE_ID, notification)
         }
     }
 
@@ -89,23 +93,23 @@ class BatteryAlertService : Service() {
         if (level == -1 || temperature == -1) return
 
         // 1. Healthy Charge (n%) - Only when charging and crossing the threshold
-        val healthyEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE)
-        val healthyLevel = prefs.getInt(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL, 80)
-        
+        val healthyEnabled = prefs.getBoolean(AppConstants.PREFS_ALERTS, AppConstants.KEY_HEALTHY_CHARGE_ENABLED)
+        val healthyLevel = prefs.getInt(AppConstants.PREFS_ALERTS, AppConstants.KEY_HEALTHY_CHARGE_LEVEL, 80)
+
         if (healthyEnabled && isCharging && level >= healthyLevel && lastLevel != -1 && lastLevel < healthyLevel) {
             notificationHelper.showHealthyChargeNotification()
         }
 
         // 2. Low Battery (n%) - Only when NOT charging and dropping below the threshold
-        val lowEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY)
-        val lowLevel = prefs.getInt(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY_LEVEL, 20)
+        val lowEnabled = prefs.getBoolean(AppConstants.PREFS_ALERTS, AppConstants.KEY_LOW_BATTERY_ENABLED)
+        val lowLevel = prefs.getInt(AppConstants.PREFS_ALERTS, AppConstants.KEY_LOW_BATTERY_LEVEL, 20)
 
         if (lowEnabled && !isCharging && level <= lowLevel && lastLevel != -1 && lastLevel > lowLevel) {
             notificationHelper.showLowBatteryNotification(lowLevel)
         }
 
         // 3. High Temperature (> 40°C) - Threshold crossing (temp is in tenths of degree)
-        val tempEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT)
+        val tempEnabled = prefs.getBoolean(AppConstants.PREFS_ALERTS, AppConstants.KEY_TEMP_ALERT_ENABLED)
         val tempCelsius = temperature / 10
         if (tempEnabled && tempCelsius >= 40 && lastTemp != -1 && lastTemp < 40) {
             notificationHelper.showTempAlertNotification()

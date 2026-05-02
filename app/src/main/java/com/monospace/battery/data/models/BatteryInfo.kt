@@ -1,4 +1,4 @@
-package com.monospace.battery.helpers
+package com.monospace.battery.data.models
 
 import android.content.Intent
 import android.os.BatteryManager

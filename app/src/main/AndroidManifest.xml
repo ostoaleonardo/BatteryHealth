@@ -21,7 +21,7 @@
         tools:targetApi="36">
 
         <service
-            android:name=".helpers.BatteryAlertService"
+            android:name=".service.alerts.BatteryAlertService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="specialUse" />
@@ -78,7 +78,7 @@
         </receiver>
 
         <receiver
-            android:name=".helpers.BatteryAlertReceiver"
+            android:name=".service.alerts.BatteryAlertReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

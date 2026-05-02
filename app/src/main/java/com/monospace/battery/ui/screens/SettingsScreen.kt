@@ -19,32 +19,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.helpers.AppUtils
-import com.monospace.battery.helpers.SharedPreferences
-import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.core.constants.AppConstants
+import com.monospace.battery.core.utils.AppUtils
+import com.monospace.battery.data.local.PreferenceManager
+import com.monospace.battery.data.local.WidgetsUtils
+import com.monospace.battery.data.models.SettingsUiActions
+import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.BatteryTheme
-
-data class SettingsUiState(
-    val isWidgetsPurchased: Boolean,
-    val versionName: String,
-    val healthyChargeEnabled: Boolean,
-    val tempAlertEnabled: Boolean,
-    val lowBatteryEnabled: Boolean,
-    val healthyChargeLevel: Int,
-    val lowBatteryLevel: Int
-)
-
-data class SettingsUiActions(
-    val onHealthyChargeChange: (Boolean) -> Unit,
-    val onTempAlertChange: (Boolean) -> Unit,
-    val onLowBatteryChange: (Boolean) -> Unit,
-    val onHealthyChargeLevelChange: (Int) -> Unit,
-    val onLowBatteryLevelChange: (Int) -> Unit,
-    val onUnlockClick: () -> Unit,
-    val onUpdateClick: () -> Unit,
-    val onRateClick: () -> Unit
-)
 
 @Composable
 fun SettingsScreen(
@@ -52,29 +34,29 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
-    val prefs = remember { SharedPreferences(context) }
+    val prefs = remember { PreferenceManager(context) }
 
     val healthyChargeEnabledState = remember {
         mutableStateOf(
             prefs.getBoolean(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_HEALTHY_CHARGE
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_HEALTHY_CHARGE_ENABLED
             )
         )
     }
     val tempAlertEnabledState = remember {
         mutableStateOf(
             prefs.getBoolean(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_TEMP_ALERT
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_TEMP_ALERT_ENABLED
             )
         )
     }
     val healthyChargeLevelState = remember {
         mutableIntStateOf(
             prefs.getInt(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL,
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
                 80
             )
         )
@@ -82,16 +64,16 @@ fun SettingsScreen(
     val lowBatteryEnabledState = remember {
         mutableStateOf(
             prefs.getBoolean(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_LOW_BATTERY
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_LOW_BATTERY_ENABLED
             )
         )
     }
     val lowBatteryLevelState = remember {
         mutableIntStateOf(
             prefs.getInt(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_LOW_BATTERY_LEVEL,
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_LOW_BATTERY_LEVEL,
                 20
             )
         )
@@ -113,32 +95,40 @@ fun SettingsScreen(
         onHealthyChargeChange = {
             healthyChargeEnabledState.value = it
             prefs.setBoolean(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_HEALTHY_CHARGE,
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_HEALTHY_CHARGE_ENABLED,
                 it
             )
         },
         onTempAlertChange = {
             tempAlertEnabledState.value = it
-            prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT, it)
+            prefs.setBoolean(
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_TEMP_ALERT_ENABLED,
+                it
+            )
         },
         onLowBatteryChange = {
             lowBatteryEnabledState.value = it
-            prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY, it)
+            prefs.setBoolean(
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_LOW_BATTERY_ENABLED,
+                it
+            )
         },
         onHealthyChargeLevelChange = {
             healthyChargeLevelState.intValue = it
             prefs.setInt(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL,
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
                 it
             )
         },
         onLowBatteryLevelChange = {
             lowBatteryLevelState.intValue = it
             prefs.setInt(
-                SharedPreferences.ALERTS_PREFS,
-                SharedPreferences.KEY_LOW_BATTERY_LEVEL,
+                AppConstants.PREFS_ALERTS,
+                AppConstants.KEY_LOW_BATTERY_LEVEL,
                 it
             )
         },

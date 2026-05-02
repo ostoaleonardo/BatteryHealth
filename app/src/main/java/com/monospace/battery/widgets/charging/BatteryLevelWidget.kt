@@ -27,9 +27,9 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
-import com.monospace.battery.helpers.BatteryInfo
-import com.monospace.battery.helpers.BatteryMockUtils
-import com.monospace.battery.helpers.WidgetsUtils
+import com.monospace.battery.core.utils.BatteryMockUtils
+import com.monospace.battery.data.local.WidgetsUtils
+import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent

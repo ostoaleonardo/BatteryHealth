@@ -1,4 +1,4 @@
-package com.monospace.battery.helpers
+package com.monospace.battery.service.alerts
 
 import android.content.BroadcastReceiver
 import android.content.Context

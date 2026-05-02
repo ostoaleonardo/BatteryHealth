@@ -46,11 +46,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.monospace.battery.helpers.BatteryAlertService
-import com.monospace.battery.helpers.BatteryInfo
-import com.monospace.battery.helpers.BatteryUtils
+import com.monospace.battery.core.utils.BatteryUtils
+import com.monospace.battery.data.models.BatteryInfo
+import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.purchase.PurchaseManager
-import com.monospace.battery.ui.components.BatteryState
+import com.monospace.battery.service.alerts.BatteryAlertService
 import com.monospace.battery.ui.components.CompleteWidgetsPurchaseContent
 import com.monospace.battery.ui.components.WidgetsPurchaseContent
 import com.monospace.battery.ui.screens.MainScreen
