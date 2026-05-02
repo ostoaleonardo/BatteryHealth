@@ -60,7 +60,7 @@ class BatteryAlertService : Service() {
 
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle(getString(R.string.app_name))
-            .setContentText(getString(R.string.battery_status))
+            .setContentText(getString(R.string.notification_service_running))
             .setSmallIcon(R.drawable.bolt)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -96,13 +96,7 @@ class BatteryAlertService : Service() {
             notificationHelper.showHealthyChargeNotification()
         }
 
-        // 2. Full Charge (100%) - Only when charging and reaching 100
-        val fullEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_FULL_CHARGE)
-        if (fullEnabled && isCharging && level >= 100 && lastLevel != -1 && lastLevel < 100) {
-            notificationHelper.showFullChargeNotification()
-        }
-
-        // 3. High Temperature (> 40°C) - Threshold crossing (temp is in tenths of degree)
+        // 2. High Temperature (> 40°C) - Threshold crossing (temp is in tenths of degree)
         val tempEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT)
         val tempCelsius = temperature / 10
         if (tempEnabled && tempCelsius >= 40 && lastTemp != -1 && lastTemp < 40) {

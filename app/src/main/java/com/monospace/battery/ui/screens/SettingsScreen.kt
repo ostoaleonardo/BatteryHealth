@@ -1,6 +1,5 @@
 package com.monospace.battery.ui.screens
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
@@ -9,15 +8,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.net.toUri
 import com.monospace.battery.R
+import com.monospace.battery.helpers.AppUtils
 import com.monospace.battery.helpers.SharedPreferences
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.ui.components.SettingsItem
@@ -25,6 +24,23 @@ import com.monospace.battery.ui.components.SettingsSectionTitle
 import com.monospace.battery.ui.components.SettingsSliderItem
 import com.monospace.battery.ui.components.SettingsSwitchItem
 import com.monospace.battery.ui.theme.BatteryTheme
+
+data class SettingsUiState(
+    val isWidgetsPurchased: Boolean,
+    val versionName: String,
+    val healthyChargeEnabled: Boolean,
+    val tempAlertEnabled: Boolean,
+    val healthyChargeLevel: Int
+)
+
+data class SettingsUiActions(
+    val onHealthyChargeChange: (Boolean) -> Unit,
+    val onTempAlertChange: (Boolean) -> Unit,
+    val onHealthyChargeLevelChange: (Int) -> Unit,
+    val onUnlockClick: () -> Unit,
+    val onUpdateClick: () -> Unit,
+    val onRateClick: () -> Unit
+)
 
 @Composable
 fun SettingsScreen(
@@ -34,83 +50,75 @@ fun SettingsScreen(
     val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
     val prefs = remember { SharedPreferences(context) }
 
-    var healthyChargeEnabled by remember {
-        mutableStateOf(prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE))
+    val healthyChargeEnabledState = remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_HEALTHY_CHARGE
+            )
+        )
     }
-    var fullChargeEnabled by remember {
-        mutableStateOf(prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_FULL_CHARGE))
+    val tempAlertEnabledState = remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_TEMP_ALERT
+            )
+        )
     }
-    var tempAlertEnabled by remember {
-        mutableStateOf(prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT))
-    }
-    var healthyChargeLevel by remember {
-        mutableStateOf(prefs.getInt(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL, 80))
-    }
-
-    val versionName = remember {
-        try {
-            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "1.0.0"
-        } catch (_: Exception) {
-            "1.0.0"
-        }
-    }
-
-    val openGooglePlay = {
-        val appPackageName = context.packageName
-        val marketUri = "market://details?id=$appPackageName".toUri()
-        val googlePlayUri = "https://play.google.com/store/apps/details?id=$appPackageName".toUri()
-
-        try {
-            context.startActivity(Intent(Intent.ACTION_VIEW, marketUri))
-        } catch (_: Exception) {
-            context.startActivity(Intent(Intent.ACTION_VIEW, googlePlayUri))
-        }
+    val healthyChargeLevelState = remember {
+        mutableIntStateOf(
+            prefs.getInt(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL,
+                80
+            )
+        )
     }
 
-    SettingsContent(
+    val versionName = remember { AppUtils.getVersionName(context) }
+
+    val state = SettingsUiState(
         isWidgetsPurchased = isWidgetsPurchased,
         versionName = versionName,
-        healthyChargeEnabled = healthyChargeEnabled,
-        fullChargeEnabled = fullChargeEnabled,
-        tempAlertEnabled = tempAlertEnabled,
-        healthyChargeLevel = healthyChargeLevel,
+        healthyChargeEnabled = healthyChargeEnabledState.value,
+        tempAlertEnabled = tempAlertEnabledState.value,
+        healthyChargeLevel = healthyChargeLevelState.intValue
+    )
+
+    val actions = SettingsUiActions(
         onHealthyChargeChange = {
-            healthyChargeEnabled = it
-            prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE, it)
-        },
-        onFullChargeChange = {
-            fullChargeEnabled = it
-            prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_FULL_CHARGE, it)
+            healthyChargeEnabledState.value = it
+            prefs.setBoolean(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_HEALTHY_CHARGE,
+                it
+            )
         },
         onTempAlertChange = {
-            tempAlertEnabled = it
+            tempAlertEnabledState.value = it
             prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT, it)
         },
         onHealthyChargeLevelChange = {
-            healthyChargeLevel = it
-            prefs.setInt(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL, it)
+            healthyChargeLevelState.intValue = it
+            prefs.setInt(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL,
+                it
+            )
         },
         onUnlockClick = onUnlockClick,
-        onUpdateClick = openGooglePlay,
-        onRateClick = openGooglePlay
+        onUpdateClick = { AppUtils.openPlayStore(context) },
+        onRateClick = { AppUtils.openPlayStore(context) }
     )
+
+    SettingsContent(state, actions)
 }
 
 @Composable
 fun SettingsContent(
-    isWidgetsPurchased: Boolean,
-    versionName: String,
-    healthyChargeEnabled: Boolean,
-    fullChargeEnabled: Boolean,
-    tempAlertEnabled: Boolean,
-    healthyChargeLevel: Int,
-    onHealthyChargeChange: (Boolean) -> Unit,
-    onFullChargeChange: (Boolean) -> Unit,
-    onTempAlertChange: (Boolean) -> Unit,
-    onHealthyChargeLevelChange: (Int) -> Unit,
-    onUnlockClick: () -> Unit,
-    onUpdateClick: () -> Unit,
-    onRateClick: () -> Unit
+    state: SettingsUiState,
+    actions: SettingsUiActions
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -126,51 +134,44 @@ fun SettingsContent(
             SettingsSwitchItem(
                 title = stringResource(R.string.settings_healthy_charge),
                 description = stringResource(R.string.settings_healthy_charge_desc),
-                checked = healthyChargeEnabled,
-                onCheckedChange = onHealthyChargeChange
+                checked = state.healthyChargeEnabled,
+                onCheckedChange = actions.onHealthyChargeChange
             )
 
-            if (healthyChargeEnabled) {
+            if (state.healthyChargeEnabled) {
                 SettingsSliderItem(
                     title = stringResource(R.string.settings_healthy_charge),
-                    value = healthyChargeLevel,
-                    onValueChange = onHealthyChargeLevelChange
+                    value = state.healthyChargeLevel,
+                    onValueChange = actions.onHealthyChargeLevelChange
                 )
             }
 
             SettingsSwitchItem(
-                title = stringResource(R.string.settings_full_charge),
-                description = stringResource(R.string.settings_full_charge_desc),
-                checked = fullChargeEnabled,
-                onCheckedChange = onFullChargeChange
-            )
-
-            SettingsSwitchItem(
                 title = stringResource(R.string.settings_temp_alert),
                 description = stringResource(R.string.settings_temp_alert_desc),
-                checked = tempAlertEnabled,
-                onCheckedChange = onTempAlertChange
+                checked = state.tempAlertEnabled,
+                onCheckedChange = actions.onTempAlertChange
             )
 
             SettingsSectionTitle(title = stringResource(R.string.action_settings))
 
-            if (!isWidgetsPurchased) {
+            if (!state.isWidgetsPurchased) {
                 SettingsItem(
                     title = stringResource(R.string.settings_unlock_full),
                     description = stringResource(R.string.widget_purchase_description),
-                    onClick = onUnlockClick
+                    onClick = actions.onUnlockClick
                 )
             }
 
             SettingsItem(
                 title = stringResource(R.string.settings_software_update),
-                description = stringResource(R.string.settings_version, versionName),
-                onClick = onUpdateClick
+                description = stringResource(R.string.settings_version, state.versionName),
+                onClick = actions.onUpdateClick
             )
 
             SettingsItem(
                 title = stringResource(R.string.settings_rate_us),
-                onClick = onRateClick
+                onClick = actions.onRateClick
             )
         }
     }
@@ -181,19 +182,21 @@ fun SettingsContent(
 fun SettingsScreenPreview() {
     BatteryTheme {
         SettingsContent(
-            isWidgetsPurchased = false,
-            versionName = "1.0.0",
-            healthyChargeEnabled = true,
-            fullChargeEnabled = false,
-            tempAlertEnabled = true,
-            healthyChargeLevel = 80,
-            onHealthyChargeChange = {},
-            onFullChargeChange = {},
-            onTempAlertChange = {},
-            onHealthyChargeLevelChange = {},
-            onUnlockClick = {},
-            onUpdateClick = {},
-            onRateClick = {}
+            state = SettingsUiState(
+                isWidgetsPurchased = false,
+                versionName = "1.0.0",
+                healthyChargeEnabled = true,
+                tempAlertEnabled = true,
+                healthyChargeLevel = 80
+            ),
+            actions = SettingsUiActions(
+                onHealthyChargeChange = {},
+                onTempAlertChange = {},
+                onHealthyChargeLevelChange = {},
+                onUnlockClick = {},
+                onUpdateClick = {},
+                onRateClick = {}
+            )
         )
     }
 }

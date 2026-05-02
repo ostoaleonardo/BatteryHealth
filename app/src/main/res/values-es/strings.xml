@@ -59,8 +59,6 @@
     <string name="settings_healthy_charge">Alarma de carga saludable</string>
     <string name="settings_healthy_charge_desc">Avisar cuando la batería llegue a un nivel específico para prolongar su vida útil.</string>
     <string name="settings_healthy_charge_level">Nivel de alerta: %d%%</string>
-    <string name="settings_full_charge">Alarma de carga completa</string>
-    <string name="settings_full_charge_desc">Avisar cuando la batería esté completamente cargada (100%).</string>
     <string name="settings_temp_alert">Alerta de temperatura alta</string>
     <string name="settings_temp_alert_desc">Avisar si la temperatura de la batería supera los 40°C.</string>
 
@@ -68,10 +66,9 @@
     <string name="notification_channel_name">Alertas de batería</string>
     <string name="notification_healthy_title">¡Carga objetivo alcanzada!</string>
     <string name="notification_healthy_message">La batería ha llegado al límite configurado. Desconéctala para preservar su salud.</string>
-    <string name="notification_full_title">¡Batería cargada por completo!</string>
-    <string name="notification_full_message">La batería está al 100%. Ya puedes desconectar tu dispositivo.</string>
     <string name="notification_temp_title">¡Alta temperatura detectada!</string>
     <string name="notification_temp_message">La temperatura de la batería supera los 40°C. ¡Ten cuidado!</string>
+    <string name="notification_service_running">Monitoreando alertas de batería en segundo plano</string>
 
     <!-- Battery Health Modal Descriptions -->
     <string name="battery_health_description_good">La batería está en óptimas condiciones y funcionando correctamente dentro de sus parámetros normales.</string>

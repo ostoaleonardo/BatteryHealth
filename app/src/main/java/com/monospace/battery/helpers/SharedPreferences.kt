@@ -55,7 +55,6 @@ class SharedPreferences(
         const val ALERTS_PREFS = "battery_alerts_prefs"
         const val KEY_HEALTHY_CHARGE = "healthy_charge_enabled"
         const val KEY_HEALTHY_CHARGE_LEVEL = "healthy_charge_level"
-        const val KEY_FULL_CHARGE = "full_charge_enabled"
         const val KEY_TEMP_ALERT = "temp_alert_enabled"
     }
 }

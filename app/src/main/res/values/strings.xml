@@ -73,8 +73,6 @@
     <string name="settings_healthy_charge">Healthy charge alarm</string>
     <string name="settings_healthy_charge_desc">Notify when battery reaches a specific level to extend its lifespan.</string>
     <string name="settings_healthy_charge_level">Alert level: %d%%</string>
-    <string name="settings_full_charge">Full charge alarm</string>
-    <string name="settings_full_charge_desc">Notify when battery is fully charged (100%).</string>
     <string name="settings_temp_alert">High temperature alert</string>
     <string name="settings_temp_alert_desc">Notify if battery temperature exceeds 40°C.</string>
 
@@ -82,10 +80,9 @@
     <string name="notification_channel_name">Battery Alerts</string>
     <string name="notification_healthy_title">Target Charge Reached!</string>
     <string name="notification_healthy_message">Battery has reached your set limit. Unplug to preserve battery health.</string>
-    <string name="notification_full_title">Battery Fully Charged!</string>
-    <string name="notification_full_message">Battery is at 100%. You can unplug your device now.</string>
     <string name="notification_temp_title">High Temperature Detected!</string>
     <string name="notification_temp_message">Battery temperature is above 40°C. Be careful!</string>
+    <string name="notification_service_running">Monitoring battery alerts in background</string>
 
     <!-- Battery Health Modal Descriptions -->
     <string name="battery_health_description_good">The battery is in optimal condition and functioning correctly within its normal parameters.</string>

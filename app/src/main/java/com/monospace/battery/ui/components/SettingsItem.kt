@@ -3,9 +3,11 @@ package com.monospace.battery.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -25,33 +27,69 @@ import com.monospace.battery.R
 import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
+fun SettingsBaseItem(
+    title: String,
+    description: String? = null,
+    horizontal: Boolean = true,
+    onClick: (() -> Unit)? = null,
+    content: @Composable () -> Unit = {}
+) {
+    val modifier = Modifier
+        .fillMaxWidth()
+        .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+        .padding(horizontal = 24.dp, vertical = 16.dp)
+
+    if (horizontal) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SettingsItemText(title, description, Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(16.dp))
+            content()
+        }
+    } else {
+        Column(modifier = modifier) {
+            SettingsItemText(title, description)
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingsItemText(
+    title: String,
+    description: String?,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = title.uppercase(),
+            fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+            style = MaterialTheme.typography.titleSmall
+        )
+        if (description != null) {
+            Text(
+                text = description,
+                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.alpha(0.6f)
+            )
+        }
+    }
+}
+
+@Composable
 fun SettingsItem(
     title: String,
     description: String? = null,
     onClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    SettingsBaseItem(
+        title = title,
+        description = description,
+        onClick = onClick
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title.uppercase(),
-                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                style = MaterialTheme.typography.titleSmall
-            )
-            if (description != null) {
-                Text(
-                    text = description,
-                    fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
-        }
         Icon(
             painter = painterResource(id = R.drawable.open_in_new),
             contentDescription = null,
@@ -67,31 +105,35 @@ fun SettingsSwitchItem(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+    SettingsBaseItem(
+        title = title,
+        description = description,
+        onClick = { onCheckedChange(!checked) }
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title.uppercase(),
-                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                style = MaterialTheme.typography.titleSmall
-            )
-            if (description != null) {
-                Text(
-                    text = description,
-                    fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.alpha(0.6f)
-                )
-            }
-        }
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange
+        )
+    }
+}
+
+@Composable
+fun SettingsSliderItem(
+    title: String,
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    range: ClosedFloatingPointRange<Float> = 0f..100f
+) {
+    SettingsBaseItem(
+        title = title,
+        description = stringResource(R.string.settings_healthy_charge_level, value),
+        horizontal = false
+    ) {
+        Slider(
+            value = value.toFloat(),
+            onValueChange = { onValueChange(it.toInt()) },
+            valueRange = range,
+            modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
@@ -107,38 +149,6 @@ fun SettingsSectionTitle(title: String) {
             .padding(horizontal = 24.dp)
             .padding(top = 24.dp, bottom = 8.dp)
     )
-}
-
-@Composable
-fun SettingsSliderItem(
-    title: String,
-    value: Int,
-    onValueChange: (Int) -> Unit,
-    range: ClosedFloatingPointRange<Float> = 0f..100f
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 16.dp)
-    ) {
-        Text(
-            text = title.uppercase(),
-            fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-            style = MaterialTheme.typography.titleSmall
-        )
-        Text(
-            text = stringResource(R.string.settings_healthy_charge_level, value),
-            fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.alpha(0.6f)
-        )
-        Slider(
-            value = value.toFloat(),
-            onValueChange = { onValueChange(it.toInt()) },
-            valueRange = range,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-    }
 }
 
 @Preview(showBackground = true)
