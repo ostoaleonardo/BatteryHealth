@@ -1,7 +1,9 @@
 package com.monospace.battery.ui.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -15,11 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.helpers.AppUtils
 import com.monospace.battery.helpers.SharedPreferences
 import com.monospace.battery.helpers.WidgetsUtils
 import com.monospace.battery.ui.components.SettingsItem
+import com.monospace.battery.ui.components.SettingsItemPosition
 import com.monospace.battery.ui.components.SettingsSectionTitle
 import com.monospace.battery.ui.components.SettingsSliderItem
 import com.monospace.battery.ui.components.SettingsSwitchItem
@@ -135,21 +139,26 @@ fun SettingsContent(
                 title = stringResource(R.string.settings_healthy_charge),
                 description = stringResource(R.string.settings_healthy_charge_desc),
                 checked = state.healthyChargeEnabled,
+                position = SettingsItemPosition.TOP,
                 onCheckedChange = actions.onHealthyChargeChange
             )
 
             if (state.healthyChargeEnabled) {
+                Spacer(modifier = Modifier.height(2.dp))
                 SettingsSliderItem(
                     title = stringResource(R.string.settings_healthy_charge),
                     value = state.healthyChargeLevel,
+                    position = SettingsItemPosition.MIDDLE,
                     onValueChange = actions.onHealthyChargeLevelChange
                 )
             }
 
+            Spacer(modifier = Modifier.height(2.dp))
             SettingsSwitchItem(
                 title = stringResource(R.string.settings_temp_alert),
                 description = stringResource(R.string.settings_temp_alert_desc),
                 checked = state.tempAlertEnabled,
+                position = SettingsItemPosition.BOTTOM,
                 onCheckedChange = actions.onTempAlertChange
             )
 
@@ -159,18 +168,23 @@ fun SettingsContent(
                 SettingsItem(
                     title = stringResource(R.string.settings_unlock_full),
                     description = stringResource(R.string.widget_purchase_description),
+                    position = SettingsItemPosition.TOP,
                     onClick = actions.onUnlockClick
                 )
+                Spacer(modifier = Modifier.height(2.dp))
             }
 
             SettingsItem(
                 title = stringResource(R.string.settings_software_update),
                 description = stringResource(R.string.settings_version, state.versionName),
+                position = if (state.isWidgetsPurchased) SettingsItemPosition.TOP else SettingsItemPosition.MIDDLE,
                 onClick = actions.onUpdateClick
             )
 
+            Spacer(modifier = Modifier.height(2.dp))
             SettingsItem(
                 title = stringResource(R.string.settings_rate_us),
+                position = SettingsItemPosition.BOTTOM,
                 onClick = actions.onRateClick
             )
         }

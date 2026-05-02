@@ -1,6 +1,5 @@
 package com.monospace.battery.ui.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +7,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,32 +27,53 @@ import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.ui.theme.BatteryTheme
 
+enum class SettingsItemPosition {
+    TOP, MIDDLE, BOTTOM, SINGLE
+}
+
 @Composable
 fun SettingsBaseItem(
     title: String,
     description: String? = null,
+    position: SettingsItemPosition = SettingsItemPosition.SINGLE,
     horizontal: Boolean = true,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit = {}
 ) {
-    val modifier = Modifier
-        .fillMaxWidth()
-        .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
-        .padding(horizontal = 24.dp, vertical = 16.dp)
+    val shape = when (position) {
+        SettingsItemPosition.TOP -> RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        SettingsItemPosition.BOTTOM -> RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)
+        SettingsItemPosition.MIDDLE -> RoundedCornerShape(0.dp)
+        SettingsItemPosition.SINGLE -> RoundedCornerShape(16.dp)
+    }
 
-    if (horizontal) {
-        Row(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            SettingsItemText(title, description, Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(16.dp))
-            content()
-        }
-    } else {
-        Column(modifier = modifier) {
-            SettingsItemText(title, description)
-            content()
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = shape,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+        onClick = { onClick?.invoke() },
+        enabled = onClick != null
+    ) {
+        val containerModifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+
+        if (horizontal) {
+            Row(
+                modifier = containerModifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SettingsItemText(title, description, Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(16.dp))
+                content()
+            }
+        } else {
+            Column(modifier = containerModifier) {
+                SettingsItemText(title, description)
+                content()
+            }
         }
     }
 }
@@ -83,11 +105,13 @@ private fun SettingsItemText(
 fun SettingsItem(
     title: String,
     description: String? = null,
+    position: SettingsItemPosition = SettingsItemPosition.SINGLE,
     onClick: () -> Unit
 ) {
     SettingsBaseItem(
         title = title,
         description = description,
+        position = position,
         onClick = onClick
     ) {
         Icon(
@@ -103,11 +127,13 @@ fun SettingsSwitchItem(
     title: String,
     description: String? = null,
     checked: Boolean,
+    position: SettingsItemPosition = SettingsItemPosition.SINGLE,
     onCheckedChange: (Boolean) -> Unit
 ) {
     SettingsBaseItem(
         title = title,
         description = description,
+        position = position,
         onClick = { onCheckedChange(!checked) }
     ) {
         Switch(
@@ -122,11 +148,13 @@ fun SettingsSliderItem(
     title: String,
     value: Int,
     onValueChange: (Int) -> Unit,
-    range: ClosedFloatingPointRange<Float> = 0f..100f
+    position: SettingsItemPosition = SettingsItemPosition.SINGLE,
+    range: ClosedFloatingPointRange<Float> = 50f..100f
 ) {
     SettingsBaseItem(
         title = title,
         description = stringResource(R.string.settings_healthy_charge_level, value),
+        position = position,
         horizontal = false
     ) {
         Slider(
