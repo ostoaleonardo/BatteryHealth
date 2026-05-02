@@ -16,6 +16,7 @@ class NotificationHelper(private val context: Context) {
     companion object {
         const val CHANNEL_ID = "battery_alerts_channel"
         const val HEALTHY_CHARGE_ID = 1001
+        const val LOW_BATTERY_ID = 1002
         const val TEMP_ALERT_ID = 1003
     }
 
@@ -39,6 +40,14 @@ class NotificationHelper(private val context: Context) {
             HEALTHY_CHARGE_ID,
             context.getString(R.string.notification_healthy_title),
             context.getString(R.string.notification_healthy_message)
+        )
+    }
+
+    fun showLowBatteryNotification(level: Int) {
+        showNotification(
+            LOW_BATTERY_ID,
+            context.getString(R.string.notification_low_battery_title),
+            context.getString(R.string.notification_low_battery_message, level)
         )
     }
 

@@ -96,7 +96,15 @@ class BatteryAlertService : Service() {
             notificationHelper.showHealthyChargeNotification()
         }
 
-        // 2. High Temperature (> 40°C) - Threshold crossing (temp is in tenths of degree)
+        // 2. Low Battery (n%) - Only when NOT charging and dropping below the threshold
+        val lowEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY)
+        val lowLevel = prefs.getInt(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY_LEVEL, 20)
+
+        if (lowEnabled && !isCharging && level <= lowLevel && lastLevel != -1 && lastLevel > lowLevel) {
+            notificationHelper.showLowBatteryNotification(lowLevel)
+        }
+
+        // 3. High Temperature (> 40°C) - Threshold crossing (temp is in tenths of degree)
         val tempEnabled = prefs.getBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT)
         val tempCelsius = temperature / 10
         if (tempEnabled && tempCelsius >= 40 && lastTemp != -1 && lastTemp < 40) {

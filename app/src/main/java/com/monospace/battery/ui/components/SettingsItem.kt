@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,6 +30,75 @@ import com.monospace.battery.ui.theme.BatteryTheme
 
 enum class SettingsItemPosition {
     TOP, MIDDLE, BOTTOM, SINGLE
+}
+
+@Composable
+inline fun SettingsSection(
+    title: String? = null,
+    content: SettingsSectionScope.() -> Unit
+) {
+    val scope = SettingsSectionScope()
+    scope.content()
+    val items = scope.getItems()
+
+    Column {
+        if (title != null) {
+            SettingsSectionTitle(title = title)
+        }
+
+        items.forEachIndexed { index, item ->
+            val position = when {
+                items.size == 1 -> SettingsItemPosition.SINGLE
+                index == 0 -> SettingsItemPosition.TOP
+                index == items.size - 1 -> SettingsItemPosition.BOTTOM
+                else -> SettingsItemPosition.MIDDLE
+            }
+
+            item(position)
+
+            if (index < items.size - 1) {
+                Spacer(modifier = Modifier.height(2.dp))
+            }
+        }
+    }
+}
+
+class SettingsSectionScope {
+    private val items = mutableListOf<@Composable (SettingsItemPosition) -> Unit>()
+
+    fun item(
+        title: String,
+        description: String? = null,
+        onClick: () -> Unit
+    ) {
+        items.add { position ->
+            SettingsItem(title, description, position, onClick)
+        }
+    }
+
+    fun switchItem(
+        title: String,
+        description: String? = null,
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit
+    ) {
+        items.add { position ->
+            SettingsSwitchItem(title, description, checked, position, onCheckedChange)
+        }
+    }
+
+    fun sliderItem(
+        title: String,
+        value: Int,
+        onValueChange: (Int) -> Unit,
+        range: ClosedFloatingPointRange<Float> = 50f..100f
+    ) {
+        items.add { position ->
+            SettingsSliderItem(title, value, onValueChange, position, range)
+        }
+    }
+
+    fun getItems() = items
 }
 
 @Composable

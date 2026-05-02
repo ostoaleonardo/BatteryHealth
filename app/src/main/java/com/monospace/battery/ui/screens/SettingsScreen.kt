@@ -22,11 +22,7 @@ import com.monospace.battery.R
 import com.monospace.battery.helpers.AppUtils
 import com.monospace.battery.helpers.SharedPreferences
 import com.monospace.battery.helpers.WidgetsUtils
-import com.monospace.battery.ui.components.SettingsItem
-import com.monospace.battery.ui.components.SettingsItemPosition
-import com.monospace.battery.ui.components.SettingsSectionTitle
-import com.monospace.battery.ui.components.SettingsSliderItem
-import com.monospace.battery.ui.components.SettingsSwitchItem
+import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.BatteryTheme
 
 data class SettingsUiState(
@@ -34,13 +30,17 @@ data class SettingsUiState(
     val versionName: String,
     val healthyChargeEnabled: Boolean,
     val tempAlertEnabled: Boolean,
-    val healthyChargeLevel: Int
+    val lowBatteryEnabled: Boolean,
+    val healthyChargeLevel: Int,
+    val lowBatteryLevel: Int
 )
 
 data class SettingsUiActions(
     val onHealthyChargeChange: (Boolean) -> Unit,
     val onTempAlertChange: (Boolean) -> Unit,
+    val onLowBatteryChange: (Boolean) -> Unit,
     val onHealthyChargeLevelChange: (Int) -> Unit,
+    val onLowBatteryLevelChange: (Int) -> Unit,
     val onUnlockClick: () -> Unit,
     val onUpdateClick: () -> Unit,
     val onRateClick: () -> Unit
@@ -79,6 +79,23 @@ fun SettingsScreen(
             )
         )
     }
+    val lowBatteryEnabledState = remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_LOW_BATTERY
+            )
+        )
+    }
+    val lowBatteryLevelState = remember {
+        mutableIntStateOf(
+            prefs.getInt(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_LOW_BATTERY_LEVEL,
+                20
+            )
+        )
+    }
 
     val versionName = remember { AppUtils.getVersionName(context) }
 
@@ -87,7 +104,9 @@ fun SettingsScreen(
         versionName = versionName,
         healthyChargeEnabled = healthyChargeEnabledState.value,
         tempAlertEnabled = tempAlertEnabledState.value,
-        healthyChargeLevel = healthyChargeLevelState.intValue
+        lowBatteryEnabled = lowBatteryEnabledState.value,
+        healthyChargeLevel = healthyChargeLevelState.intValue,
+        lowBatteryLevel = lowBatteryLevelState.intValue
     )
 
     val actions = SettingsUiActions(
@@ -103,11 +122,23 @@ fun SettingsScreen(
             tempAlertEnabledState.value = it
             prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_TEMP_ALERT, it)
         },
+        onLowBatteryChange = {
+            lowBatteryEnabledState.value = it
+            prefs.setBoolean(SharedPreferences.ALERTS_PREFS, SharedPreferences.KEY_LOW_BATTERY, it)
+        },
         onHealthyChargeLevelChange = {
             healthyChargeLevelState.intValue = it
             prefs.setInt(
                 SharedPreferences.ALERTS_PREFS,
                 SharedPreferences.KEY_HEALTHY_CHARGE_LEVEL,
+                it
+            )
+        },
+        onLowBatteryLevelChange = {
+            lowBatteryLevelState.intValue = it
+            prefs.setInt(
+                SharedPreferences.ALERTS_PREFS,
+                SharedPreferences.KEY_LOW_BATTERY_LEVEL,
                 it
             )
         },
@@ -133,60 +164,83 @@ fun SettingsContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSectionTitle(title = stringResource(R.string.settings_alerts_title))
+            SettingsSection(title = stringResource(R.string.settings_alerts_title)) {
+                val healthyTitle = stringResource(R.string.settings_healthy_charge)
+                val healthyDesc = stringResource(R.string.settings_healthy_charge_desc)
+                val lowTitle = stringResource(R.string.settings_low_battery)
+                val lowDesc = stringResource(R.string.settings_low_battery_desc)
+                val tempTitle = stringResource(R.string.settings_temp_alert)
+                val tempDesc = stringResource(R.string.settings_temp_alert_desc)
 
-            SettingsSwitchItem(
-                title = stringResource(R.string.settings_healthy_charge),
-                description = stringResource(R.string.settings_healthy_charge_desc),
-                checked = state.healthyChargeEnabled,
-                position = SettingsItemPosition.TOP,
-                onCheckedChange = actions.onHealthyChargeChange
-            )
+                switchItem(
+                    title = healthyTitle,
+                    description = healthyDesc,
+                    checked = state.healthyChargeEnabled,
+                    onCheckedChange = actions.onHealthyChargeChange
+                )
 
-            if (state.healthyChargeEnabled) {
-                Spacer(modifier = Modifier.height(2.dp))
-                SettingsSliderItem(
-                    title = stringResource(R.string.settings_healthy_charge),
-                    value = state.healthyChargeLevel,
-                    position = SettingsItemPosition.MIDDLE,
-                    onValueChange = actions.onHealthyChargeLevelChange
+                if (state.healthyChargeEnabled) {
+                    sliderItem(
+                        title = healthyTitle,
+                        value = state.healthyChargeLevel,
+                        onValueChange = actions.onHealthyChargeLevelChange
+                    )
+                }
+
+                switchItem(
+                    title = lowTitle,
+                    description = lowDesc,
+                    checked = state.lowBatteryEnabled,
+                    onCheckedChange = actions.onLowBatteryChange
+                )
+
+                if (state.lowBatteryEnabled) {
+                    sliderItem(
+                        title = lowTitle,
+                        value = state.lowBatteryLevel,
+                        onValueChange = actions.onLowBatteryLevelChange,
+                        range = 0f..50f
+                    )
+                }
+
+                switchItem(
+                    title = tempTitle,
+                    description = tempDesc,
+                    checked = state.tempAlertEnabled,
+                    onCheckedChange = actions.onTempAlertChange
                 )
             }
 
-            Spacer(modifier = Modifier.height(2.dp))
-            SettingsSwitchItem(
-                title = stringResource(R.string.settings_temp_alert),
-                description = stringResource(R.string.settings_temp_alert_desc),
-                checked = state.tempAlertEnabled,
-                position = SettingsItemPosition.BOTTOM,
-                onCheckedChange = actions.onTempAlertChange
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            SettingsSectionTitle(title = stringResource(R.string.action_settings))
+            SettingsSection(title = stringResource(R.string.action_settings)) {
+                val unlockTitle = stringResource(R.string.settings_unlock_full)
+                val unlockDesc = stringResource(R.string.widget_purchase_description)
+                val updateTitle = stringResource(R.string.settings_software_update)
+                val updateDesc = stringResource(R.string.settings_version, state.versionName)
+                val rateTitle = stringResource(R.string.settings_rate_us)
 
-            if (!state.isWidgetsPurchased) {
-                SettingsItem(
-                    title = stringResource(R.string.settings_unlock_full),
-                    description = stringResource(R.string.widget_purchase_description),
-                    position = SettingsItemPosition.TOP,
-                    onClick = actions.onUnlockClick
+                if (!state.isWidgetsPurchased) {
+                    item(
+                        title = unlockTitle,
+                        description = unlockDesc,
+                        onClick = actions.onUnlockClick
+                    )
+                }
+
+                item(
+                    title = updateTitle,
+                    description = updateDesc,
+                    onClick = actions.onUpdateClick
                 )
-                Spacer(modifier = Modifier.height(2.dp))
+
+                item(
+                    title = rateTitle,
+                    onClick = actions.onRateClick
+                )
             }
 
-            SettingsItem(
-                title = stringResource(R.string.settings_software_update),
-                description = stringResource(R.string.settings_version, state.versionName),
-                position = if (state.isWidgetsPurchased) SettingsItemPosition.TOP else SettingsItemPosition.MIDDLE,
-                onClick = actions.onUpdateClick
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-            SettingsItem(
-                title = stringResource(R.string.settings_rate_us),
-                position = SettingsItemPosition.BOTTOM,
-                onClick = actions.onRateClick
-            )
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -201,12 +255,16 @@ fun SettingsScreenPreview() {
                 versionName = "1.0.0",
                 healthyChargeEnabled = true,
                 tempAlertEnabled = true,
-                healthyChargeLevel = 80
+                lowBatteryEnabled = true,
+                healthyChargeLevel = 80,
+                lowBatteryLevel = 20
             ),
             actions = SettingsUiActions(
                 onHealthyChargeChange = {},
                 onTempAlertChange = {},
+                onLowBatteryChange = {},
                 onHealthyChargeLevelChange = {},
+                onLowBatteryLevelChange = {},
                 onUnlockClick = {},
                 onUpdateClick = {},
                 onRateClick = {}

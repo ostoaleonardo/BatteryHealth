@@ -61,11 +61,15 @@
     <string name="settings_healthy_charge_level">Nivel de alerta: %d%%</string>
     <string name="settings_temp_alert">Alerta de temperatura alta</string>
     <string name="settings_temp_alert_desc">Avisar si la temperatura de la batería supera los 40°C.</string>
+    <string name="settings_low_battery">Alarma de batería baja</string>
+    <string name="settings_low_battery_desc">Avisar cuando la batería baje de un nivel específico.</string>
 
     <!-- Notification strings -->
     <string name="notification_channel_name">Alertas de batería</string>
     <string name="notification_healthy_title">¡Carga objetivo alcanzada!</string>
     <string name="notification_healthy_message">La batería ha llegado al límite configurado. Desconéctala para preservar su salud.</string>
+    <string name="notification_low_battery_title">¡Advertencia de batería baja!</string>
+    <string name="notification_low_battery_message">La batería ha bajado del %d%%. Por favor, conecta tu cargador.</string>
     <string name="notification_temp_title">¡Alta temperatura detectada!</string>
     <string name="notification_temp_message">La temperatura de la batería supera los 40°C. ¡Ten cuidado!</string>
     <string name="notification_service_running">Monitoreando alertas de batería en segundo plano</string>
