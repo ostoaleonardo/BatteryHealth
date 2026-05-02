@@ -1,15 +1,19 @@
 package com.monospace.battery
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -34,7 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.FragmentActivity
+import androidx.core.content.ContextCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
@@ -42,6 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.monospace.battery.helpers.BatteryAlertService
 import com.monospace.battery.helpers.BatteryInfo
 import com.monospace.battery.helpers.BatteryUtils
 import com.monospace.battery.purchase.PurchaseManager
@@ -66,10 +71,18 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
 }
 
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
 
     private var batteryState by mutableStateOf(BatteryState())
     private val batteryUtils by lazy { BatteryUtils(this) }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            startBatteryAlertService()
+        }
+    }
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -82,6 +95,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        checkPermissions()
         setupWidgetPreviews()
 
         setContent {
@@ -311,6 +325,29 @@ class MainActivity : FragmentActivity() {
                 }
             }
         )
+    }
+
+    private fun checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    startBatteryAlertService()
+                }
+                else -> {
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
+        } else {
+            startBatteryAlertService()
+        }
+    }
+
+    private fun startBatteryAlertService() {
+        val intent = Intent(this, BatteryAlertService::class.java)
+        startService(intent)
     }
 
     private fun setupWidgetPreviews() {
