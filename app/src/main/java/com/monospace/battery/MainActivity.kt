@@ -39,7 +39,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.monospace.battery.core.constants.AppConstants
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
@@ -119,24 +119,24 @@ class MainActivity : ComponentActivity() {
                 val healthyChargeEnabledState = remember {
                     mutableStateOf(
                         prefs.getBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_HEALTHY_CHARGE_ENABLED
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_HEALTHY_CHARGE_ENABLED
                         )
                     )
                 }
                 val tempAlertEnabledState = remember {
                     mutableStateOf(
                         prefs.getBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_TEMP_ALERT_ENABLED
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_TEMP_ALERT_ENABLED
                         )
                     )
                 }
                 val healthyChargeLevelState = remember {
                     mutableIntStateOf(
                         prefs.getInt(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_HEALTHY_CHARGE_LEVEL,
                             80
                         )
                     )
@@ -144,16 +144,16 @@ class MainActivity : ComponentActivity() {
                 val lowBatteryEnabledState = remember {
                     mutableStateOf(
                         prefs.getBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_LOW_BATTERY_ENABLED
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_LOW_BATTERY_ENABLED
                         )
                     )
                 }
                 val lowBatteryLevelState = remember {
                     mutableIntStateOf(
                         prefs.getInt(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_LOW_BATTERY_LEVEL,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_LOW_BATTERY_LEVEL,
                             20
                         )
                     )
@@ -177,44 +177,47 @@ class MainActivity : ComponentActivity() {
                     onHealthyChargeChange = {
                         healthyChargeEnabledState.value = it
                         prefs.setBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_HEALTHY_CHARGE_ENABLED,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_HEALTHY_CHARGE_ENABLED,
                             it
                         )
                     },
                     onTempAlertChange = {
                         tempAlertEnabledState.value = it
                         prefs.setBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_TEMP_ALERT_ENABLED,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_TEMP_ALERT_ENABLED,
                             it
                         )
                     },
                     onLowBatteryChange = {
                         lowBatteryEnabledState.value = it
                         prefs.setBoolean(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_LOW_BATTERY_ENABLED,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_LOW_BATTERY_ENABLED,
                             it
                         )
                     },
                     onHealthyChargeLevelChange = {
                         healthyChargeLevelState.intValue = it
                         prefs.setInt(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_HEALTHY_CHARGE_LEVEL,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_HEALTHY_CHARGE_LEVEL,
                             it
                         )
                     },
                     onLowBatteryLevelChange = {
                         lowBatteryLevelState.intValue = it
                         prefs.setInt(
-                            AppConstants.PREFS_ALERTS,
-                            AppConstants.KEY_LOW_BATTERY_LEVEL,
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_LOW_BATTERY_LEVEL,
                             it
                         )
                     },
-                    onUnlockClick = { showPurchaseSheet = true },
+                    onUnlockClick = { 
+                        Log.d("MainActivity", "Launching buy billing flow directly")
+                        purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                    },
                     onUpdateClick = {
                         com.monospace.battery.core.utils.AppUtils.openPlayStore(
                             context

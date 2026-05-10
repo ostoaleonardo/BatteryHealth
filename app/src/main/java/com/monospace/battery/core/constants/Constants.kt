@@ -1,6 +1,8 @@
 package com.monospace.battery.core.constants
 
-object AppConstants {
+import androidx.compose.ui.graphics.Color
+
+object Constants {
 
     // Notification Channels
     const val NOTIFICATION_CHANNEL_ID = "battery_alerts_channel"
@@ -30,4 +32,14 @@ object AppConstants {
     const val DEFAULT_VERSION_NAME = "1.0.0"
     const val PLAY_STORE_MARKET_URL = "market://details?id="
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
+
+    // Colors
+    val ColorGoldLight = Color(0xFFFFC107)
+    val ColorGoldDark = Color(0xFFFFD700)
+    val ColorGreen = Color(0xFF00A25B)
+    val ColorLightGreen = Color(0xFF8BC34A)
+    val ColorOrange = Color(0xFFFF9800)
+    val ColorDeepOrange = Color(0xFFFF5722)
+    val ColorRed = Color(0xFFF44336)
+    val ColorGray = Color(0xFF9E9E9E)
 }

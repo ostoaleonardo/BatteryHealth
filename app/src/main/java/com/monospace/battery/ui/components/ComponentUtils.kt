@@ -3,6 +3,7 @@ package com.monospace.battery.ui.components
 import android.os.BatteryManager
 import androidx.compose.ui.graphics.Color
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 
 fun getHealthStatusRes(health: Int) = when (health) {
     BatteryManager.BATTERY_HEALTH_GOOD -> R.string.battery_health_good
@@ -67,26 +68,19 @@ fun getBatteryIcon(level: Int, isCharging: Boolean) = if (isCharging) {
 }
 
 fun getHealthColor(health: Int): Color = when (health) {
-    BatteryManager.BATTERY_HEALTH_GOOD -> ColorGreen
-    BatteryManager.BATTERY_HEALTH_OVERHEAT -> ColorOrange
-    BatteryManager.BATTERY_HEALTH_DEAD -> ColorRed
-    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> ColorDeepOrange
-    else -> ColorGray
+    BatteryManager.BATTERY_HEALTH_GOOD -> Constants.ColorGreen
+    BatteryManager.BATTERY_HEALTH_OVERHEAT -> Constants.ColorOrange
+    BatteryManager.BATTERY_HEALTH_DEAD -> Constants.ColorRed
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> Constants.ColorDeepOrange
+    else -> Constants.ColorGray
 }
 
 fun getBatteryLevelColor(level: Int): Color = when {
-    level >= 90 -> ColorGreen
-    level >= 60 -> ColorLightGreen
-    level >= 35 -> ColorOrange
-    level >= 20 -> ColorDeepOrange
-    else -> ColorRed
+    level >= 90 -> Constants.ColorGreen
+    level >= 60 -> Constants.ColorLightGreen
+    level >= 35 -> Constants.ColorOrange
+    level >= 20 -> Constants.ColorDeepOrange
+    else -> Constants.ColorRed
 }
 
 fun getHealthBgColor(health: Int): Color = getHealthColor(health).copy(alpha = 0.1f)
-
-private val ColorGreen = Color(0xFF00A25B)
-private val ColorLightGreen = Color(0xFF8BC34A)
-private val ColorOrange = Color(0xFFFF9800)
-private val ColorDeepOrange = Color(0xFFFF5722)
-private val ColorRed = Color(0xFFF44336)
-private val ColorGray = Color(0xFF9E9E9E)

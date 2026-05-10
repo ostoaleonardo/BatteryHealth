@@ -71,6 +71,11 @@
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
 
+    <!-- Premium -->
+    <string name="premium_title">Premium Feature</string>
+    <string name="premium_description">Unlock battery alerts and widgets by upgrading to the Full Version.</string>
+    <string name="premium_button">Get Full Version</string>
+
     <!-- Alarms -->
     <string name="settings_alerts_title">Alerts</string>
     <string name="settings_healthy_charge">Healthy charge alarm</string>

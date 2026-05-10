@@ -57,6 +57,11 @@
     <string name="settings_version">Versión %s</string>
     <string name="settings_rate_us">Calificanos</string>
 
+    <!-- Premium -->
+    <string name="premium_title">Función Premium</string>
+    <string name="premium_description">Desbloquea las alertas de batería y widgets actualizando a la versión completa.</string>
+    <string name="premium_button">Obtener versión completa</string>
+
     <!-- Alarms -->
     <string name="settings_alerts_title">Alertas</string>
     <string name="settings_healthy_charge">Alarma de carga saludable</string>

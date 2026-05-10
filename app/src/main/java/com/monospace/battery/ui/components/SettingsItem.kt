@@ -69,10 +69,11 @@ class SettingsSectionScope {
     fun item(
         title: String,
         description: String? = null,
+        enabled: Boolean = true,
         onClick: () -> Unit
     ) {
         items.add { position ->
-            SettingsItem(title, description, position, onClick)
+            SettingsItem(title, description, position, enabled, onClick)
         }
     }
 
@@ -80,21 +81,23 @@ class SettingsSectionScope {
         title: String,
         description: String? = null,
         checked: Boolean,
+        enabled: Boolean = true,
         onCheckedChange: (Boolean) -> Unit
     ) {
         items.add { position ->
-            SettingsSwitchItem(title, description, checked, position, onCheckedChange)
+            SettingsSwitchItem(title, description, checked, position, enabled, onCheckedChange)
         }
     }
 
     fun sliderItem(
-        title: String,
+        title: String? = null,
         value: Int,
         onValueChange: (Int) -> Unit,
-        range: ClosedFloatingPointRange<Float> = 50f..100f
+        enabled: Boolean = true,
+        range: ClosedFloatingPointRange<Float> = 0f..100f
     ) {
         items.add { position ->
-            SettingsSliderItem(title, value, onValueChange, position, range)
+            SettingsSliderItem(title, value, onValueChange, position, enabled, range)
         }
     }
 
@@ -103,10 +106,11 @@ class SettingsSectionScope {
 
 @Composable
 fun SettingsBaseItem(
-    title: String,
+    title: String? = null,
     description: String? = null,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
     horizontal: Boolean = true,
+    enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit = {}
 ) {
@@ -123,12 +127,13 @@ fun SettingsBaseItem(
             .padding(horizontal = 16.dp),
         shape = shape,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
-        onClick = { onClick?.invoke() },
-        enabled = onClick != null
+        onClick = { if (enabled) onClick?.invoke() },
+        enabled = onClick != null && enabled
     ) {
         val containerModifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 16.dp)
+            .alpha(if (enabled) 1f else 0.4f)
 
         if (horizontal) {
             Row(
@@ -150,16 +155,18 @@ fun SettingsBaseItem(
 
 @Composable
 private fun SettingsItemText(
-    title: String,
+    title: String?,
     description: String?,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
-        Text(
-            text = title.uppercase(),
-            fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-            style = MaterialTheme.typography.titleSmall
-        )
+        if (title != null) {
+            Text(
+                text = title.uppercase(),
+                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+                style = MaterialTheme.typography.titleSmall
+            )
+        }
         if (description != null) {
             Text(
                 text = description,
@@ -176,12 +183,14 @@ fun SettingsItem(
     title: String,
     description: String? = null,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     SettingsBaseItem(
         title = title,
         description = description,
         position = position,
+        enabled = enabled,
         onClick = onClick
     ) {
         Icon(
@@ -198,40 +207,46 @@ fun SettingsSwitchItem(
     description: String? = null,
     checked: Boolean,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
     SettingsBaseItem(
         title = title,
         description = description,
         position = position,
+        enabled = enabled,
         onClick = { onCheckedChange(!checked) }
     ) {
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            enabled = enabled
         )
     }
 }
 
 @Composable
 fun SettingsSliderItem(
-    title: String,
+    title: String? = null,
     value: Int,
     onValueChange: (Int) -> Unit,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
-    range: ClosedFloatingPointRange<Float> = 50f..100f
+    enabled: Boolean = true,
+    range: ClosedFloatingPointRange<Float> = 0f..100f
 ) {
     SettingsBaseItem(
         title = title,
         description = stringResource(R.string.settings_healthy_charge_level, value),
         position = position,
+        enabled = enabled,
         horizontal = false
     ) {
         Slider(
             value = value.toFloat(),
             onValueChange = { onValueChange(it.toInt()) },
             valueRange = range,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = enabled
         )
     }
 }
