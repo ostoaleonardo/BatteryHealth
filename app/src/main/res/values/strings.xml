@@ -49,7 +49,7 @@
 
     <!-- Strings used for the widget purchase bottom sheet -->
     <string name="widget_purchase_title">✨ Unlock Widgets</string>
-    <string name="widget_purchase_description">Enhance your home screen with widgets that display battery health, charging cycles, and more.</string>
+    <string name="widget_purchase_description">Unlock professional tools: advanced battery alerts, exclusive home screen widgets, and full history analysis.</string>
     <string name="widget_purchase_unlock_full">Get Widgets</string>
     <string name="widget_purchase_restore_purchases">Restore purchases</string>
     <string name="widget_purchase_complete_purchase">Thank you for your purchase</string>
@@ -67,13 +67,14 @@
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Unlock full version</string>
+    <string name="settings_about_app">About the app</string>
     <string name="settings_software_update">Software update</string>
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
 
     <!-- Premium -->
     <string name="premium_title">Premium Feature</string>
-    <string name="premium_description">Unlock battery alerts and widgets by upgrading to the Full Version.</string>
+    <string name="premium_description">Get the full experience: customizable battery alerts, pro widgets, and in-depth history tracking.</string>
     <string name="premium_button">Get Full Version</string>
 
     <!-- Alarms -->

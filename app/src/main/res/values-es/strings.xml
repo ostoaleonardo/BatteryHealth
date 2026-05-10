@@ -35,7 +35,7 @@
 
     <!-- Strings used for the widget purchase bottom sheet -->
     <string name="widget_purchase_title">🔋 Desbloquear Widgets</string>
-    <string name="widget_purchase_description">Mejora tu pantalla de inicio con widgets que muestran la salud de la batería, los ciclos de carga y más.</string>
+    <string name="widget_purchase_description">Desbloquea herramientas profesionales: alertas avanzadas, widgets exclusivos y análisis completo del historial.</string>
     <string name="widget_purchase_unlock_full">Obtener Widgets</string>
     <string name="widget_purchase_restore_purchases">Restaurar compras</string>
     <string name="widget_purchase_complete_purchase">Gracias por tu compra</string>
@@ -53,13 +53,14 @@
 
     <!-- Strings used for the settings fragment -->
     <string name="settings_unlock_full">Desbloquear versión completa</string>
+    <string name="settings_about_app">Acerca de la app</string>
     <string name="settings_software_update">Actualización de software</string>
     <string name="settings_version">Versión %s</string>
     <string name="settings_rate_us">Calificanos</string>
 
     <!-- Premium -->
     <string name="premium_title">Función Premium</string>
-    <string name="premium_description">Desbloquea las alertas de batería y widgets actualizando a la versión completa.</string>
+    <string name="premium_description">Obtén la experiencia completa: alertas personalizables, widgets pro y seguimiento detallado del historial.</string>
     <string name="premium_button">Obtener versión completa</string>
 
     <!-- Alarms -->

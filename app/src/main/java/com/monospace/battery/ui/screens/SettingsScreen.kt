@@ -154,20 +154,23 @@ fun SettingsContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            SettingsSection(title = stringResource(R.string.action_settings)) {
-                val unlockTitle = stringResource(R.string.settings_unlock_full)
-                val unlockDesc = stringResource(R.string.widget_purchase_description)
-                val updateTitle = stringResource(R.string.settings_software_update)
-                val updateDesc = stringResource(R.string.settings_version, state.versionName)
-                val rateTitle = stringResource(R.string.settings_rate_us)
+            if (!state.isWidgetsPurchased) {
+                SettingsSection(stringResource(R.string.premium_title)) {
+                    val unlockTitle = stringResource(R.string.settings_unlock_full)
+                    val unlockDesc = stringResource(R.string.widget_purchase_description)
 
-                if (!state.isWidgetsPurchased) {
                     item(
                         title = unlockTitle,
                         description = unlockDesc,
                         onClick = actions.onUnlockClick
                     )
                 }
+            }
+
+            SettingsSection(stringResource(R.string.settings_about_app)) {
+                val updateTitle = stringResource(R.string.settings_software_update)
+                val updateDesc = stringResource(R.string.settings_version, state.versionName)
+                val rateTitle = stringResource(R.string.settings_rate_us)
 
                 item(
                     title = updateTitle,

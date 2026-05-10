@@ -317,7 +317,8 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Settings.route) {
                             SettingsScreen(
                                 onUnlockClick = {
-                                    showPurchaseSheet = true
+                                    Log.d("MainActivity", "Launching buy billing flow directly from Settings")
+                                    purchaseManager.launchBuyBillingFlow(this@MainActivity)
                                 }
                             )
                         }
