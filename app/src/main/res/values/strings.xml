@@ -111,4 +111,15 @@
     <string name="description_capacity">Total energy capacity of the battery. Real-time comparison between remaining and total mAh.</string>
     <string name="description_speed">The rate at which the battery is being charged, measured in Watts (W).</string>
     <string name="description_time">Estimated time until the battery reaches 100% charge based on current speed.</string>
+    <string name="history_consumption_title">Battery Consumption (24h)</string>
+    <string name="history_collecting_data">Collecting data&#8230;</string>
+    <string name="history_sot_title">SCREEN ON TIME</string>
+    <string name="history_sessions_title">Recent Charge Sessions</string>
+    <string name="history_no_sessions">No sessions recorded yet</string>
+    <string name="history_charge_at">Charge at %s</string>
+    <string name="history_charge_duration_title">Charge for %s</string>
+    <string name="history_charge_summary">Gained %1$d%% in %2$s</string>
+    <string name="history_charging">Charging&#8230;</string>
+    <string name="history_currently_charging">Charging&#8230;</string>
+    <string name="history_session_duration">Charge duration</string>
 </resources>
