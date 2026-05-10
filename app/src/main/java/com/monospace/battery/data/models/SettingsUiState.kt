@@ -6,6 +6,8 @@ data class SettingsUiState(
     val healthyChargeEnabled: Boolean,
     val tempAlertEnabled: Boolean,
     val lowBatteryEnabled: Boolean,
+    val fastDischargeEnabled: Boolean,
+    val slowChargeEnabled: Boolean,
     val healthyChargeLevel: Int,
     val lowBatteryLevel: Int
 )
@@ -14,6 +16,8 @@ data class SettingsUiActions(
     val onHealthyChargeChange: (Boolean) -> Unit,
     val onTempAlertChange: (Boolean) -> Unit,
     val onLowBatteryChange: (Boolean) -> Unit,
+    val onFastDischargeChange: (Boolean) -> Unit,
+    val onSlowChargeChange: (Boolean) -> Unit,
     val onHealthyChargeLevelChange: (Int) -> Unit,
     val onLowBatteryLevelChange: (Int) -> Unit,
     val onUnlockClick: () -> Unit,

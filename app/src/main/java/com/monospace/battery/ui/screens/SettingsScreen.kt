@@ -78,6 +78,22 @@ fun SettingsScreen(
             )
         )
     }
+    val fastDischargeEnabledState = remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_FAST_DISCHARGE_ENABLED
+            )
+        )
+    }
+    val slowChargeEnabledState = remember {
+        mutableStateOf(
+            prefs.getBoolean(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_SLOW_CHARGE_ENABLED
+            )
+        )
+    }
 
     val versionName = remember { AppUtils.getVersionName(context) }
 
@@ -87,6 +103,8 @@ fun SettingsScreen(
         healthyChargeEnabled = healthyChargeEnabledState.value,
         tempAlertEnabled = tempAlertEnabledState.value,
         lowBatteryEnabled = lowBatteryEnabledState.value,
+        fastDischargeEnabled = fastDischargeEnabledState.value,
+        slowChargeEnabled = slowChargeEnabledState.value,
         healthyChargeLevel = healthyChargeLevelState.intValue,
         lowBatteryLevel = lowBatteryLevelState.intValue
     )
@@ -113,6 +131,22 @@ fun SettingsScreen(
             prefs.setBoolean(
                 Constants.PREFS_ALERTS,
                 Constants.KEY_LOW_BATTERY_ENABLED,
+                it
+            )
+        },
+        onFastDischargeChange = {
+            fastDischargeEnabledState.value = it
+            prefs.setBoolean(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_FAST_DISCHARGE_ENABLED,
+                it
+            )
+        },
+        onSlowChargeChange = {
+            slowChargeEnabledState.value = it
+            prefs.setBoolean(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_SLOW_CHARGE_ENABLED,
                 it
             )
         },
@@ -200,6 +234,8 @@ fun SettingsScreenPreview() {
                 healthyChargeEnabled = true,
                 tempAlertEnabled = true,
                 lowBatteryEnabled = true,
+                fastDischargeEnabled = false,
+                slowChargeEnabled = false,
                 healthyChargeLevel = 80,
                 lowBatteryLevel = 20
             ),
@@ -207,6 +243,8 @@ fun SettingsScreenPreview() {
                 onHealthyChargeChange = {},
                 onTempAlertChange = {},
                 onLowBatteryChange = {},
+                onFastDischargeChange = {},
+                onSlowChargeChange = {},
                 onHealthyChargeLevelChange = {},
                 onLowBatteryLevelChange = {},
                 onUnlockClick = {},

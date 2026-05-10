@@ -86,6 +86,10 @@
     <string name="settings_temp_alert_desc">Notify if battery temperature exceeds 40°C.</string>
     <string name="settings_low_battery">Low battery alarm</string>
     <string name="settings_low_battery_desc">Notify when battery drops below a specific level.</string>
+    <string name="settings_fast_discharge">Fast discharge alert</string>
+    <string name="settings_fast_discharge_desc">Notify if battery drains abnormally fast while screen is off.</string>
+    <string name="settings_slow_charge">Slow charge alert</string>
+    <string name="settings_slow_charge_desc">Notify if a slow or defective charging source is detected.</string>
 
     <!-- Notification strings -->
     <string name="notification_channel_name">Battery Alerts</string>
@@ -95,6 +99,10 @@
     <string name="notification_low_battery_message">Battery has dropped below %d%%. Please connect your charger.</string>
     <string name="notification_temp_title">High Temperature Detected!</string>
     <string name="notification_temp_message">Battery temperature is above 40°C. Be careful!</string>
+    <string name="notification_fast_discharge_title">Abnormal Drain Detected!</string>
+    <string name="notification_fast_discharge_message">Your battery is draining faster than usual. Check for background apps.</string>
+    <string name="notification_slow_charge_title">Slow Charging Detected!</string>
+    <string name="notification_slow_charge_message">Charging speed is lower than expected. Check your cable or charger.</string>
     <string name="notification_service_running">Monitoring battery alerts in background</string>
 
     <!-- Battery Health Modal Descriptions -->

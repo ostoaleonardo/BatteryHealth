@@ -53,6 +53,22 @@ class NotificationHelper(private val context: Context) {
         )
     }
 
+    fun showFastDischargeNotification() {
+        showNotification(
+            Constants.NOTIFICATION_FAST_DISCHARGE_ID,
+            context.getString(R.string.notification_fast_discharge_title),
+            context.getString(R.string.notification_fast_discharge_message)
+        )
+    }
+
+    fun showSlowChargeNotification() {
+        showNotification(
+            Constants.NOTIFICATION_SLOW_CHARGE_ID,
+            context.getString(R.string.notification_slow_charge_title),
+            context.getString(R.string.notification_slow_charge_message)
+        )
+    }
+
     private fun showNotification(id: Int, title: String, message: String) {
         val builder = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.bolt) // Use bolt as a generic battery icon

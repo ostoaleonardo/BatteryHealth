@@ -158,6 +158,22 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
+                val fastDischargeEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_FAST_DISCHARGE_ENABLED
+                        )
+                    )
+                }
+                val slowChargeEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_SLOW_CHARGE_ENABLED
+                        )
+                    )
+                }
 
                 val settingsState = SettingsUiState(
                     isWidgetsPurchased = isPurchased,
@@ -169,6 +185,8 @@ class MainActivity : ComponentActivity() {
                     healthyChargeEnabled = healthyChargeEnabledState.value,
                     tempAlertEnabled = tempAlertEnabledState.value,
                     lowBatteryEnabled = lowBatteryEnabledState.value,
+                    fastDischargeEnabled = fastDischargeEnabledState.value,
+                    slowChargeEnabled = slowChargeEnabledState.value,
                     healthyChargeLevel = healthyChargeLevelState.intValue,
                     lowBatteryLevel = lowBatteryLevelState.intValue
                 )
@@ -195,6 +213,22 @@ class MainActivity : ComponentActivity() {
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_LOW_BATTERY_ENABLED,
+                            it
+                        )
+                    },
+                    onFastDischargeChange = {
+                        fastDischargeEnabledState.value = it
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_FAST_DISCHARGE_ENABLED,
+                            it
+                        )
+                    },
+                    onSlowChargeChange = {
+                        slowChargeEnabledState.value = it
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_SLOW_CHARGE_ENABLED,
                             it
                         )
                     },

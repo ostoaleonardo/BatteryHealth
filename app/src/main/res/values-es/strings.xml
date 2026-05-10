@@ -72,6 +72,10 @@
     <string name="settings_temp_alert_desc">Avisar si la temperatura de la batería supera los 40°C.</string>
     <string name="settings_low_battery">Alarma de batería baja</string>
     <string name="settings_low_battery_desc">Avisar cuando la batería baje de un nivel específico.</string>
+    <string name="settings_fast_discharge">Alerta de descarga rápida</string>
+    <string name="settings_fast_discharge_desc">Avisar si la batería se agota anormalmente rápido con la pantalla apagada.</string>
+    <string name="settings_slow_charge">Alerta de carga lenta</string>
+    <string name="settings_slow_charge_desc">Avisar si se detecta una fuente de carga lenta o defectuosa.</string>
 
     <!-- Notification strings -->
     <string name="notification_channel_name">Alertas de batería</string>
@@ -81,6 +85,10 @@
     <string name="notification_low_battery_message">La batería ha bajado del %d%%. Por favor, conecta tu cargador.</string>
     <string name="notification_temp_title">¡Alta temperatura detectada!</string>
     <string name="notification_temp_message">La temperatura de la batería supera los 40°C. ¡Ten cuidado!</string>
+    <string name="notification_fast_discharge_title">¡Drenaje anormal detectado!</string>
+    <string name="notification_fast_discharge_message">Tu batería se agota más rápido de lo habitual. Revisa apps en segundo plano.</string>
+    <string name="notification_slow_charge_title">¡Carga lenta detectada!</string>
+    <string name="notification_slow_charge_message">La velocidad de carga es menor de lo esperado. Revisa tu cable o cargador.</string>
     <string name="notification_service_running">Monitoreando alertas de batería en segundo plano</string>
 
     <!-- Battery Health Modal Descriptions -->

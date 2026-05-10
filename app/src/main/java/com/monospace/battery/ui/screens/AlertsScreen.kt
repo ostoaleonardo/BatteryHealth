@@ -38,17 +38,11 @@ fun AlertsScreen(
                 PremiumCard(onUpgradeClick = actions.onUnlockClick)
             }
 
-            SettingsSection(title = stringResource(R.string.settings_alerts_title)) {
-                val healthyTitle = stringResource(R.string.settings_healthy_charge)
-                val healthyDesc = stringResource(R.string.settings_healthy_charge_desc)
-                val lowTitle = stringResource(R.string.settings_low_battery)
-                val lowDesc = stringResource(R.string.settings_low_battery_desc)
-                val tempTitle = stringResource(R.string.settings_temp_alert)
-                val tempDesc = stringResource(R.string.settings_temp_alert_desc)
-
+            // 1. Charge Alarms
+            SettingsSection(stringResource(R.string.battery_charging)) {
                 switchItem(
-                    title = healthyTitle,
-                    description = healthyDesc,
+                    title = stringResource(R.string.settings_healthy_charge),
+                    description = stringResource(R.string.settings_healthy_charge_desc),
                     checked = state.healthyChargeEnabled,
                     enabled = isPremium,
                     onCheckedChange = actions.onHealthyChargeChange
@@ -63,8 +57,21 @@ fun AlertsScreen(
                 }
 
                 switchItem(
-                    title = lowTitle,
-                    description = lowDesc,
+                    title = stringResource(R.string.settings_slow_charge),
+                    description = stringResource(R.string.settings_slow_charge_desc),
+                    checked = state.slowChargeEnabled,
+                    enabled = isPremium,
+                    onCheckedChange = actions.onSlowChargeChange
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 2. Discharge Alarms
+            SettingsSection(stringResource(R.string.battery_unplugged)) {
+                switchItem(
+                    title = stringResource(R.string.settings_low_battery),
+                    description = stringResource(R.string.settings_low_battery_desc),
                     checked = state.lowBatteryEnabled,
                     enabled = isPremium,
                     onCheckedChange = actions.onLowBatteryChange
@@ -80,8 +87,21 @@ fun AlertsScreen(
                 }
 
                 switchItem(
-                    title = tempTitle,
-                    description = tempDesc,
+                    title = stringResource(R.string.settings_fast_discharge),
+                    description = stringResource(R.string.settings_fast_discharge_desc),
+                    checked = state.fastDischargeEnabled,
+                    enabled = isPremium,
+                    onCheckedChange = actions.onFastDischargeChange
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 3. Safety Alarms
+            SettingsSection(stringResource(R.string.battery_temperature)) {
+                switchItem(
+                    title = stringResource(R.string.settings_temp_alert),
+                    description = stringResource(R.string.settings_temp_alert_desc),
                     checked = state.tempAlertEnabled,
                     enabled = isPremium,
                     onCheckedChange = actions.onTempAlertChange

@@ -1,9 +1,6 @@
 package com.monospace.battery.core.constants
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import com.monospace.battery.R
 
 object Constants {
 
@@ -14,6 +11,8 @@ object Constants {
     const val NOTIFICATION_HEALTHY_CHARGE_ID = 1001
     const val NOTIFICATION_LOW_BATTERY_ID = 1002
     const val NOTIFICATION_TEMP_ALERT_ID = 1003
+    const val NOTIFICATION_FAST_DISCHARGE_ID = 1004
+    const val NOTIFICATION_SLOW_CHARGE_ID = 1005
     const val NOTIFICATION_SERVICE_ID = 1
 
     // Preference Files
@@ -26,6 +25,8 @@ object Constants {
     const val KEY_LOW_BATTERY_ENABLED = "low_battery_enabled"
     const val KEY_LOW_BATTERY_LEVEL = "low_battery_level"
     const val KEY_TEMP_ALERT_ENABLED = "temp_alert_enabled"
+    const val KEY_FAST_DISCHARGE_ENABLED = "fast_discharge_enabled"
+    const val KEY_SLOW_CHARGE_ENABLED = "slow_charge_enabled"
 
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"
@@ -45,7 +46,4 @@ object Constants {
     val ColorDeepOrange = Color(0xFFFF5722)
     val ColorRed = Color(0xFFF44336)
     val ColorGray = Color(0xFF9E9E9E)
-
-    // Fonts
-    val AzeretMonoLight = FontFamily(Font(R.font.azeret_mono_light))
 }
