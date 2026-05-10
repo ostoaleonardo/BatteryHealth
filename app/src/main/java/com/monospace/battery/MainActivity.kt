@@ -215,7 +215,7 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     onUnlockClick = { 
-                        Log.d("MainActivity", "Launching buy billing flow directly")
+                        Log.d(TAG, "Launching buy billing flow directly")
                         purchaseManager.launchBuyBillingFlow(this@MainActivity)
                     },
                     onUpdateClick = {
@@ -263,11 +263,11 @@ class MainActivity : ComponentActivity() {
                     ) {
                         WidgetsPurchaseContent(
                             onBuyClick = {
-                                Log.d("MainActivity", "User clicked buy")
+                                Log.d(TAG, "User clicked buy")
                                 purchaseManager.launchBuyBillingFlow(this@MainActivity)
                             },
                             onRestoreClick = {
-                                Log.d("MainActivity", "User clicked restore")
+                                Log.d(TAG, "User clicked restore")
                                 purchaseManager.restorePurchases()
                             }
                         )
@@ -317,7 +317,6 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Settings.route) {
                             SettingsScreen(
                                 onUnlockClick = {
-                                    Log.d("MainActivity", "Launching buy billing flow directly from Settings")
                                     purchaseManager.launchBuyBillingFlow(this@MainActivity)
                                 }
                             )
