@@ -1,6 +1,9 @@
 package com.monospace.battery.core.constants
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import com.monospace.battery.R
 
 object Constants {
 
@@ -42,4 +45,7 @@ object Constants {
     val ColorDeepOrange = Color(0xFFFF5722)
     val ColorRed = Color(0xFFF44336)
     val ColorGray = Color(0xFF9E9E9E)
+
+    // Fonts
+    val AzeretMonoLight = FontFamily(Font(R.font.azeret_mono_light))
 }

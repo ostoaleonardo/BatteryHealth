@@ -1,7 +1,9 @@
 package com.monospace.battery.ui.components
 
+import android.os.BatteryManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,12 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.ChargeSession
+import com.monospace.battery.ui.theme.BatteryTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -55,37 +58,13 @@ fun ChargeSessionItem(session: ChargeSession, showDivider: Boolean) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = titleText,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "$startTime • $sourceStr",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            SessionInfo(
+                title = titleText,
+                subtitle = "$startTime • $sourceStr"
+            )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                val displayGained = if (gained >= 0) "+$gained%" else "$gained%"
-                Text(
-                    text = displayGained,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (gained >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                    fontFamily = FontFamily(Font(R.font.azeret_mono_light))
-                )
-                Icon(
-                    painter = painterResource(
-                        if (gained >= 0) R.drawable.arrow_drop_up else R.drawable.arrow_drop_down
-                    ),
-                    contentDescription = null,
-                    tint = if (gained >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(24.dp)
-                )
+            if (!isCurrentlyCharging) {
+                GainedBadge(gained = gained)
             }
         }
         if (showDivider) {
@@ -95,5 +74,88 @@ fun ChargeSessionItem(session: ChargeSession, showDivider: Boolean) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f)
             )
         }
+    }
+}
+
+@Composable
+private fun RowScope.SessionInfo(
+    title: String,
+    subtitle: String
+) {
+    Column(modifier = Modifier.weight(1f)) {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.titleSmall,
+            fontFamily = Constants.AzeretMonoLight
+        )
+        Text(
+            text = subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontFamily = Constants.AzeretMonoLight
+        )
+    }
+}
+
+@Composable
+private fun GainedBadge(
+    gained: Int
+) {
+    val isPositive = gained >= 0
+    val color =
+        if (isPositive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+    val icon = if (isPositive) R.drawable.arrow_drop_up else R.drawable.arrow_drop_down
+    val text = if (isPositive) "+$gained%" else "$gained%"
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(start = 8.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleMedium,
+            color = color,
+            fontFamily = Constants.AzeretMonoLight
+        )
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChargeSessionItemPreview() {
+    BatteryTheme {
+        ChargeSessionItem(
+            session = ChargeSession(
+                startTime = System.currentTimeMillis() - 3600000,
+                endTime = System.currentTimeMillis(),
+                startLevel = 45,
+                endLevel = 80,
+                chargeSource = BatteryManager.BATTERY_PLUGGED_AC
+            ),
+            showDivider = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CurrentlyChargingSessionItemPreview() {
+    BatteryTheme {
+        ChargeSessionItem(
+            session = ChargeSession(
+                startTime = System.currentTimeMillis() - 1800000,
+                endTime = null,
+                startLevel = 20,
+                endLevel = null,
+                chargeSource = BatteryManager.BATTERY_PLUGGED_USB
+            ),
+            showDivider = false
+        )
     }
 }
