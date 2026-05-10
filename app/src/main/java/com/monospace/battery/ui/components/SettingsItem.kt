@@ -21,12 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.theme.Font
 
 enum class SettingsItemPosition {
     TOP, MIDDLE, BOTTOM, SINGLE
@@ -163,14 +162,14 @@ private fun SettingsItemText(
         if (title != null) {
             Text(
                 text = title.uppercase(),
-                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+                fontFamily = Font.AzeretMonoLight,
                 style = MaterialTheme.typography.titleSmall
             )
         }
         if (description != null) {
             Text(
                 text = description,
-                fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+                fontFamily = Font.AzeretMonoLight,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.alpha(0.6f)
             )
@@ -255,7 +254,7 @@ fun SettingsSliderItem(
 fun SettingsSectionTitle(title: String) {
     Text(
         text = title.uppercase(),
-        fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
+        fontFamily = Font.AzeretMonoLight,
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier

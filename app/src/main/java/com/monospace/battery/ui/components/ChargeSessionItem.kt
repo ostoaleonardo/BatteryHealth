@@ -20,10 +20,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.theme.Font
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -86,13 +86,13 @@ private fun RowScope.SessionInfo(
         Text(
             text = title.uppercase(),
             style = MaterialTheme.typography.titleSmall,
-            fontFamily = Constants.AzeretMonoLight
+            fontFamily = Font.AzeretMonoLight
         )
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontFamily = Constants.AzeretMonoLight
+            fontFamily = Font.AzeretMonoLight
         )
     }
 }
@@ -115,7 +115,7 @@ private fun GainedBadge(
             text = text,
             style = MaterialTheme.typography.titleMedium,
             color = color,
-            fontFamily = Constants.AzeretMonoLight
+            fontFamily = Font.AzeretMonoLight
         )
         Icon(
             painter = painterResource(id = icon),
