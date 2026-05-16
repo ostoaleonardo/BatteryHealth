@@ -35,7 +35,6 @@ fun AlertsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             if (!isPremium) {
-                Spacer(modifier = Modifier.height(8.dp))
                 PremiumCard(onUpgradeClick = actions.onUnlockClick)
             }
 

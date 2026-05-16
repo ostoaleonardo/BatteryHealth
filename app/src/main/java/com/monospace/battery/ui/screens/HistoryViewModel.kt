@@ -49,8 +49,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         }
 
         viewModelScope.launch {
-            // Load last 10 charge sessions
-            dao.getLastSessions(10).collect {
+            // Load last 50 charge sessions
+            dao.getLastSessions(50).collect {
                 _sessions.value = it
             }
         }

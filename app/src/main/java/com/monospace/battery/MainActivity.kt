@@ -343,7 +343,12 @@ class MainActivity : ComponentActivity() {
                             MainScreen(state = batteryState)
                         }
                         composable(Screen.History.route) {
-                            HistoryScreen()
+                            HistoryScreen(
+                                isPremium = isPurchased,
+                                onUpgradeClick = {
+                                    purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                                }
+                            )
                         }
                         composable(Screen.Alerts.route) {
                             AlertsScreen(state = settingsState, actions = settingsActions)

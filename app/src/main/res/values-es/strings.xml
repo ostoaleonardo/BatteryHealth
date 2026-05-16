@@ -122,6 +122,8 @@
     <string name="history_charging">Cargando…</string>
     <string name="history_currently_charging">Cargando…</string>
     <string name="history_session_duration">Duración de carga</string>
+    <string name="history_unlock_full">Ver historial completo</string>
+    <string name="history_unlock_full_desc">Actualiza a la versión completa para acceder a todo tu historial de carga y análisis avanzados.</string>
 
     <!-- SOT Card Labels -->
     <string name="sot_label_used">USO</string>

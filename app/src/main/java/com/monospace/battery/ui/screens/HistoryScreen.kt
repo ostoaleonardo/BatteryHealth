@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -28,13 +30,19 @@ import com.monospace.battery.ui.components.SotCard
 import com.monospace.battery.ui.theme.Font
 
 @Composable
-fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
+fun HistoryScreen(
+    isPremium: Boolean = false,
+    onUpgradeClick: () -> Unit = {},
+    viewModel: HistoryViewModel = viewModel()
+) {
     val history by viewModel.history.collectAsState()
     val sessions by viewModel.sessions.collectAsState()
     val sot by viewModel.sot.collectAsState()
     val batteryUsed by viewModel.batteryUsed.collectAsState()
     val drainRate by viewModel.activeDrainRate.collectAsState()
     val estimatedSot by viewModel.estimatedFullSot.collectAsState()
+
+    val displayedSessions = if (isPremium) sessions else sessions.take(3)
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -86,11 +94,15 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
                         )
                     ) {
                         Column {
-                            sessions.forEachIndexed { index, session ->
+                            displayedSessions.forEachIndexed { index, session ->
                                 ChargeSessionItem(
                                     session = session,
-                                    showDivider = index < sessions.size - 1
+                                    showDivider = index < displayedSessions.size - 1 || (!isPremium && sessions.size > 3)
                                 )
+                            }
+
+                            if (!isPremium && sessions.size > 3) {
+                                HistoryUpsell(onUpgradeClick)
                             }
                         }
                     }
@@ -100,6 +112,43 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
             item {
                 Spacer(modifier = Modifier.height(32.dp))
             }
+        }
+    }
+}
+
+@Composable
+private fun HistoryUpsell(onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.history_unlock_full),
+            style = MaterialTheme.typography.titleSmall,
+            fontFamily = Font.AzeretMonoLight,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = stringResource(R.string.history_unlock_full_desc),
+            style = MaterialTheme.typography.bodySmall,
+            fontFamily = Font.AzeretMonoLight,
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Button(
+            onClick = onClick,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                contentColor = MaterialTheme.colorScheme.primary
+            )
+        ) {
+            Text(
+                text = stringResource(R.string.premium_button).uppercase(),
+                fontFamily = Font.AzeretMonoLight,
+                style = MaterialTheme.typography.labelLarge
+            )
         }
     }
 }

@@ -201,6 +201,7 @@ fun SettingsContent(
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.settings_about_app)) {
                 val updateTitle = stringResource(R.string.settings_software_update)
                 val updateDesc = stringResource(R.string.settings_version, state.versionName)
