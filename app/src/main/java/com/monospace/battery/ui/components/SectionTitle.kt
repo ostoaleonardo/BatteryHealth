@@ -5,14 +5,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.ui.theme.Font
 
 @Composable
 fun SectionTitle(
-    title: String,
-    top: Dp = 32.dp
+    title: String
 ) {
     Text(
         text = title.uppercase(),
@@ -21,6 +19,6 @@ fun SectionTitle(
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .padding(horizontal = 24.dp)
-            .padding(top = top, bottom = 8.dp)
+            .padding(top = 32.dp, bottom = 8.dp)
     )
 }

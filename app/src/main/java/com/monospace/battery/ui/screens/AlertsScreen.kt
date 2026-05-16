@@ -35,11 +35,12 @@ fun AlertsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             if (!isPremium) {
+                Spacer(modifier = Modifier.height(8.dp))
                 PremiumCard(onUpgradeClick = actions.onUnlockClick)
             }
 
             // 1. Charge Alarms
-            SettingsSection(stringResource(R.string.alerts_category_charge), 16.dp) {
+            SettingsSection(stringResource(R.string.alerts_category_charge)) {
                 switchItem(
                     title = stringResource(R.string.settings_healthy_charge),
                     description = stringResource(R.string.settings_healthy_charge_desc),
