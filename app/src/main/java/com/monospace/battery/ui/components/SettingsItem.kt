@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.ui.theme.BatteryTheme
@@ -34,6 +35,7 @@ enum class SettingsItemPosition {
 @Composable
 inline fun SettingsSection(
     title: String? = null,
+    top: Dp = 32.dp,
     content: SettingsSectionScope.() -> Unit
 ) {
     val scope = SettingsSectionScope()
@@ -42,7 +44,7 @@ inline fun SettingsSection(
 
     Column {
         if (title != null) {
-            SettingsSectionTitle(title = title)
+            SectionTitle(title, top)
         }
 
         items.forEachIndexed { index, item ->
@@ -248,19 +250,6 @@ fun SettingsSliderItem(
             enabled = enabled
         )
     }
-}
-
-@Composable
-fun SettingsSectionTitle(title: String) {
-    Text(
-        text = title.uppercase(),
-        fontFamily = Font.AzeretMonoLight,
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .padding(top = 24.dp, bottom = 8.dp)
-    )
 }
 
 @Preview(showBackground = true)

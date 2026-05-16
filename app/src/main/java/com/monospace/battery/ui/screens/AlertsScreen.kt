@@ -39,7 +39,7 @@ fun AlertsScreen(
             }
 
             // 1. Charge Alarms
-            SettingsSection(stringResource(R.string.alerts_category_charge)) {
+            SettingsSection(stringResource(R.string.alerts_category_charge), 16.dp) {
                 switchItem(
                     title = stringResource(R.string.settings_healthy_charge),
                     description = stringResource(R.string.settings_healthy_charge_desc),
@@ -64,8 +64,6 @@ fun AlertsScreen(
                     onCheckedChange = actions.onSlowChargeChange
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // 2. Discharge Alarms
             SettingsSection(stringResource(R.string.alerts_category_discharge)) {
@@ -94,8 +92,6 @@ fun AlertsScreen(
                     onCheckedChange = actions.onFastDischargeChange
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             // 3. Safety Alarms
             SettingsSection(stringResource(R.string.alerts_category_safety)) {

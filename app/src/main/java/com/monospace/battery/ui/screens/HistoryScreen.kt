@@ -23,7 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.R
 import com.monospace.battery.ui.components.BatteryChart
 import com.monospace.battery.ui.components.ChargeSessionItem
-import com.monospace.battery.ui.components.SettingsSectionTitle
+import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.components.SotCard
 
 @Composable
@@ -43,12 +43,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                SettingsSectionTitle(stringResource(R.string.history_consumption_title))
-                BatteryChart(history)
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
+                Spacer(modifier = Modifier.height(8.dp))
                 SotCard(
                     sot = sot,
                     batteryUsed = batteryUsed,
@@ -58,8 +53,12 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
             }
 
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                SettingsSectionTitle(stringResource(R.string.history_sessions_title))
+                SectionTitle(stringResource(R.string.history_consumption_title))
+                BatteryChart(history)
+            }
+
+            item {
+                SectionTitle(stringResource(R.string.history_sessions_title))
             }
 
             if (sessions.isEmpty()) {
