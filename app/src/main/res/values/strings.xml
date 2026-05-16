@@ -136,4 +136,20 @@
     <string name="history_charging">Charging&#8230;</string>
     <string name="history_currently_charging">Charging&#8230;</string>
     <string name="history_session_duration">Charge duration</string>
+
+    <!-- SOT Card Labels -->
+    <string name="sot_label_used">USED</string>
+    <string name="sot_label_drain">DRAIN/H</string>
+    <string name="sot_label_est_full">EST. 100%</string>
+
+    <!-- SOT Descriptions -->
+    <string name="sot_description">Total time the screen has been active since the last 100% charge.</string>
+    <string name="sot_label_used_description">Percentage of battery consumed during this period.</string>
+    <string name="sot_label_drain_description">Average battery consumption percentage per hour of active use.</string>
+    <string name="sot_label_est_full_description">Estimated total screen time you would get on a full charge (100% to 0%).</string>
+
+    <!-- Alert Categories -->
+    <string name="alerts_category_charge">Charge Alarms</string>
+    <string name="alerts_category_discharge">Discharge Alarms</string>
+    <string name="alerts_category_safety">Safety Alarms</string>
 </resources>

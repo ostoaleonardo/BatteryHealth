@@ -28,6 +28,12 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val _batteryUsed = MutableStateFlow(0)
     val batteryUsed: StateFlow<Int> = _batteryUsed.asStateFlow()
 
+    private val _activeDrainRate = MutableStateFlow(0f)
+    val activeDrainRate: StateFlow<Float> = _activeDrainRate.asStateFlow()
+
+    private val _estimatedFullSot = MutableStateFlow("0h 0m")
+    val estimatedFullSot: StateFlow<String> = _estimatedFullSot.asStateFlow()
+
     init {
         loadData()
     }
@@ -84,8 +90,21 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         if (historySinceFull.isNotEmpty()) {
             val startLevel = historySinceFull.first().level
             val currentLevel = historySinceFull.last().level
-            val drop = startLevel - currentLevel
-            _batteryUsed.value = drop.coerceAtLeast(0)
+            val drop = (startLevel - currentLevel).coerceAtLeast(0)
+            _batteryUsed.value = drop
+
+            // 3. Extrapolate stats
+            if (drop > 0 && totalMillis > 0) {
+                // Active Drain Rate (% per hour)
+                val hoursFloat = totalMillis.toFloat() / 3_600_000f
+                _activeDrainRate.value = drop.toFloat() / hoursFloat
+                
+                // Estimated SOT for 100%
+                val estimatedTotalMillis = (totalMillis.toFloat() / drop.toFloat() * 100f).toLong()
+                val estHours = estimatedTotalMillis / 3_600_000
+                val estMins = (estimatedTotalMillis / 60_000) % 60
+                _estimatedFullSot.value = "${estHours}h ${estMins}m"
+            }
         }
     }
 }

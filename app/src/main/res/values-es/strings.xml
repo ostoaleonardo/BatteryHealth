@@ -122,4 +122,20 @@
     <string name="history_charging">Cargando…</string>
     <string name="history_currently_charging">Cargando…</string>
     <string name="history_session_duration">Duración de carga</string>
+
+    <!-- SOT Card Labels -->
+    <string name="sot_label_used">USO</string>
+    <string name="sot_label_drain">DRENAJE/H</string>
+    <string name="sot_label_est_full">EST. 100%</string>
+
+    <!-- SOT Descriptions -->
+    <string name="sot_description">Tiempo total que la pantalla ha estado activa desde la última carga al 100%.</string>
+    <string name="sot_label_used_description">Porcentaje de batería consumido durante este periodo.</string>
+    <string name="sot_label_drain_description">Promedio de consumo de batería por hora de uso activo.</string>
+    <string name="sot_label_est_full_description">Tiempo de pantalla total estimado que obtendrías con una carga completa (100% a 0%).</string>
+
+    <!-- Alert Categories -->
+    <string name="alerts_category_charge">Alertas de carga</string>
+    <string name="alerts_category_discharge">Alertas de descarga</string>
+    <string name="alerts_category_safety">Alertas de seguridad</string>
 </resources>

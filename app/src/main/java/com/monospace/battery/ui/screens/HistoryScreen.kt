@@ -32,6 +32,8 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
     val sessions by viewModel.sessions.collectAsState()
     val sot by viewModel.sot.collectAsState()
     val batteryUsed by viewModel.batteryUsed.collectAsState()
+    val drainRate by viewModel.activeDrainRate.collectAsState()
+    val estimatedSot by viewModel.estimatedFullSot.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -41,18 +43,23 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                SettingsSectionTitle(title = stringResource(R.string.history_consumption_title))
+                SettingsSectionTitle(stringResource(R.string.history_consumption_title))
                 BatteryChart(history)
                 Spacer(modifier = Modifier.height(24.dp))
             }
 
             item {
-                SotCard(sot, batteryUsed)
-                Spacer(modifier = Modifier.height(24.dp))
+                SotCard(
+                    sot = sot,
+                    batteryUsed = batteryUsed,
+                    drainRate = drainRate,
+                    estimatedFullSot = estimatedSot
+                )
             }
 
             item {
-                SettingsSectionTitle(title = stringResource(R.string.history_sessions_title))
+                Spacer(modifier = Modifier.height(16.dp))
+                SettingsSectionTitle(stringResource(R.string.history_sessions_title))
             }
 
             if (sessions.isEmpty()) {

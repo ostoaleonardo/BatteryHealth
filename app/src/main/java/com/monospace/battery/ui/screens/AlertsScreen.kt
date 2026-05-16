@@ -39,7 +39,7 @@ fun AlertsScreen(
             }
 
             // 1. Charge Alarms
-            SettingsSection(stringResource(R.string.battery_charging)) {
+            SettingsSection(stringResource(R.string.alerts_category_charge)) {
                 switchItem(
                     title = stringResource(R.string.settings_healthy_charge),
                     description = stringResource(R.string.settings_healthy_charge_desc),
@@ -68,7 +68,7 @@ fun AlertsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 2. Discharge Alarms
-            SettingsSection(stringResource(R.string.battery_unplugged)) {
+            SettingsSection(stringResource(R.string.alerts_category_discharge)) {
                 switchItem(
                     title = stringResource(R.string.settings_low_battery),
                     description = stringResource(R.string.settings_low_battery_desc),
@@ -98,7 +98,7 @@ fun AlertsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 3. Safety Alarms
-            SettingsSection(stringResource(R.string.battery_temperature)) {
+            SettingsSection(stringResource(R.string.alerts_category_safety)) {
                 switchItem(
                     title = stringResource(R.string.settings_temp_alert),
                     description = stringResource(R.string.settings_temp_alert_desc),
