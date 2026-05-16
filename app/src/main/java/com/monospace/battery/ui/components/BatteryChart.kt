@@ -10,6 +10,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -17,16 +18,33 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.monospace.battery.data.models.BatteryHistoryEntry
+import com.monospace.battery.ui.theme.Font
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun BatteryChart(entries: List<BatteryHistoryEntry>) {
+    val textMeasurer = rememberTextMeasurer()
+    val labelStyle = TextStyle(
+        fontFamily = Font.AzeretMonoLight,
+        fontSize = 8.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    )
+
+    val dateFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(200.dp),
+            .height(220.dp)
+            .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
@@ -38,31 +56,55 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 32.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)
+                .padding(top = 24.dp, bottom = 32.dp, start = 54.dp, end = 24.dp)
         ) {
             val width = size.width
             val height = size.height
 
-            // 1. Draw horizontal guidelines (0%, 50%, 100%) - ALWAYS visible
+            // 1. Draw horizontal guidelines (0%, 50%, 100%)
             val guideLineAlpha = 0.1f
             val guideLineColor = color.copy(alpha = guideLineAlpha)
 
-            // 100%
-            drawLine(guideLineColor, start = Offset(0f, 0f), end = Offset(width, 0f))
-            // 50%
-            drawLine(
-                guideLineColor,
-                start = Offset(0f, height / 2),
-                end = Offset(width, height / 2)
+            val yLevels = listOf(
+                0f to "100%",
+                height / 2 to "50%",
+                height to "0%"
             )
-            // 0%
-            drawLine(guideLineColor, start = Offset(0f, height), end = Offset(width, height))
+
+            yLevels.forEach { (y, label) ->
+                drawLine(guideLineColor, start = Offset(0f, y), end = Offset(width, y))
+                drawText(
+                    textMeasurer = textMeasurer,
+                    text = label,
+                    style = labelStyle,
+                    topLeft = Offset(-44.dp.toPx(), y - 7.dp.toPx())
+                )
+            }
 
             if (entries.isNotEmpty()) {
                 val lastEntry = entries.last()
                 val minTime = entries.first().timestamp
                 val maxTime = lastEntry.timestamp
                 val timeRange = (maxTime - minTime).coerceAtLeast(1L)
+
+                // Draw X-axis Time Labels (Start, Middle, End)
+                val xLabels = if (entries.size >= 2) {
+                    listOf(
+                        0f to dateFormat.format(Date(minTime)),
+                        width / 2 to dateFormat.format(Date(minTime + timeRange / 2)),
+                        width to dateFormat.format(Date(maxTime))
+                    )
+                } else {
+                    listOf(width / 2 to dateFormat.format(Date(maxTime)))
+                }
+
+                xLabels.forEach { (x, label) ->
+                    val textLayoutResult = textMeasurer.measure(label, labelStyle)
+                    drawText(
+                        textLayoutResult = textLayoutResult,
+                        topLeft = Offset(x - textLayoutResult.size.width / 2, height + 8.dp.toPx())
+                    )
+                }
 
                 if (entries.size >= 2) {
                     // 2. Build paths
