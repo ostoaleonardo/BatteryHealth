@@ -67,6 +67,7 @@ fun AlertsScreen(
             }
 
             // 2. Discharge Alarms
+            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.alerts_category_discharge)) {
                 switchItem(
                     title = stringResource(R.string.settings_low_battery),
@@ -95,6 +96,7 @@ fun AlertsScreen(
             }
 
             // 3. Safety Alarms
+            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.alerts_category_safety)) {
                 switchItem(
                     title = stringResource(R.string.settings_temp_alert),

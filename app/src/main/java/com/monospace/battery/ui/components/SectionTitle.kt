@@ -18,7 +18,6 @@ fun SectionTitle(
         style = MaterialTheme.typography.labelSmall,
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .padding(top = 32.dp, bottom = 8.dp)
+            .padding(vertical = 8.dp, horizontal = 24.dp)
     )
 }

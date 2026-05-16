@@ -25,6 +25,7 @@ import com.monospace.battery.ui.components.BatteryChart
 import com.monospace.battery.ui.components.ChargeSessionItem
 import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.components.SotCard
+import com.monospace.battery.ui.theme.Font
 
 @Composable
 fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
@@ -53,11 +54,13 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
             }
 
             item {
+                Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle(stringResource(R.string.history_consumption_title))
                 BatteryChart(history)
             }
 
             item {
+                Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle(stringResource(R.string.history_sessions_title))
             }
 
@@ -67,7 +70,8 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
                         text = stringResource(R.string.history_no_sessions),
                         modifier = Modifier.padding(24.dp),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = MaterialTheme.typography.bodyMedium
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontFamily = Font.AzeretMonoLight
                     )
                 }
             } else {
