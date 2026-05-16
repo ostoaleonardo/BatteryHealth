@@ -1,6 +1,7 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -28,7 +29,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 @Composable
-fun ChargeSessionItem(session: ChargeSession, showDivider: Boolean) {
+fun ChargeSessionItem(
+    session: ChargeSession,
+    showDivider: Boolean,
+    currentLevel: Int? = null
+) {
     val dateFormat = SimpleDateFormat("dd MMM, HH:mm", LocalLocale.current.platformLocale)
     val startTime = dateFormat.format(Date(session.startTime))
 
@@ -49,7 +54,11 @@ fun ChargeSessionItem(session: ChargeSession, showDivider: Boolean) {
         stringResource(R.string.history_charge_duration_title, durationStr)
     }
 
-    val gained = (session.endLevel ?: session.startLevel) - session.startLevel
+    val gained = if (isCurrentlyCharging && currentLevel != null) {
+        currentLevel - session.startLevel
+    } else {
+        (session.endLevel ?: session.startLevel) - session.startLevel
+    }
 
     Column {
         Row(
@@ -63,9 +72,7 @@ fun ChargeSessionItem(session: ChargeSession, showDivider: Boolean) {
                 subtitle = "$startTime • $sourceStr"
             )
 
-            if (!isCurrentlyCharging) {
-                GainedBadge(gained = gained)
-            }
+            GainedBadge(gained, isCurrentlyCharging)
         }
         if (showDivider) {
             HorizontalDivider(
@@ -99,13 +106,22 @@ private fun RowScope.SessionInfo(
 
 @Composable
 private fun GainedBadge(
-    gained: Int
+    gained: Int,
+    isCurrentlyCharging: Boolean
 ) {
     val isPositive = gained >= 0
     val color =
         if (isPositive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-    val icon = if (isPositive) R.drawable.arrow_drop_up else R.drawable.arrow_drop_down
+
+    val icon = when {
+        isCurrentlyCharging -> R.drawable.bolt_fill
+        isPositive -> R.drawable.arrow_drop_up
+        else -> R.drawable.arrow_drop_down
+    }
+
     val text = if (isPositive) "+$gained%" else "$gained%"
+
+    val iconSize = if (isCurrentlyCharging) 14.dp else 24.dp
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -117,12 +133,17 @@ private fun GainedBadge(
             color = color,
             fontFamily = Font.AzeretMonoLight
         )
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier.size(24.dp)
-        )
+        Box(
+            modifier = Modifier.size(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(iconSize)
+            )
+        }
     }
 }
 

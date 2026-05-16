@@ -48,28 +48,40 @@ class BatteryAlertService : Service() {
     }
 
     private fun processBatteryIntent(intent: Intent) {
-        Log.d(TAG, "Intent received: ${intent.action}")
-
-        when (intent.action) {
-            Intent.ACTION_BATTERY_CHANGED -> {
-                val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
-                val batteryPct = if (scale > 0) (level * 100 / scale) else -1
-
-                val temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
-                val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-                val source = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
-                val voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
-                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                        status == BatteryManager.BATTERY_STATUS_FULL
-
-                checkAlerts(batteryPct, temperature, isCharging, voltage)
-                recordBatteryData(batteryPct, status, source)
+        if (intent.action != Intent.ACTION_BATTERY_CHANGED) {
+            when (intent.action) {
+                Intent.ACTION_SCREEN_ON -> recordScreenEvent(true)
+                Intent.ACTION_SCREEN_OFF -> recordScreenEvent(false)
             }
-
-            Intent.ACTION_SCREEN_ON -> recordScreenEvent(true)
-            Intent.ACTION_SCREEN_OFF -> recordScreenEvent(false)
+            return
         }
+
+        val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+        val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+        val batteryPct = if (scale > 0) (level * 100 / scale) else -1
+
+        val temperature = intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1)
+        val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+        val source = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+        val voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
+
+        // A session is valid ONLY if it reports charging AND has a physical source
+        // This avoids creating ghost sessions with source "None" when disconnecting
+        val isCharging = (status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                status == BatteryManager.BATTERY_STATUS_FULL) && source != 0
+
+        val wasCharging = lastStatus == BatteryManager.BATTERY_STATUS_CHARGING ||
+                lastStatus == BatteryManager.BATTERY_STATUS_FULL
+
+        checkAlerts(batteryPct, temperature, isCharging, voltage)
+
+        // Capture previous state before updating to avoid race conditions in the coroutine
+        val prevLevel = lastLevel
+        recordBatteryData(batteryPct, prevLevel, isCharging, wasCharging, source)
+
+        // Update states immediately on main thread
+        lastLevel = batteryPct
+        lastStatus = status
     }
 
     override fun onCreate() {
@@ -81,9 +93,7 @@ class BatteryAlertService : Service() {
         db = BatteryDatabase.getDatabase(this)
         batteryUtils = BatteryUtils(this)
 
-        // Start as foreground service to ensure it keeps running
         startForegroundService()
-
         cleanUpActiveSessions()
 
         val filter = IntentFilter().apply {
@@ -99,14 +109,12 @@ class BatteryAlertService : Service() {
         serviceScope.launch {
             val activeSession = db.batteryDao().getActiveSession()
             if (activeSession != null) {
-                // Check if device is currently charging
                 val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
                 val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
                 val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                         status == BatteryManager.BATTERY_STATUS_FULL
 
                 if (!isCharging) {
-                    // Not charging, but we have an active session. Close it.
                     val currentLevel =
                         intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, activeSession.startLevel)
                             ?: activeSession.startLevel
@@ -155,33 +163,32 @@ class BatteryAlertService : Service() {
         unregisterReceiver(batteryReceiver)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY
-    }
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun recordBatteryData(level: Int, status: Int, source: Int) {
+    private fun recordBatteryData(
+        level: Int,
+        prevLevel: Int,
+        isCharging: Boolean,
+        wasCharging: Boolean,
+        source: Int
+    ) {
         if (level == -1) return
 
         serviceScope.launch {
             try {
-                // Record History Entry if level changed or if it's the very first time
-                if (level != lastLevel || lastLevel == -1) {
+                // 1. History Entry
+                if (level != prevLevel || prevLevel == -1) {
                     db.batteryDao().insertBatteryEntry(
                         BatteryHistoryEntry(timestamp = System.currentTimeMillis(), level = level)
                     )
-
-                    lastLevel = level
                 }
 
-                // Handle Charge Session
-                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                        status == BatteryManager.BATTERY_STATUS_FULL
-                val wasCharging = lastStatus == BatteryManager.BATTERY_STATUS_CHARGING ||
-                        lastStatus == BatteryManager.BATTERY_STATUS_FULL
-
+                // 2. Charge Session Logic
                 if (isCharging && !wasCharging) {
+                    Log.d(TAG, "DB: Session Started (Source: $source)")
+
                     db.batteryDao().insertChargeSession(
                         ChargeSession(
                             startTime = System.currentTimeMillis(),
@@ -190,8 +197,8 @@ class BatteryAlertService : Service() {
                         )
                     )
                 } else if (!isCharging && wasCharging) {
+                    Log.d(TAG, "DB: Session Ended")
                     val activeSession = db.batteryDao().getActiveSession()
-
                     activeSession?.let {
                         db.batteryDao().updateChargeSession(
                             it.copy(
@@ -201,7 +208,6 @@ class BatteryAlertService : Service() {
                         )
                     }
                 }
-                lastStatus = status
             } catch (e: Exception) {
                 Log.e(TAG, "Database error", e)
             }
@@ -222,8 +228,6 @@ class BatteryAlertService : Service() {
 
     private fun checkAlerts(level: Int, temperature: Int, isCharging: Boolean, voltage: Int) {
         if (level == -1 || temperature == -1) return
-
-        // Only allow alerts if premium is purchased
         if (!WidgetsUtils.isWidgetsPurchased(this)) return
 
         checkHealthyChargeAlert(level, isCharging)
@@ -268,7 +272,6 @@ class BatteryAlertService : Service() {
         if (enabled && isCharging && lastStatus != BatteryManager.BATTERY_STATUS_CHARGING) {
             serviceScope.launch {
                 val speed = batteryUtils.getChargeSpeed(voltage, true)
-
                 if (speed > 0 && speed < 2.0) {
                     notificationHelper.showSlowChargeNotification()
                 }
@@ -283,10 +286,8 @@ class BatteryAlertService : Service() {
             serviceScope.launch {
                 val oneHourAgo = System.currentTimeMillis() - 3600000
                 val history = db.batteryDao().getHistorySinceSync(oneHourAgo)
-
                 if (history.size >= 2) {
                     val drop = history.first().level - level
-
                     if (drop >= 15) {
                         notificationHelper.showFastDischargeNotification()
                     }

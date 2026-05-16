@@ -32,6 +32,7 @@ import com.monospace.battery.ui.theme.Font
 @Composable
 fun HistoryScreen(
     isPremium: Boolean = false,
+    currentLevel: Int = 0,
     onUpgradeClick: () -> Unit = {},
     viewModel: HistoryViewModel = viewModel()
 ) {
@@ -97,6 +98,7 @@ fun HistoryScreen(
                             displayedSessions.forEachIndexed { index, session ->
                                 ChargeSessionItem(
                                     session = session,
+                                    currentLevel = currentLevel,
                                     showDivider = index < displayedSessions.size - 1 || (!isPremium && sessions.size > 3)
                                 )
                             }

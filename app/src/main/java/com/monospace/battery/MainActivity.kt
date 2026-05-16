@@ -345,6 +345,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.History.route) {
                             HistoryScreen(
                                 isPremium = isPurchased,
+                                currentLevel = batteryState.level,
                                 onUpgradeClick = {
                                     purchaseManager.launchBuyBillingFlow(this@MainActivity)
                                 }
