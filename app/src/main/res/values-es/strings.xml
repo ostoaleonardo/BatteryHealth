@@ -91,6 +91,11 @@
     <string name="notification_slow_charge_message">La velocidad de carga es menor de lo esperado. Revisa tu cable o cargador.</string>
     <string name="notification_service_running">Monitoreando alertas de batería en segundo plano</string>
 
+    <!-- Permissions -->
+    <string name="permission_notifications_title">Permitir notificaciones</string>
+    <string name="permission_notifications_description">Habilita las notificaciones para recibir alertas de batería y monitorear la salud en tiempo real.</string>
+    <string name="permission_notifications_button">Conceder permiso</string>
+
     <!-- Battery Health Modal Descriptions -->
     <string name="battery_health_description_good">La batería está en óptimas condiciones y funcionando correctamente dentro de sus parámetros normales.</string>
     <string name="battery_health_description_overheat">La temperatura de la batería es demasiado alta. Esto puede reducir su vida útil. Evita el uso intensivo mientras se enfría.</string>

@@ -105,6 +105,11 @@
     <string name="notification_slow_charge_message">Charging speed is lower than expected. Check your cable or charger.</string>
     <string name="notification_service_running">Monitoring battery alerts in background</string>
 
+    <!-- Permissions -->
+    <string name="permission_notifications_title">Allow Notifications</string>
+    <string name="permission_notifications_description">Enable notifications to receive battery alerts and monitor health in real-time.</string>
+    <string name="permission_notifications_button">Grant Permission</string>
+
     <!-- Battery Health Modal Descriptions -->
     <string name="battery_health_description_good">The battery is in optimal condition and functioning correctly within its normal parameters.</string>
     <string name="battery_health_description_overheat">Battery temperature is too high. This can reduce its lifespan. Avoid intensive use while it cools down.</string>

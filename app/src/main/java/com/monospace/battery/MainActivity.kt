@@ -1,11 +1,9 @@
 package com.monospace.battery
 
-import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -31,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
@@ -46,6 +43,7 @@ import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.service.alerts.BatteryAlertService
 import com.monospace.battery.ui.components.BottomNavigation
@@ -71,11 +69,15 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private var batteryState by mutableStateOf(BatteryState())
+    private var hasNotificationPermission by mutableStateOf(false)
     private val batteryUtils by lazy { BatteryUtils(this) }
+    private val permissionManager by lazy { PermissionManager(this) }
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
+        hasNotificationPermission = isGranted
+
         if (isGranted) {
             startBatteryAlertService()
         }
@@ -87,11 +89,21 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        updatePermissionState()
+    }
+
+    private fun updatePermissionState() {
+        hasNotificationPermission = permissionManager.hasNotificationPermission()
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        updatePermissionState()
         checkPermissions()
         setupWidgetPreviews()
 
@@ -177,6 +189,7 @@ class MainActivity : ComponentActivity() {
 
                 val settingsState = SettingsUiState(
                     isWidgetsPurchased = isPurchased,
+                    hasNotificationPermission = hasNotificationPermission,
                     versionName = remember {
                         com.monospace.battery.core.utils.AppUtils.getVersionName(
                             context
@@ -248,9 +261,17 @@ class MainActivity : ComponentActivity() {
                             it
                         )
                     },
-                    onUnlockClick = { 
+                    onUnlockClick = {
                         Log.d(TAG, "Launching buy billing flow directly")
                         purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                    },
+                    onNotificationPermissionRequest = {
+                        Log.d(TAG, "Notification permission requested manually")
+                        permissionManager.requestNotificationPermission(
+                            this@MainActivity,
+                            requestPermissionLauncher,
+                            forceSettings = true // Manual click, can go to settings
+                        )
                     },
                     onUpdateClick = {
                         com.monospace.battery.core.utils.AppUtils.openPlayStore(
@@ -451,18 +472,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                startBatteryAlertService()
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        } else {
+        if (permissionManager.hasNotificationPermission()) {
             startBatteryAlertService()
+        } else {
+            permissionManager.requestNotificationPermission(this, requestPermissionLauncher)
         }
     }
 

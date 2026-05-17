@@ -1,18 +1,18 @@
 package com.monospace.battery.notifications
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 
 class NotificationHelper(private val context: Context) {
+
+    private val permissionManager = PermissionManager(context)
 
     init {
         createNotificationChannel()
@@ -69,6 +69,7 @@ class NotificationHelper(private val context: Context) {
         )
     }
 
+    @SuppressLint("MissingPermission")
     private fun showNotification(id: Int, title: String, message: String) {
         val builder = NotificationCompat.Builder(context, Constants.NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(R.drawable.bolt) // Use bolt as a generic battery icon
@@ -78,15 +79,8 @@ class NotificationHelper(private val context: Context) {
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(context)
-        var hasPermission = true
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            hasPermission = ActivityCompat.checkSelfPermission(
-                context, Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        }
-
-        if (hasPermission) {
+        if (permissionManager.hasNotificationPermission()) {
             notificationManager.notify(id, builder.build())
         }
     }

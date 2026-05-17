@@ -25,6 +25,7 @@ import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.BatteryTheme
 
@@ -35,6 +36,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
     val prefs = remember { PreferenceManager(context) }
+    val permissionManager = remember { PermissionManager(context) }
 
     val healthyChargeEnabledState = remember {
         mutableStateOf(
@@ -96,9 +98,11 @@ fun SettingsScreen(
     }
 
     val versionName = remember { AppUtils.getVersionName(context) }
+    val hasPermission = permissionManager.hasNotificationPermission()
 
     val state = SettingsUiState(
         isWidgetsPurchased = isWidgetsPurchased,
+        hasNotificationPermission = hasPermission,
         versionName = versionName,
         healthyChargeEnabled = healthyChargeEnabledState.value,
         tempAlertEnabled = tempAlertEnabledState.value,
@@ -167,6 +171,7 @@ fun SettingsScreen(
             )
         },
         onUnlockClick = onUnlockClick,
+        onNotificationPermissionRequest = {},
         onUpdateClick = { AppUtils.openPlayStore(context) },
         onRateClick = { AppUtils.openPlayStore(context) }
     )
@@ -199,9 +204,9 @@ fun SettingsContent(
                         onClick = actions.onUnlockClick
                     )
                 }
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.settings_about_app)) {
                 val updateTitle = stringResource(R.string.settings_software_update)
                 val updateDesc = stringResource(R.string.settings_version, state.versionName)
@@ -231,6 +236,7 @@ fun SettingsScreenPreview() {
         SettingsContent(
             state = SettingsUiState(
                 isWidgetsPurchased = false,
+                hasNotificationPermission = true,
                 versionName = "1.0.0",
                 healthyChargeEnabled = true,
                 tempAlertEnabled = true,
@@ -249,6 +255,7 @@ fun SettingsScreenPreview() {
                 onHealthyChargeLevelChange = {},
                 onLowBatteryLevelChange = {},
                 onUnlockClick = {},
+                onNotificationPermissionRequest = {},
                 onUpdateClick = {},
                 onRateClick = {}
             )

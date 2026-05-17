@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.ui.components.PermissionCard
 import com.monospace.battery.ui.components.PremiumCard
 import com.monospace.battery.ui.components.SettingsSection
 
@@ -24,6 +25,7 @@ fun AlertsScreen(
     actions: SettingsUiActions
 ) {
     val isPremium = state.isWidgetsPurchased
+    val hasPermission = state.hasNotificationPermission
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -36,6 +38,15 @@ fun AlertsScreen(
         ) {
             if (!isPremium) {
                 PremiumCard(onUpgradeClick = actions.onUnlockClick)
+                Spacer(modifier = Modifier.height(16.dp))
+            } else if (!hasPermission) {
+                PermissionCard(
+                    title = stringResource(R.string.permission_notifications_title),
+                    description = stringResource(R.string.permission_notifications_description),
+                    buttonText = stringResource(R.string.permission_notifications_button),
+                    onClick = actions.onNotificationPermissionRequest
+                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // 1. Charge Alarms

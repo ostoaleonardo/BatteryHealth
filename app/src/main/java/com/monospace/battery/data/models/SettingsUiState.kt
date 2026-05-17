@@ -2,6 +2,7 @@ package com.monospace.battery.data.models
 
 data class SettingsUiState(
     val isWidgetsPurchased: Boolean,
+    val hasNotificationPermission: Boolean,
     val versionName: String,
     val healthyChargeEnabled: Boolean,
     val tempAlertEnabled: Boolean,
@@ -21,6 +22,7 @@ data class SettingsUiActions(
     val onHealthyChargeLevelChange: (Int) -> Unit,
     val onLowBatteryLevelChange: (Int) -> Unit,
     val onUnlockClick: () -> Unit,
+    val onNotificationPermissionRequest: () -> Unit,
     val onUpdateClick: () -> Unit,
     val onRateClick: () -> Unit
 )
