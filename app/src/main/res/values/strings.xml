@@ -144,6 +144,23 @@
     <string name="history_unlock_full">View full history</string>
     <string name="history_unlock_full_desc">Upgrade to the Full Version to access your complete charging history and advanced analytics.</string>
 
+    <!-- Charger Analysis -->
+    <string name="charger_analysis_title">Charger Quality Analysis</string>
+    <string name="charger_analysis_avg_speed">Avg. Speed</string>
+    <string name="charger_analysis_sessions">Sessions</string>
+    <string name="charger_analysis_comparison">Your %1$s charger is %2$d%% %3$s than %4$s.</string>
+    <string name="charger_analysis_faster">faster</string>
+    <string name="charger_analysis_slower">slower</string>
+
+    <!-- Battery Health Tips -->
+    <string name="tips_title">Battery Health Tips</string>
+    <string name="tips_20_80_rule">The 20-80% Rule</string>
+    <string name="tips_20_80_rule_desc">Keeping your battery between 20% and 80% can significantly extend its lifespan by reducing stress cycles.</string>
+    <string name="tips_heat_kill">Avoid Extreme Heat</string>
+    <string name="tips_heat_kill_desc">Heat is the #1 enemy of batteries. Avoid intensive gaming or direct sunlight while charging.</string>
+    <string name="tips_original_acc">Use Quality Accessories</string>
+    <string name="tips_original_acc_desc">Cheap chargers can have unstable voltage, which damages battery cells over time.</string>
+
     <!-- SOT Card Labels -->
     <string name="sot_label_used">USED</string>
     <string name="sot_label_drain">DRAIN/H</string>

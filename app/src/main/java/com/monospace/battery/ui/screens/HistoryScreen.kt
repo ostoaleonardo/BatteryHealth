@@ -24,7 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.R
 import com.monospace.battery.ui.components.BatteryChart
+import com.monospace.battery.ui.components.BatteryTipsSection
 import com.monospace.battery.ui.components.ChargeSessionItem
+import com.monospace.battery.ui.components.ChargerAnalysisSection
 import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.components.SotCard
 import com.monospace.battery.ui.theme.Font
@@ -52,6 +54,7 @@ fun HistoryScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
+            // 1. SOT Diagnostics
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 SotCard(
@@ -62,12 +65,24 @@ fun HistoryScreen(
                 )
             }
 
+            // 2. Consumption Chart (Animated)
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle(stringResource(R.string.history_consumption_title))
                 BatteryChart(history)
             }
 
+            // 3. Charger Analysis (Pro feature)
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                ChargerAnalysisSection(
+                    sessions = sessions,
+                    isPremium = isPremium,
+                    onUpgradeClick = onUpgradeClick
+                )
+            }
+
+            // 4. Charging Sessions
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle(stringResource(R.string.history_sessions_title))
@@ -111,7 +126,10 @@ fun HistoryScreen(
                 }
             }
 
+            // 5. Battery Tips (Free Value-Add)
             item {
+                Spacer(modifier = Modifier.height(24.dp))
+                BatteryTipsSection()
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }

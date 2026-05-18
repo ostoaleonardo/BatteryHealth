@@ -130,6 +130,23 @@
     <string name="history_unlock_full">Ver historial completo</string>
     <string name="history_unlock_full_desc">Actualiza a la versión completa para acceder a todo tu historial de carga y análisis avanzados.</string>
 
+    <!-- Analítica de Cargadores -->
+    <string name="charger_analysis_title">Calidad de Cargadores</string>
+    <string name="charger_analysis_avg_speed">Vel. Promedio</string>
+    <string name="charger_analysis_sessions">Sesiones</string>
+    <string name="charger_analysis_comparison">Tu cargador %1$s es un %2$d%% más %3$s que %4$s.</string>
+    <string name="charger_analysis_faster">rápido</string>
+    <string name="charger_analysis_slower">lento</string>
+
+    <!-- Consejos de Salud -->
+    <string name="tips_title">Consejos de Salud</string>
+    <string name="tips_20_80_rule">Regla del 20-80%</string>
+    <string name="tips_20_80_rule_desc">Mantener la batería entre el 20% y el 80% puede extender significativamente su vida útil al reducir el estrés.</string>
+    <string name="tips_heat_kill">Evita el calor extremo</string>
+    <string name="tips_heat_kill_desc">El calor es el enemigo #1. Evita juegos pesados o luz solar directa mientras cargas.</string>
+    <string name="tips_original_acc">Usa accesorios de calidad</string>
+    <string name="tips_original_acc_desc">Los cargadores baratos pueden tener voltajes inestables que dañan las celdas con el tiempo.</string>
+
     <!-- SOT Card Labels -->
     <string name="sot_label_used">USO</string>
     <string name="sot_label_drain">DRENAJE/H</string>

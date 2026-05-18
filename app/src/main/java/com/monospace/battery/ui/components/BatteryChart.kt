@@ -1,5 +1,7 @@
 package com.monospace.battery.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +12,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -39,6 +42,15 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
     )
 
     val dateFormat = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    
+    // Animation state
+    val animationProgress = remember { Animatable(0f) }
+    LaunchedEffect(entries) {
+        if (entries.isNotEmpty()) {
+            animationProgress.snapTo(0f)
+            animationProgress.animateTo(1f, tween(1200))
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -61,16 +73,11 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
             val width = size.width
             val height = size.height
 
-            // 1. Draw horizontal guidelines (0%, 50%, 100%)
+            // 1. Draw horizontal guidelines
             val guideLineAlpha = 0.1f
             val guideLineColor = color.copy(alpha = guideLineAlpha)
 
-            val yLevels = listOf(
-                0f to "100%",
-                height / 2 to "50%",
-                height to "0%"
-            )
-
+            val yLevels = listOf(0f to "100%", height / 2 to "50%", height to "0%")
             yLevels.forEach { (y, label) ->
                 drawLine(guideLineColor, start = Offset(0f, y), end = Offset(width, y))
                 drawText(
@@ -82,12 +89,11 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
             }
 
             if (entries.isNotEmpty()) {
-                val lastEntry = entries.last()
                 val minTime = entries.first().timestamp
-                val maxTime = lastEntry.timestamp
+                val maxTime = entries.last().timestamp
                 val timeRange = (maxTime - minTime).coerceAtLeast(1L)
 
-                // Draw X-axis Time Labels (Start, Middle, End)
+                // Draw X-axis Time Labels
                 val xLabels = if (entries.size >= 2) {
                     listOf(
                         0f to dateFormat.format(Date(minTime)),
@@ -107,13 +113,14 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
                 }
 
                 if (entries.size >= 2) {
-                    // 2. Build paths
                     val path = Path()
                     val fillPath = Path()
-
-                    entries.forEachIndexed { index, entry ->
-                        val x =
-                            ((entry.timestamp - minTime).toFloat() / timeRange.toFloat()) * width
+                    
+                    // Create path based on animation progress
+                    val pointsToDraw = (entries.size * animationProgress.value).toInt().coerceAtLeast(1)
+                    
+                    entries.take(pointsToDraw).forEachIndexed { index, entry ->
+                        val x = ((entry.timestamp - minTime).toFloat() / timeRange.toFloat()) * width
                         val y = height - (entry.level.toFloat() / 100f * height)
 
                         if (index == 0) {
@@ -125,13 +132,12 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
                             fillPath.lineTo(x, y)
                         }
 
-                        if (index == entries.size - 1) {
+                        if (index == pointsToDraw - 1) {
                             fillPath.lineTo(x, height)
                             fillPath.close()
                         }
                     }
 
-                    // 3. Draw Fill (Gradient)
                     drawPath(
                         path = fillPath,
                         brush = Brush.verticalGradient(
@@ -139,7 +145,6 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
                         )
                     )
 
-                    // 4. Draw Line
                     drawPath(
                         path = path,
                         color = color,
@@ -147,11 +152,16 @@ fun BatteryChart(entries: List<BatteryHistoryEntry>) {
                     )
                 }
 
-                // 5. Draw current point
+                // Draw current point (last entry)
+                val lastEntry = entries.last()
                 val currentY = height - (lastEntry.level.toFloat() / 100f * height)
                 val currentX = if (entries.size >= 2) width else width / 2f
-                drawCircle(color, radius = 6.dp.toPx(), center = Offset(currentX, currentY))
-                drawCircle(surfaceColor, radius = 3.dp.toPx(), center = Offset(currentX, currentY))
+                
+                // Scale point pulse based on progress
+                if (animationProgress.value > 0.95f) {
+                    drawCircle(color, radius = 6.dp.toPx(), center = Offset(currentX, currentY))
+                    drawCircle(surfaceColor, radius = 3.dp.toPx(), center = Offset(currentX, currentY))
+                }
             }
         }
     }
