@@ -22,6 +22,9 @@ interface BatteryDao {
     @Query("SELECT * FROM battery_history WHERE timestamp >= :since ORDER BY timestamp ASC")
     suspend fun getHistorySinceSync(since: Long): List<BatteryHistoryEntry>
 
+    @Query("SELECT * FROM battery_history WHERE timestamp BETWEEN :from AND :to ORDER BY timestamp ASC")
+    suspend fun getHistoryInRange(from: Long, to: Long): List<BatteryHistoryEntry>
+
     // Charge Sessions
     @Insert
     suspend fun insertChargeSession(session: ChargeSession): Long

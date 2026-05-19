@@ -147,10 +147,14 @@
     <!-- Charger Analysis -->
     <string name="charger_analysis_title">Charger Quality Analysis</string>
     <string name="charger_analysis_avg_speed">Avg. Speed</string>
+    <string name="charger_analysis_stability">Stability</string>
+    <string name="charger_analysis_avg_temp">Avg. Temp</string>
     <string name="charger_analysis_sessions">Sessions</string>
     <string name="charger_analysis_comparison">Your %1$s charger is %2$d%% %3$s than %4$s.</string>
     <string name="charger_analysis_faster">faster</string>
     <string name="charger_analysis_slower">slower</string>
+    <string name="charger_analysis_what_measured_title">What is measured?</string>
+    <string name="charger_analysis_what_measured_desc">This section evaluates chargers by source. We measure the charge rate (%/min), thermal efficiency (heat impact), and stability (consistency across sessions).</string>
 
     <!-- Battery Health Tips -->
     <string name="tips_title">Battery Health Tips</string>

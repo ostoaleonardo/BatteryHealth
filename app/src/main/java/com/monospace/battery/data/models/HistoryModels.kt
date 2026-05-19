@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 data class BatteryHistoryEntry(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val timestamp: Long,
-    val level: Int
+    val level: Int,
+    val temperature: Int = 0
 )
 
 @Entity(tableName = "charge_sessions")

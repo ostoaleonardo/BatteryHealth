@@ -15,6 +15,9 @@ object Constants {
     const val NOTIFICATION_SLOW_CHARGE_ID = 1005
     const val NOTIFICATION_SERVICE_ID = 1
 
+    // Database
+    const val DATABASE_NAME = "battery_database"
+
     // Preference Files
     const val PREFS_ALERTS = "battery_alerts_prefs"
     const val PREFS_WIDGETS = "widgets_purchase"

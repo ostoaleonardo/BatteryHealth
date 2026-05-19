@@ -77,7 +77,7 @@ class BatteryAlertService : Service() {
 
         // Capture previous state before updating to avoid race conditions in the coroutine
         val prevLevel = lastLevel
-        recordBatteryData(batteryPct, prevLevel, isCharging, wasCharging, source)
+        recordBatteryData(batteryPct, prevLevel, temperature, isCharging, wasCharging, source)
 
         // Update states immediately on main thread
         lastLevel = batteryPct
@@ -170,6 +170,7 @@ class BatteryAlertService : Service() {
     private fun recordBatteryData(
         level: Int,
         prevLevel: Int,
+        temperature: Int,
         isCharging: Boolean,
         wasCharging: Boolean,
         source: Int
@@ -181,7 +182,11 @@ class BatteryAlertService : Service() {
                 // 1. History Entry
                 if (level != prevLevel || prevLevel == -1) {
                     db.batteryDao().insertBatteryEntry(
-                        BatteryHistoryEntry(timestamp = System.currentTimeMillis(), level = level)
+                        BatteryHistoryEntry(
+                            timestamp = System.currentTimeMillis(),
+                            level = level,
+                            temperature = temperature
+                        )
                     )
                 }
 

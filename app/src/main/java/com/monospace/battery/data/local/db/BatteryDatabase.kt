@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ScreenEvent
@@ -25,7 +26,7 @@ abstract class BatteryDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     BatteryDatabase::class.java,
-                    "battery_database"
+                    Constants.DATABASE_NAME
                 ).build()
                 INSTANCE = instance
                 instance

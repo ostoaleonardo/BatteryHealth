@@ -44,6 +44,7 @@ fun HistoryScreen(
     val batteryUsed by viewModel.batteryUsed.collectAsState()
     val drainRate by viewModel.activeDrainRate.collectAsState()
     val estimatedSot by viewModel.estimatedFullSot.collectAsState()
+    val chargerStats by viewModel.chargerStats.collectAsState()
 
     val displayedSessions = if (isPremium) sessions else sessions.take(3)
 
@@ -76,7 +77,7 @@ fun HistoryScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 ChargerAnalysisSection(
-                    sessions = sessions,
+                    stats = chargerStats,
                     isPremium = isPremium,
                     onUpgradeClick = onUpgradeClick
                 )
