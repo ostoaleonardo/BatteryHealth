@@ -62,20 +62,27 @@ fun ChargeSessionsSection(
                         ChargeSessionItem(
                             session = session,
                             currentLevel = currentLevel,
-                            showDivider = index < displayedSessions.size - 1 || 
-                                          (!isPremium && sessions.size > 3) ||
-                                          (isPremium && sessions.size > limit)
+                            showDivider = index < displayedSessions.size - 1
                         )
                     }
 
                     if (!isPremium && sessions.size > 3) {
-                        HistoryUpsell(onUpgradeClick)
+                        UpsellCard(
+                            title = stringResource(R.string.history_unlock_full),
+                            description = stringResource(R.string.history_unlock_full_desc),
+                            onClick = onUpgradeClick,
+                            shape = RoundedCornerShape(
+                                bottomStart = 28.dp,
+                                bottomEnd = 28.dp
+                            )
+                        )
                     } else if (isPremium && sessions.size > limit) {
                         Button(
-                            onClick = { limit += 10 },
+                            onClick = { limit += 5 },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
+                            shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                 contentColor = MaterialTheme.colorScheme.primary
@@ -90,43 +97,6 @@ fun ChargeSessionsSection(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun HistoryUpsell(onClick: () -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.history_unlock_full),
-            style = MaterialTheme.typography.titleSmall,
-            fontFamily = Font.AzeretMonoLight,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = stringResource(R.string.history_unlock_full_desc),
-            style = MaterialTheme.typography.bodySmall,
-            fontFamily = Font.AzeretMonoLight,
-            modifier = Modifier.padding(vertical = 8.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Button(
-            onClick = onClick,
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                contentColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.premium_button).uppercase(),
-                fontFamily = Font.AzeretMonoLight,
-                style = MaterialTheme.typography.labelLarge
-            )
         }
     }
 }

@@ -154,6 +154,10 @@
     <string name="charger_analysis_comparison">Your %1$s charger is %2$d%% %3$s than %4$s.</string>
     <string name="charger_analysis_faster">faster</string>
     <string name="charger_analysis_slower">slower</string>
+    <string name="charger_analysis_stability_desc">Consistency of the current. Low values may indicate a faulty cable or port.</string>
+    <string name="charger_analysis_avg_temp_desc">Average battery temperature while charging with this source.</string>
+    <string name="charger_analysis_avg_speed_desc">Charge gain rate per minute. Fast chargers usually exceed 1.2%/m.</string>
+    <string name="charger_analysis_upsell_desc">Unlock technical metrics like stability and thermal impact.</string>
     <string name="charger_analysis_what_measured_title">What is measured?</string>
     <string name="charger_analysis_what_measured_desc">This section evaluates chargers by source. We measure the charge rate (%/min), thermal efficiency (heat impact), and stability (consistency across sessions).</string>
 
