@@ -141,6 +141,7 @@
     <string name="history_charging">Charging&#8230;</string>
     <string name="history_currently_charging">Charging&#8230;</string>
     <string name="history_session_duration">Charge duration</string>
+    <string name="history_show_more">Show more (%d+)</string>
     <string name="history_unlock_full">View full history</string>
     <string name="history_unlock_full_desc">Upgrade to the Full Version to access your complete charging history and advanced analytics.</string>
 
