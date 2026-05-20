@@ -147,6 +147,7 @@
 
     <!-- Charger Analysis -->
     <string name="charger_analysis_title">Charger Quality Analysis</string>
+    <string name="charger_analysis_no_data">No chargers detected for analysis yet.</string>
     <string name="charger_analysis_avg_speed">Avg. Speed</string>
     <string name="charger_analysis_stability">Stability</string>
     <string name="charger_analysis_avg_temp">Avg. Temp</string>

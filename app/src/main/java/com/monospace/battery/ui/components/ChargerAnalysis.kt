@@ -42,7 +42,13 @@ fun ChargerAnalysisSection(
         SectionTitle(stringResource(R.string.charger_analysis_title))
 
         if (stats.isEmpty()) {
-            EmptyStatsCard()
+            Text(
+                text = stringResource(R.string.charger_analysis_no_data),
+                modifier = Modifier.padding(24.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = Font.AzeretMonoLight
+            )
         } else {
             val displayedStats = if (isPremium) stats else stats.take(1)
 
@@ -195,28 +201,6 @@ private fun StatItem(label: String, value: String, tooltip: String) {
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-    }
-}
-
-@Composable
-private fun EmptyStatsCard() {
-    Card(
-        modifier = Modifier
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                alpha = 0.3f
-            )
-        )
-    ) {
-        Text(
-            text = stringResource(R.string.history_collecting_data),
-            modifier = Modifier.padding(24.dp),
-            fontFamily = Font.AzeretMonoLight,
-            style = MaterialTheme.typography.bodyMedium
-        )
     }
 }
 

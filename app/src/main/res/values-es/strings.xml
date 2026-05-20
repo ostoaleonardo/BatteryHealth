@@ -133,6 +133,7 @@
 
     <!-- Analítica de Cargadores -->
     <string name="charger_analysis_title">Calidad de Cargadores</string>
+    <string name="charger_analysis_no_data">Aún no se han detectado cargadores para analizar.</string>
     <string name="charger_analysis_avg_speed">Vel. Promedio</string>
     <string name="charger_analysis_stability">Estabilidad</string>
     <string name="charger_analysis_avg_temp">Temp. Media</string>
