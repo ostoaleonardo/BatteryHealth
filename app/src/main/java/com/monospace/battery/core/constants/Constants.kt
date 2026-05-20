@@ -42,8 +42,6 @@ object Constants {
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
     // Colors
-    val ColorGoldLight = Color(0xFFFFC107)
-    val ColorGoldDark = Color(0xFFFFD700)
     val ColorGreen = Color(0xFF00A25B)
     val ColorLightGreen = Color(0xFF8BC34A)
     val ColorOrange = Color(0xFFFF9800)
