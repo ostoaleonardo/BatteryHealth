@@ -31,6 +31,15 @@ class BatteryStrings {
         }
     }
 
+    fun getChargingSourceIcon(source: Int): Int {
+        return when (source) {
+            BatteryManager.BATTERY_PLUGGED_AC -> R.drawable.power_fill
+            BatteryManager.BATTERY_PLUGGED_USB -> R.drawable.usb
+            BatteryManager.BATTERY_PLUGGED_WIRELESS -> R.drawable.lightning_stand_fill
+            else -> R.drawable.power_fill
+        }
+    }
+
     fun getCapacityValue(capacity: Int, capacityRemaining: Int): String? {
         return if (capacityRemaining > 0 && capacity > 0) {
             "$capacityRemaining / $capacity mAh"

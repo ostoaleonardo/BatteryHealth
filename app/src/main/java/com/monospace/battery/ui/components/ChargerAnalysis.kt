@@ -1,6 +1,5 @@
 package com.monospace.battery.ui.components
 
-import android.os.BatteryManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -91,7 +90,7 @@ private fun ChargerStatItem(
     val locale = LocalLocale.current.platformLocale
     val batteryStrings = BatteryStrings()
     val sourceName = stringResource(batteryStrings.getChargingSource(stat.source))
-    val sourceIcon = getSourceIcon(stat.source)
+    val sourceIcon = batteryStrings.getChargingSourceIcon(stat.source)
 
     Column {
         // Header Row with subtle background
@@ -218,15 +217,6 @@ private fun EmptyStatsCard() {
             fontFamily = Font.AzeretMonoLight,
             style = MaterialTheme.typography.bodyMedium
         )
-    }
-}
-
-private fun getSourceIcon(source: Int): Int {
-    return when (source) {
-        BatteryManager.BATTERY_PLUGGED_AC -> R.drawable.power_fill
-        BatteryManager.BATTERY_PLUGGED_USB -> R.drawable.usb
-        BatteryManager.BATTERY_PLUGGED_WIRELESS -> R.drawable.lightning_stand_fill
-        else -> R.drawable.power_fill
     }
 }
 

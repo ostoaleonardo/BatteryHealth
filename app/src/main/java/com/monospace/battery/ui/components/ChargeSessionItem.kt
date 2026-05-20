@@ -1,13 +1,17 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -38,7 +43,9 @@ fun ChargeSessionItem(
     val startTime = dateFormat.format(Date(session.startTime))
 
     val isCurrentlyCharging = session.endTime == null
-    val sourceRes = BatteryStrings().getChargingSource(session.chargeSource)
+    val batteryStrings = BatteryStrings()
+    val sourceRes = batteryStrings.getChargingSource(session.chargeSource)
+    val sourceIcon = batteryStrings.getChargingSourceIcon(session.chargeSource)
     val sourceStr = stringResource(sourceRes)
 
     val durationStr = if (session.endTime != null) {
@@ -67,6 +74,23 @@ fun ChargeSessionItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = sourceIcon),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
             SessionInfo(
                 title = titleText,
                 subtitle = "$startTime • $sourceStr"

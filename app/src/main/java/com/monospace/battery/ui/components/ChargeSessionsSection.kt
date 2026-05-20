@@ -30,7 +30,7 @@ fun ChargeSessionsSection(
     onUpgradeClick: () -> Unit
 ) {
     var limit by remember { mutableIntStateOf(5) }
-    
+
     val displayedSessions = when {
         !isPremium -> sessions.take(3)
         else -> sessions.take(limit)
@@ -77,19 +77,20 @@ fun ChargeSessionsSection(
                             )
                         )
                     } else if (isPremium && sessions.size > limit) {
+                        val nextBatch = minOf(5, sessions.size - limit)
+
                         Button(
                             onClick = { limit += 5 },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                 contentColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
                             Text(
-                                text = stringResource(R.string.history_show_more, sessions.size - limit).uppercase(),
+                                text = stringResource(R.string.history_show_more, nextBatch).uppercase(),
                                 fontFamily = Font.AzeretMonoLight,
                                 style = MaterialTheme.typography.labelLarge
                             )
