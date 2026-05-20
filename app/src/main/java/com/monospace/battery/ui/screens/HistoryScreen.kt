@@ -35,6 +35,7 @@ fun HistoryScreen(
     val drainRate by viewModel.activeDrainRate.collectAsState()
     val estimatedSot by viewModel.estimatedFullSot.collectAsState()
     val chargerStats by viewModel.chargerStats.collectAsState()
+    val currentTip by viewModel.currentTip.collectAsState()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +86,10 @@ fun HistoryScreen(
             // 5. Battery Tips (Free Value-Add)
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                BatteryTipsSection()
+                BatteryTipsSection(
+                    tip = currentTip.second,
+                    onNextTip = viewModel::nextTip
+                )
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }

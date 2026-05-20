@@ -162,13 +162,48 @@
     <string name="charger_analysis_what_measured_desc">This section evaluates chargers by source. We measure the charge rate (%/min), thermal efficiency (heat impact), and stability (consistency across sessions).</string>
 
     <!-- Battery Health Tips -->
-    <string name="tips_title">Battery Health Tips</string>
-    <string name="tips_20_80_rule">The 20-80% Rule</string>
+    <string name="tips_title">Did you know?</string>
+    <string name="tips_show_another">Show another</string>
+    <string name="tips_20_80_rule">The 20–80% Rule</string>
     <string name="tips_20_80_rule_desc">Keeping your battery between 20% and 80% can significantly extend its lifespan by reducing stress cycles.</string>
     <string name="tips_heat_kill">Avoid Extreme Heat</string>
     <string name="tips_heat_kill_desc">Heat is the #1 enemy of batteries. Avoid intensive gaming or direct sunlight while charging.</string>
     <string name="tips_original_acc">Use Quality Accessories</string>
     <string name="tips_original_acc_desc">Cheap chargers can have unstable voltage, which damages battery cells over time.</string>
+    <string name="tips_dark_mode">Use Dark Mode</string>
+    <string name="tips_dark_mode_desc">OLED screens save significant energy when displaying black pixels. Enable system-wide dark mode.</string>
+    <string name="tips_brightness">Screen Brightness</string>
+    <string name="tips_brightness_desc">The screen is the largest consumer. Using auto-brightness or manual low levels extends battery life.</string>
+    <string name="tips_background_apps">Limit Background Apps</string>
+    <string name="tips_background_apps_desc">Some apps consume energy even when not in use. Review and restrict high-consumption background apps.</string>
+    <string name="tips_fast_charge">Avoid Frequent Fast Charging</string>
+    <string name="tips_fast_charge_desc">Fast charging generates more heat. Use it only when necessary to preserve cell chemistry.</string>
+    <string name="tips_avoid_zero">Avoid 0%</string>
+    <string name="tips_avoid_zero_desc">Letting the battery drain completely stresses the chemical cells. Try to charge it before it drops below 15%.</string>
+    <string name="tips_cold_care">Watch for Cold</string>
+    <string name="tips_cold_care_desc">Sub-zero temperatures slow down ion movement, temporarily reducing effective capacity.</string>
+    <string name="tips_software_update">Up-to-Date Software</string>
+    <string name="tips_software_update_desc">System updates often include power optimizations that improve battery performance.</string>
+    <string name="tips_location">Location Services</string>
+    <string name="tips_location_desc">GPS is a major battery drain. Disable it for apps that don\'t strictly need it.</string>
+    <string name="tips_signal">Weak Signal</string>
+    <string name="tips_signal_desc">In areas with poor coverage, your phone increases power to stay connected. Use Airplane Mode.</string>
+    <string name="tips_wifi">Wi-Fi over Data</string>
+    <string name="tips_wifi_desc">Connecting to Wi-Fi uses less energy than using 4G/5G mobile data.</string>
+    <string name="tips_vibration">Haptic Feedback</string>
+    <string name="tips_vibration_desc">Vibration motors consume more energy than ringtones. Disable haptics to save power.</string>
+    <string name="tips_hot_storage">Storage Temperature</string>
+    <string name="tips_hot_storage_desc">Never leave your device on the car dashboard. Intense heat permanently damages battery capacity.</string>
+    <string name="tips_heavy_apps">Intensive Tasks</string>
+    <string name="tips_heavy_apps_desc">Gaming or video editing while charging generates excessive heat, accelerating battery wear.</string>
+    <string name="tips_push">Push Notifications</string>
+    <string name="tips_push_desc">Every notification wakes up the screen and processor. Limit them to the essentials.</string>
+    <string name="tips_refresh_rate">Refresh Rate</string>
+    <string name="tips_refresh_rate_desc">High refresh rates (120Hz) are smooth but drain more battery. Use Adaptive mode if available.</string>
+    <string name="tips_charging_habits">Charging Habits</string>
+    <string name="tips_charging_habits_desc">Small top–ups throughout the day are better than one long overnight 0–100% charge.</string>
+    <string name="tips_sync_freq">Auto-Sync</string>
+    <string name="tips_sync_freq_desc">Reducing the frequency of mail and cloud sync can save a surprising amount of daily energy.</string>
 
     <!-- SOT Card Labels -->
     <string name="sot_label_used">USED</string>

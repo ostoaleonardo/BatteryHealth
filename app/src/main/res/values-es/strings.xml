@@ -79,12 +79,12 @@
 
     <!-- Notification strings -->
     <string name="notification_channel_name">Alertas de batería</string>
-    <string name="notification_healthy_title">¡Carga objetivo alcanzada!</string>
+    <string name="notification_healthy_title">¡Carga objetiva alcanzada!</string>
     <string name="notification_healthy_message">La batería ha llegado al límite configurado. Desconéctala para preservar su salud.</string>
     <string name="notification_low_battery_title">¡Advertencia de batería baja!</string>
     <string name="notification_low_battery_message">La batería ha bajado del %d%%. Por favor, conecta tu cargador.</string>
     <string name="notification_temp_title">¡Alta temperatura detectada!</string>
-    <string name="notification_temp_message">La temperatura de la batería supera los 40°C. ¡Ten cuidado!</string>
+    <string name="notification_temp_message">La temperatura de la batería supera los 40 °C. ¡Ten cuidado!</string>
     <string name="notification_fast_discharge_title">¡Drenaje anormal detectado!</string>
     <string name="notification_fast_discharge_message">Tu batería se agota más rápido de lo habitual. Revisa apps en segundo plano.</string>
     <string name="notification_slow_charge_title">¡Carga lenta detectada!</string>
@@ -110,7 +110,7 @@
     <string name="description_level">La cantidad actual de energía almacenada en la batería como un porcentaje de su capacidad máxima.</string>
     <string name="description_cycles">El número total de ciclos completos de carga y descarga. Números más altos indican más desgaste en la batería.</string>
     <string name="description_type">La composición química de la batería (p. ej., Li-ion, Li-poly).</string>
-    <string name="description_temperature">El estado térmico actual de la batería. Mantenerla entre 20°C y 35°C es ideal para su longevidad.</string>
+    <string name="description_temperature">El estado térmico actual de la batería. Mantenerla entre 20 °C y 35 °C es ideal para su longevidad.</string>
     <string name="description_voltage">El potencial eléctrico proporcionado por la batería. Varía según el nivel de carga.</string>
     <string name="description_current">El flujo instantáneo de electricidad. Los valores positivos indican carga, mientras que los valores negativos indican consumo.</string>
     <string name="description_capacity">Capacidad de energía total de la batería. Comparación en tiempo real entre los mAh restantes y totales.</string>
@@ -148,13 +148,48 @@
     <string name="charger_analysis_what_measured_desc">Esta sección evalúa cargadores por fuente. Medimos la tasa de carga (%/min), eficiencia térmica (impacto de calor) y estabilidad (consistencia entre sesiones).</string>
 
     <!-- Consejos de Salud -->
-    <string name="tips_title">Consejos de Salud</string>
-    <string name="tips_20_80_rule">Regla del 20-80%</string>
+    <string name="tips_title">¿Sabías que…?</string>
+    <string name="tips_show_another">Mostrar otro</string>
+    <string name="tips_20_80_rule">Regla del 20–80%</string>
     <string name="tips_20_80_rule_desc">Mantener la batería entre el 20% y el 80% puede extender significativamente su vida útil al reducir el estrés.</string>
     <string name="tips_heat_kill">Evita el calor extremo</string>
     <string name="tips_heat_kill_desc">El calor es el enemigo #1. Evita juegos pesados o luz solar directa mientras cargas.</string>
     <string name="tips_original_acc">Usa accesorios de calidad</string>
     <string name="tips_original_acc_desc">Los cargadores baratos pueden tener voltajes inestables que dañan las celdas con el tiempo.</string>
+    <string name="tips_dark_mode">Usa el Modo Oscuro</string>
+    <string name="tips_dark_mode_desc">Las pantallas OLED ahorran mucha energía al mostrar píxeles negros. Activa el modo oscuro del sistema.</string>
+    <string name="tips_brightness">Brillo de Pantalla</string>
+    <string name="tips_brightness_desc">La pantalla es el mayor consumidor. Usar brillo automático o niveles bajos manuales prolonga la batería.</string>
+    <string name="tips_background_apps">Limita Apps en Segundo Plano</string>
+    <string name="tips_background_apps_desc">Algunas apps consumen energía sin usarse. Revisa y restringe las apps de alto consumo.</string>
+    <string name="tips_fast_charge">Evita Carga Rápida Frecuente</string>
+    <string name="tips_fast_charge_desc">La carga rápida genera más calor. Úsala solo cuando sea necesario para cuidar la química.</string>
+    <string name="tips_avoid_zero">Evita el 0%</string>
+    <string name="tips_avoid_zero_desc">Dejar que la batería se agote por completo estresa las celdas químicas. Intenta cargarla antes de que baje del 15%.</string>
+    <string name="tips_cold_care">Cuidado con el Frío</string>
+    <string name="tips_cold_care_desc">Las temperaturas bajo cero ralentizan el movimiento de iones, reduciendo la capacidad efectiva temporalmente.</string>
+    <string name="tips_software_update">Software al Día</string>
+    <string name="tips_software_update_desc">Las actualizaciones del sistema suelen incluir optimizaciones de energía que mejoran el rendimiento de la batería.</string>
+    <string name="tips_location">Servicios de Ubicación</string>
+    <string name="tips_location_desc">El GPS consume mucha batería. Desactívalo para apps que no lo necesiten estrictamente.</string>
+    <string name="tips_signal">Señal Débil</string>
+    <string name="tips_signal_desc">En zonas de poca cobertura, tu móvil aumenta la potencia para seguir conectado. Usa el Modo Avión.</string>
+    <string name="tips_wifi">Wi-Fi vs Datos</string>
+    <string name="tips_wifi_desc">Conectarse a WiFi consume menos energía que usar los datos móviles 4G/5G.</string>
+    <string name="tips_vibration">Respuesta Háptica</string>
+    <string name="tips_vibration_desc">Los motores de vibración consumen más que los tonos. Desactiva la vibración para ahorrar.</string>
+    <string name="tips_hot_storage">Temperatura de Guardado</string>
+    <string name="tips_hot_storage_desc">Nunca dejes tu dispositivo en el tablero del coche. El calor intenso daña permanentemente la capacidad.</string>
+    <string name="tips_heavy_apps">Tareas Intensivas</string>
+    <string name="tips_heavy_apps_desc">Jugar o editar vídeo mientras cargas genera calor excesivo, acelerando el desgaste.</string>
+    <string name="tips_push">Notificaciones Push</string>
+    <string name="tips_push_desc">Cada notificación enciende la pantalla y el procesador. Limítalas a lo esencial.</string>
+    <string name="tips_refresh_rate">Tasa de Refresco</string>
+    <string name="tips_refresh_rate_desc">Las tasas altas (120Hz) son fluidas pero gastan más. Usa el modo Adaptativo si está disponible.</string>
+    <string name="tips_charging_habits">Hábitos de Carga</string>
+    <string name="tips_charging_habits_desc">Pequeñas cargas durante el día son mejores que una larga de 0 a 100% durante la noche.</string>
+    <string name="tips_sync_freq">Sincronización Automática</string>
+    <string name="tips_sync_freq_desc">Reducir la frecuencia de sincronización de correo y nube ahorra mucha energía diaria.</string>
 
     <!-- SOT Card Labels -->
     <string name="sot_label_used">USO</string>

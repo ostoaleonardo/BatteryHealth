@@ -4,8 +4,10 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.monospace.battery.data.local.BatteryTipsProvider
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.BatteryHistoryEntry
+import com.monospace.battery.data.models.BatteryTip
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ChargerStats
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,9 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val _chargerStats = MutableStateFlow<List<ChargerStats>>(emptyList())
     val chargerStats: StateFlow<List<ChargerStats>> = _chargerStats.asStateFlow()
 
+    private val _currentTip = MutableStateFlow(BatteryTipsProvider.getInitialTip())
+    val currentTip: StateFlow<Pair<Int, BatteryTip>> = _currentTip.asStateFlow()
+
     private val _sot = MutableStateFlow("0h 0m")
     val sot: StateFlow<String> = _sot.asStateFlow()
 
@@ -37,6 +42,10 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     private val _estimatedFullSot = MutableStateFlow("0h 0m")
     val estimatedFullSot: StateFlow<String> = _estimatedFullSot.asStateFlow()
+
+    fun nextTip() {
+        _currentTip.value = BatteryTipsProvider.getRandomTip(_currentTip.value.first)
+    }
 
     init {
         loadData()

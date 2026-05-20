@@ -1,5 +1,6 @@
 package com.monospace.battery.data.models
 
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -27,4 +28,10 @@ data class ScreenEvent(
     val timestamp: Long,
     val isScreenOn: Boolean,
     val batteryLevel: Int
+)
+
+data class BatteryTip(
+    val titleRes: Int,
+    val descriptionRes: Int,
+    val iconVector: ImageVector
 )
