@@ -34,6 +34,7 @@ object Constants {
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"
     const val KEY_WIDGETS_LAST_CHECK = "last_check_timestamp"
+    const val KEY_PURCHASE_SHEET_SHOWN = "purchase_sheet_shown"
 
     // App Info
     const val DEFAULT_VERSION_NAME = "1.0.0"

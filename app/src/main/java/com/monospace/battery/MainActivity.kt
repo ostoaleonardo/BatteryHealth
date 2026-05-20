@@ -282,7 +282,18 @@ class MainActivity : ComponentActivity() {
                 )
 
                 LaunchedEffect(isPurchased) {
-                    showPurchaseSheet = !isPurchased
+                    val alreadyShown = prefs.getBoolean(
+                        Constants.PREFS_WIDGETS,
+                        Constants.KEY_PURCHASE_SHEET_SHOWN
+                    )
+                    if (!isPurchased && !alreadyShown) {
+                        showPurchaseSheet = true
+                        prefs.setBoolean(
+                            Constants.PREFS_WIDGETS,
+                            Constants.KEY_PURCHASE_SHEET_SHOWN,
+                            true
+                        )
+                    }
                 }
 
                 LaunchedEffect(Unit) {
