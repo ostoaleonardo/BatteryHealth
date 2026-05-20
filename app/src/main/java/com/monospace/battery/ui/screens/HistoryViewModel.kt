@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BatteryDatabase.getDatabase(application)
@@ -80,7 +81,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
         val stats = completedSessions.groupBy { it.chargeSource }.map { (source, sessionList) ->
             var totalRate = 0f
-            var rates = mutableListOf<Float>()
+            val rates = mutableListOf<Float>()
             var totalTemp = 0f
             var tempCount = 0
 
@@ -107,7 +108,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             // Stability calculation: 1 - (stdDev / avgRate)
             val stability = if (rates.size >= 2 && avgRate > 0) {
                 val variance = rates.map { (it - avgRate) * (it - avgRate) }.average().toFloat()
-                val stdDev = Math.sqrt(variance.toDouble()).toFloat()
+                val stdDev = sqrt(variance.toDouble()).toFloat()
                 (1f - (stdDev / avgRate)).coerceIn(0f, 1f)
             } else 1f
 
