@@ -1,7 +1,9 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 
@@ -84,3 +86,12 @@ fun getBatteryLevelColor(level: Int): Color = when {
 }
 
 fun getHealthBgColor(health: Int): Color = getHealthColor(health).copy(alpha = 0.1f)
+
+@Composable
+fun formatResourceOrDash(value: Int, resId: Int, vararg args: Any): String {
+    return if (value > 0) {
+        stringResource(resId, *args)
+    } else {
+        Constants.EMPTY_VALUE_DASH
+    }
+}

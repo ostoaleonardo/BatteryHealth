@@ -88,43 +88,56 @@ class BatteryAlertService : Service() {
         super.onCreate()
         Log.d(TAG, "Service created")
 
-        notificationHelper = NotificationHelper(this)
-        prefs = PreferenceManager(this)
-        db = BatteryDatabase.getDatabase(this)
-        batteryUtils = BatteryUtils(this)
+        runCatching {
+            notificationHelper = NotificationHelper(this)
+            prefs = PreferenceManager(this)
+            db = BatteryDatabase.getDatabase(this)
+            batteryUtils = BatteryUtils(this)
 
-        startForegroundService()
-        cleanUpActiveSessions()
+            startForegroundService()
+            cleanUpActiveSessions()
 
-        val filter = IntentFilter().apply {
-            addAction(Intent.ACTION_BATTERY_CHANGED)
-            addAction(Intent.ACTION_SCREEN_ON)
-            addAction(Intent.ACTION_SCREEN_OFF)
+            val filter = IntentFilter().apply {
+                addAction(Intent.ACTION_BATTERY_CHANGED)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            }
+
+            val initialIntent = registerReceiver(batteryReceiver, filter)
+            initialIntent?.let { processBatteryIntent(it) }
+        }.onFailure { e ->
+            Log.e(TAG, "Failed to initialize service", e)
+            stopSelf()
         }
-        val initialIntent = registerReceiver(batteryReceiver, filter)
-        initialIntent?.let { processBatteryIntent(it) }
     }
 
     private fun cleanUpActiveSessions() {
         serviceScope.launch {
-            val activeSession = db.batteryDao().getActiveSession()
-            if (activeSession != null) {
-                val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                        status == BatteryManager.BATTERY_STATUS_FULL
+            runCatching {
+                val activeSession = db.batteryDao().getActiveSession()
 
-                if (!isCharging) {
-                    val currentLevel =
-                        intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, activeSession.startLevel)
-                            ?: activeSession.startLevel
-                    db.batteryDao().updateChargeSession(
-                        activeSession.copy(
-                            endTime = System.currentTimeMillis(),
-                            endLevel = currentLevel
+                if (activeSession != null) {
+                    val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                    val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                    val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                            status == BatteryManager.BATTERY_STATUS_FULL
+
+                    if (!isCharging) {
+                        val currentLevel = intent?.getIntExtra(
+                            BatteryManager.EXTRA_LEVEL,
+                            activeSession.startLevel
+                        ) ?: activeSession.startLevel
+
+                        db.batteryDao().updateChargeSession(
+                            activeSession.copy(
+                                endTime = System.currentTimeMillis(),
+                                endLevel = currentLevel
+                            )
                         )
-                    )
+                    }
                 }
+            }.onFailure { e ->
+                Log.e(TAG, "Error cleaning up sessions", e)
             }
         }
     }
@@ -178,7 +191,7 @@ class BatteryAlertService : Service() {
         if (level == -1) return
 
         serviceScope.launch {
-            try {
+            runCatching {
                 // 1. History Entry
                 if (level != prevLevel || prevLevel == -1) {
                     db.batteryDao().insertBatteryEntry(
@@ -204,6 +217,7 @@ class BatteryAlertService : Service() {
                 } else if (!isCharging && wasCharging) {
                     Log.d(TAG, "DB: Session Ended")
                     val activeSession = db.batteryDao().getActiveSession()
+
                     activeSession?.let {
                         db.batteryDao().updateChargeSession(
                             it.copy(
@@ -213,7 +227,7 @@ class BatteryAlertService : Service() {
                         )
                     }
                 }
-            } catch (e: Exception) {
+            }.onFailure { e ->
                 Log.e(TAG, "Database error", e)
             }
         }

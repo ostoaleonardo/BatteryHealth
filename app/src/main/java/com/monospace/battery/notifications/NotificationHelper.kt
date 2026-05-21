@@ -81,7 +81,9 @@ class NotificationHelper(private val context: Context) {
         val notificationManager = NotificationManagerCompat.from(context)
 
         if (permissionManager.hasNotificationPermission()) {
-            notificationManager.notify(id, builder.build())
+            runCatching {
+                notificationManager.notify(id, builder.build())
+            }
         }
     }
 }

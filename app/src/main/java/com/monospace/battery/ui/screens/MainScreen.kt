@@ -33,6 +33,7 @@ import com.monospace.battery.ui.components.InfoCard
 import com.monospace.battery.ui.components.LargeHorizontalInfoCard
 import com.monospace.battery.ui.components.LargeVerticalInfoCard
 import com.monospace.battery.ui.components.SmallInfoCard
+import com.monospace.battery.ui.components.formatResourceOrDash
 import com.monospace.battery.ui.components.getBatteryIcon
 import com.monospace.battery.ui.components.getChargingSourceRes
 import com.monospace.battery.ui.components.getChargingStatusRes
@@ -275,7 +276,11 @@ private fun TechnicalSection(
         )
 
         val tempTitle = stringResource(R.string.battery_temperature)
-        val tempValue = stringResource(R.string.temperature_celsius, state.temperature / 10)
+        val tempValue = formatResourceOrDash(
+            state.temperature,
+            R.string.temperature_celsius,
+            state.temperature / 10
+        )
         val tempDesc = stringResource(R.string.description_temperature)
 
         SmallInfoCard(
@@ -300,7 +305,7 @@ private fun TechnicalSection(
         )
 
         val voltageTitle = stringResource(R.string.battery_voltage)
-        val voltageValue = stringResource(R.string.voltage_mv, state.voltage)
+        val voltageValue = formatResourceOrDash(state.voltage, R.string.voltage_mv, state.voltage)
         val voltageDesc = stringResource(R.string.description_voltage)
 
         SmallInfoCard(

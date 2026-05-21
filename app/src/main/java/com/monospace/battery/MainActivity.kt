@@ -398,11 +398,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        try {
+        runCatching {
             val intentFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
             val stickyIntent = registerReceiver(batteryReceiver, intentFilter)
             updateBatteryState(stickyIntent)
-        } catch (e: Exception) {
+        }.onFailure { e ->
             Log.e(TAG, "Error registering battery receiver", e)
         }
     }
@@ -410,9 +410,9 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        try {
+        runCatching {
             unregisterReceiver(batteryReceiver)
-        } catch (e: Exception) {
+        }.onFailure { e ->
             Log.e(TAG, "Error unregistering battery receiver", e)
         }
     }
@@ -491,12 +491,16 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun startBatteryAlertService() {
-        val intent = Intent(this, BatteryAlertService::class.java)
+        runCatching {
+            val intent = Intent(this, BatteryAlertService::class.java)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(intent)
-        } else {
-            startService(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(intent)
+            } else {
+                startService(intent)
+            }
+        }.onFailure { e ->
+            Log.e(TAG, "Failed to start BatteryAlertService", e)
         }
     }
 

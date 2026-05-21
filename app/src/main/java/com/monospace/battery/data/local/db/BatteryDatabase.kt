@@ -27,7 +27,9 @@ abstract class BatteryDatabase : RoomDatabase() {
                     context.applicationContext,
                     BatteryDatabase::class.java,
                     Constants.DATABASE_NAME
-                ).build()
+                )
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                 INSTANCE = instance
                 instance
             }

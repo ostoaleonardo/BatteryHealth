@@ -41,6 +41,10 @@ object Constants {
     const val PLAY_STORE_MARKET_URL = "market://details?id="
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
+    // Format Strings
+    const val FORMAT_PERCENT_ONE_DECIMAL = "%.1f%%"
+    const val EMPTY_VALUE_DASH = "--"
+
     // Colors
     val ColorGreen = Color(0xFF00A25B)
     val ColorLightGreen = Color(0xFF8BC34A)

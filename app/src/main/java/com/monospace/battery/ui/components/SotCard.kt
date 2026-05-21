@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,11 +31,9 @@ import com.monospace.battery.ui.theme.Font
 fun SotCard(
     sot: String,
     batteryUsed: Int,
-    drainRate: Float,
+    drainRate: String,
     estimatedFullSot: String
 ) {
-    val locale = LocalLocale.current.platformLocale
-    
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -97,7 +94,7 @@ fun SotCard(
                 )
                 StatItem(
                     label = stringResource(R.string.sot_label_drain),
-                    value = String.format(locale, "%.1f%%", drainRate),
+                    value = drainRate,
                     description = stringResource(R.string.sot_label_drain_description)
                 )
                 StatItem(
