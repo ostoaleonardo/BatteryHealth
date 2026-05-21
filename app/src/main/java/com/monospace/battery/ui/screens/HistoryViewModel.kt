@@ -81,7 +81,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private suspend fun calculateChargerStats(sessions: List<ChargeSession>) {
         runCatching {
             val completedSessions = sessions.filter { it.endTime != null && it.endLevel != null }
-            if (completedSessions.isEmpty()) return@runCatching emptyList<ChargerStats>()
+            if (completedSessions.isEmpty()) return@runCatching emptyList()
 
             completedSessions.groupBy { it.chargeSource }.map { (source, sessionList) ->
                 var totalRate = 0f
@@ -186,7 +186,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             _batteryUsed.value = drop
 
             // 3. Extrapolate stats
-            if (drop > 0 && totalMillis > 0) {
+            // Only estimate if we have at least 5% of discharge to avoid wild fluctuations
+            if (drop >= 5 && totalMillis > 0) {
                 val hoursFloat = totalMillis.toFloat() / 3_600_000f
                 val rawRate = drop.toFloat() / hoursFloat
 
@@ -198,10 +199,16 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
                 val estimatedTotalMillis = (totalMillis.toFloat() / drop.toFloat() * 100f).toLong()
                 val estHours = estimatedTotalMillis / 3_600_000
-                val estMins = (estimatedTotalMillis / 60_000) % 60
 
-                _estimatedFullSot.value = "${estHours}h ${estMins}m"
+                // Sanity check: If estimation is more than 24h, it's likely a calculation error/outlier
+                if (estHours < 24) {
+                    val estMins = (estimatedTotalMillis / 60_000) % 60
+                    _estimatedFullSot.value = "${estHours}h ${estMins}m"
+                } else {
+                    _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
+                }
             } else {
+                _activeDrainRate.value = Constants.EMPTY_VALUE_DASH
                 _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
             }
         }.onFailure { e ->

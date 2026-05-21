@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,8 @@ fun LargeVerticalInfoCard(
     value: String,
     iconRes: Int,
     modifier: Modifier = Modifier,
+    valueIconRes: Int? = null,
+    valueIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: (() -> Unit)? = null
 ) {
@@ -57,14 +60,27 @@ fun LargeVerticalInfoCard(
                 text = title.uppercase(),
                 fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
                 fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = value,
-                fontFamily = FontFamily(Font(R.font.n_type82_headline)),
-                fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = value,
+                    fontFamily = FontFamily(Font(R.font.n_type82_headline)),
+                    fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                    textAlign = TextAlign.Center
+                )
+                if (valueIconRes != null) {
+                    Image(
+                        painter = painterResource(valueIconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(valueIconTint)
+                    )
+                }
+            }
+
             Image(
                 painter = painterResource(iconRes),
                 contentDescription = null,
@@ -83,6 +99,8 @@ fun LargeHorizontalInfoCard(
     value: String,
     iconRes: Int,
     modifier: Modifier = Modifier,
+    valueIconRes: Int? = null,
+    valueIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     onClick: () -> Unit = {}
 ) {
@@ -109,22 +127,33 @@ fun LargeHorizontalInfoCard(
                 painter = painterResource(iconRes),
                 contentDescription = null,
                 modifier = Modifier
-                    .padding(bottom = 8.dp)
                     .size(64.dp),
                 colorFilter = ColorFilter.tint(iconTint)
             )
-            Text(
-                text = value,
-                fontFamily = FontFamily(Font(R.font.n_type82_headline)),
-                fontSize = MaterialTheme.typography.displaySmall.fontSize,
-                textAlign = TextAlign.Center
-            )
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = value,
+                    fontFamily = FontFamily(Font(R.font.n_type82_headline)),
+                    fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                    textAlign = TextAlign.Center
+                )
+                if (valueIconRes != null) {
+                    Image(
+                        painter = painterResource(valueIconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(valueIconTint)
+                    )
+                }
+            }
+
             Text(
                 text = title.uppercase(),
                 fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
                 fontSize = MaterialTheme.typography.labelSmall.fontSize,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
+                textAlign = TextAlign.Center
             )
         }
     }

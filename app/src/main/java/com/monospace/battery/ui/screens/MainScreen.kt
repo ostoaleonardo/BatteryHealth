@@ -3,6 +3,7 @@ package com.monospace.battery.ui.screens
 import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Build
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.ui.components.BatteryDialog
@@ -338,6 +340,7 @@ private fun ChargingSection(
     onShowDialog: (DialogData) -> Unit
 ) {
     val capacityValue = BatteryStrings().getCapacityValue(state.capacity, state.capacityRemaining)
+    Log.d("capcity", capacityValue.toString())
 
     val currentTitle = stringResource(R.string.battery_current)
     val currentValue = stringResource(R.string.current_ma, state.currentNow)
@@ -354,15 +357,21 @@ private fun ChargingSection(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (state.chargeSpeed > 0) {
-            val speedTitle = stringResource(R.string.battery_speed)
+            val speedTitleText = stringResource(R.string.battery_speed)
             val speedWatts = stringResource(R.string.charge_speed_watts, state.chargeSpeed)
-            val qualitySpeed = stringResource(BatteryStrings().getChargerQuality(state.chargeSpeed))
             val speedDesc = stringResource(R.string.description_speed)
-            val speedValue = "$speedWatts (${qualitySpeed})"
-
+            val qualityRes = BatteryStrings().getChargerQuality(state.chargeSpeed)
+            
+            val isGood = qualityRes == R.string.charger_quality_fast || qualityRes == R.string.charger_quality_normal
+            val qualityIcon = if (isGood) R.drawable.arrow_drop_up else R.drawable.arrow_drop_down
+            val qualityColor = if (isGood) Constants.ColorGreen else Constants.ColorRed
+            val qualityText = stringResource(qualityRes)
+            
             LargeVerticalInfoCard(
-                title = speedTitle,
-                value = speedValue,
+                title = speedTitleText,
+                value = speedWatts,
+                valueIconRes = qualityIcon,
+                valueIconTint = qualityColor,
                 iconRes = R.drawable.rocket,
                 iconTint = iconTint,
                 modifier = Modifier
@@ -371,8 +380,8 @@ private fun ChargingSection(
                 onClick = {
                     onShowDialog(
                         DialogData(
-                            speedTitle,
-                            speedValue,
+                            speedTitleText,
+                            "$speedWatts ($qualityText)",
                             speedDesc,
                             R.drawable.rocket,
                             iconTint
