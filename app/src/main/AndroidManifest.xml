@@ -4,9 +4,7 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"
-        tools:ignore="ForegroundServiceSpecialUse" />
-
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -24,7 +22,11 @@
             android:name=".service.alerts.BatteryAlertService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuous real-time monitoring of battery hardware sensors (temperature, voltage, and charge level) to detect critical overheating conditions, identify faulty charging hardware, and calculate cumulative battery wear cycles for device safety and health diagnostics." />
+        </service>
 
         <receiver
             android:name=".widgets.cycles.ChargeCyclesWidgetReceiver"
