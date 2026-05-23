@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -71,9 +73,10 @@ fun ChargerAnalysisSection(
                     }
 
                     if (!isPremium) {
-                        UpsellCard(
+                        BannerActionCard(
                             title = stringResource(R.string.history_unlock_full),
                             description = stringResource(R.string.charger_analysis_upsell_desc),
+                            icon = Icons.Default.Lock,
                             onClick = onUpgradeClick,
                             shape = RoundedCornerShape(
                                 bottomStart = 28.dp,

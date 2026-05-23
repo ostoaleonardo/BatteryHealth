@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -16,9 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
-import com.monospace.battery.ui.components.PermissionCard
+import com.monospace.battery.ui.components.BannerActionCard
 import com.monospace.battery.ui.components.SettingsSection
-import com.monospace.battery.ui.components.UpsellCard
 
 @Composable
 fun AlertsScreen(
@@ -38,9 +40,10 @@ fun AlertsScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             if (!isPremium) {
-                UpsellCard(
+                BannerActionCard(
                     title = stringResource(R.string.premium_title),
                     description = stringResource(R.string.premium_description),
+                    icon = Icons.Default.Lock,
                     onClick = actions.onUnlockClick,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
@@ -48,10 +51,12 @@ fun AlertsScreen(
                 )
             }
             if (!hasPermission) {
-                PermissionCard(
+                BannerActionCard(
                     title = stringResource(R.string.permission_notifications_title),
                     description = stringResource(R.string.permission_notifications_description),
+                    icon = Icons.Default.NotificationsActive,
                     onClick = actions.onNotificationPermissionRequest,
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .padding(top = 8.dp, bottom = 16.dp)

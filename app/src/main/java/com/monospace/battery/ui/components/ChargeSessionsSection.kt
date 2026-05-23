@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,9 +69,10 @@ fun ChargeSessionsSection(
                     }
 
                     if (!isPremium && sessions.size > 3) {
-                        UpsellCard(
+                        BannerActionCard(
                             title = stringResource(R.string.history_unlock_full),
                             description = stringResource(R.string.history_unlock_full_desc),
+                            icon = Icons.Default.Lock,
                             onClick = onUpgradeClick,
                             shape = RoundedCornerShape(
                                 bottomStart = 28.dp,
@@ -83,7 +86,8 @@ fun ChargeSessionsSection(
                             onClick = { limit += 5 },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .padding(top = 8.dp, bottom = 16.dp)
+                                .padding(horizontal = 16.dp),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                 contentColor = MaterialTheme.colorScheme.primary
