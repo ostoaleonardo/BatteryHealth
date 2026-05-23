@@ -11,6 +11,7 @@ import android.content.pm.ServiceInfo
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.monospace.battery.MainActivity
@@ -105,6 +106,10 @@ class BatteryAlertService : Service() {
 
             val initialIntent = registerReceiver(batteryReceiver, filter)
             initialIntent?.let { processBatteryIntent(it) }
+
+            // Record initial screen state so SOT calculation has a starting point
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+            recordScreenEvent(powerManager.isInteractive)
         }.onFailure { e ->
             Log.e(TAG, "Failed to initialize service", e)
             stopSelf()

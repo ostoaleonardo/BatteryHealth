@@ -34,7 +34,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val _currentTip = MutableStateFlow(BatteryTipsProvider.getInitialTip())
     val currentTip: StateFlow<Pair<Int, BatteryTip>> = _currentTip.asStateFlow()
 
-    private val _sot = MutableStateFlow("0h 0m")
+    private val _sot = MutableStateFlow(Constants.EMPTY_VALUE_DASH)
     val sot: StateFlow<String> = _sot.asStateFlow()
 
     private val _batteryUsed = MutableStateFlow(0)
@@ -43,7 +43,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private val _activeDrainRate = MutableStateFlow(Constants.EMPTY_VALUE_DASH)
     val activeDrainRate: StateFlow<String> = _activeDrainRate.asStateFlow()
 
-    private val _estimatedFullSot = MutableStateFlow("0h 0m")
+    private val _estimatedFullSot = MutableStateFlow(Constants.EMPTY_VALUE_DASH)
     val estimatedFullSot: StateFlow<String> = _estimatedFullSot.asStateFlow()
 
     fun nextTip() {
@@ -56,25 +56,18 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadData() {
         viewModelScope.launch {
-            // Load 24h history
             val since = System.currentTimeMillis() - 24 * 60 * 60 * 1000
-
             dao.getHistorySince(since).collect {
-                Log.d(TAG, "Collected history: size=${it.size}")
                 _history.value = it
+                calculateStats()
             }
         }
 
         viewModelScope.launch {
-            // Load last 50 charge sessions
             dao.getLastSessions(50).collect {
                 _sessions.value = it
                 calculateChargerStats(it)
             }
-        }
-
-        viewModelScope.launch {
-            calculateStats()
         }
     }
 
@@ -93,7 +86,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
                 for (session in sessionList) {
                     val endTime = session.endTime ?: System.currentTimeMillis()
                     val endLevel = session.endLevel ?: currentBatteryLevel ?: session.startLevel
-                    
+
                     val durationMins = (endTime - session.startTime) / 60000f
                     val gain = (endLevel - session.startLevel).coerceAtLeast(0)
 
@@ -142,72 +135,61 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             val lastFullCharge = dao.getLastFullChargeTime()
                 ?: (System.currentTimeMillis() - 24 * 60 * 60 * 1000)
 
-            Log.d(TAG, "Calculating stats since: $lastFullCharge")
-
-            // 1. Calculate SOT
-            val events = dao.getScreenEventsSince(lastFullCharge)
-
-            if (events.isEmpty()) {
-                _sot.value = Constants.EMPTY_VALUE_DASH
+            val history = dao.getHistorySinceSync(lastFullCharge)
+            if (history.size < 2) {
+                resetStats()
                 return@runCatching
             }
 
-            Log.d(TAG, "Found ${events.size} screen events")
+            // 1. Find the peak battery level in this period to use as starting point for discharge
+            val maxEntry = history.maxByOrNull { it.level } ?: history.first()
+            val startTime = maxEntry.timestamp
+            val startLvl = maxEntry.level
+            val currentLvl = history.last().level
 
+            // 2. SOT Calculation since the peak level
+            val events = dao.getScreenEventsSince(startTime)
             var totalMillis = 0L
             var lastOnTime: Long? = null
 
             for (event in events) {
-                if (event.isScreenOn) {
-                    lastOnTime = event.timestamp
-                } else if (lastOnTime != null) {
+                if (event.isScreenOn) lastOnTime = event.timestamp
+                else if (lastOnTime != null) {
                     totalMillis += (event.timestamp - lastOnTime)
                     lastOnTime = null
                 }
             }
-
-            if (totalMillis <= 0) {
-                _sot.value = Constants.EMPTY_VALUE_DASH
-            } else {
-                val hours = totalMillis / 3_600_000
-                val minutes = (totalMillis / 60_000) % 60
-                _sot.value = "${hours}h ${minutes}m"
+            // If screen is currently ON, add time since last event
+            if (lastOnTime != null) {
+                totalMillis += (System.currentTimeMillis() - lastOnTime)
             }
 
-            // 2. Calculate Battery Drop
-            val historySinceFull = dao.getHistorySinceSync(lastFullCharge)
-
-            if (historySinceFull.size < 2) {
-                _batteryUsed.value = 0
-                _activeDrainRate.value = Constants.EMPTY_VALUE_DASH
-                _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
-                return@runCatching
+            if (totalMillis > 0) {
+                val hrs = totalMillis / 3_600_000
+                val mins = (totalMillis / 60_000) % 60
+                _sot.value = "${hrs}h ${mins}m"
             }
 
-            val startLevel = historySinceFull.first().level
-            val currentLevel = historySinceFull.last().level
-            val drop = (startLevel - currentLevel).coerceAtLeast(0)
+            // 3. Battery Drop from the peak
+            val drop = (startLvl - currentLvl).coerceAtLeast(0)
             _batteryUsed.value = drop
 
-            // 3. Extrapolate stats
-            // Only estimate if we have at least 5% of discharge to avoid wild fluctuations
-            if (drop >= 5 && totalMillis > 0) {
-                val hoursFloat = totalMillis.toFloat() / 3_600_000f
-                val rawRate = drop.toFloat() / hoursFloat
+            // 4. Projections (Only if not currently charging)
+            val isCharging = history.lastOrNull()?.let { _ ->
+                history.size >= 2 && history.last().level > history[history.size - 2].level 
+            } ?: false
 
-                _activeDrainRate.value = String.format(
-                    Locale.getDefault(),
-                    Constants.FORMAT_PERCENT_ONE_DECIMAL,
-                    rawRate
-                )
+            if (drop >= 1 && totalMillis > 0 && !isCharging) {
+                val hrsFloat = totalMillis.toFloat() / 3_600_000f
+                val rate = drop.toFloat() / hrsFloat
+                _activeDrainRate.value =
+                    String.format(Locale.getDefault(), Constants.FORMAT_PERCENT_ONE_DECIMAL, rate)
 
-                val estimatedTotalMillis = (totalMillis.toFloat() / drop.toFloat() * 100f).toLong()
-                val estHours = estimatedTotalMillis / 3_600_000
-
-                // Sanity check: If estimation is more than 24h, it's likely a calculation error/outlier
-                if (estHours < 24) {
-                    val estMins = (estimatedTotalMillis / 60_000) % 60
-                    _estimatedFullSot.value = "${estHours}h ${estMins}m"
+                val estTotalMs = (totalMillis.toFloat() / drop.toFloat() * 100f).toLong()
+                val estHrs = estTotalMs / 3_600_000
+                if (estHrs in 2..24) {
+                    val estMins = (estTotalMs / 60_000) % 60
+                    _estimatedFullSot.value = "${estHrs}h ${estMins}m"
                 } else {
                     _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
                 }
@@ -217,9 +199,15 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             }
         }.onFailure { e ->
             Log.e(TAG, "Error calculating stats", e)
-            _sot.value = Constants.EMPTY_VALUE_DASH
-            _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
+            resetStats()
         }
+    }
+
+    private fun resetStats() {
+        _sot.value = Constants.EMPTY_VALUE_DASH
+        _batteryUsed.value = 0
+        _activeDrainRate.value = Constants.EMPTY_VALUE_DASH
+        _estimatedFullSot.value = Constants.EMPTY_VALUE_DASH
     }
 
     companion object {
