@@ -80,27 +80,31 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     private suspend fun calculateChargerStats(sessions: List<ChargeSession>) {
         runCatching {
-            val completedSessions = sessions.filter { it.endTime != null && it.endLevel != null }
-            if (completedSessions.isEmpty()) return@runCatching emptyList()
+            if (sessions.isEmpty()) return@runCatching emptyList()
 
-            completedSessions.groupBy { it.chargeSource }.map { (source, sessionList) ->
+            val currentBatteryLevel = _history.value.lastOrNull()?.level
+
+            sessions.groupBy { it.chargeSource }.map { (source, sessionList) ->
                 var totalRate = 0f
                 val rates = mutableListOf<Float>()
                 var totalTemp = 0f
                 var tempCount = 0
 
                 for (session in sessionList) {
-                    val durationMins = (session.endTime!! - session.startTime) / 60000f
-                    val gain = (session.endLevel!! - session.startLevel).coerceAtLeast(0)
+                    val endTime = session.endTime ?: System.currentTimeMillis()
+                    val endLevel = session.endLevel ?: currentBatteryLevel ?: session.startLevel
+                    
+                    val durationMins = (endTime - session.startTime) / 60000f
+                    val gain = (endLevel - session.startLevel).coerceAtLeast(0)
 
-                    if (durationMins > 0) {
+                    if (durationMins > 0.5f) { // Need at least 30s of data
                         val rate = gain / durationMins
                         totalRate += rate
                         rates.add(rate)
                     }
 
                     // Get average temperature during this session
-                    val history = dao.getHistoryInRange(session.startTime, session.endTime)
+                    val history = dao.getHistoryInRange(session.startTime, endTime)
 
                     if (history.isNotEmpty()) {
                         totalTemp += history.map { it.temperature }.average().toFloat()
@@ -108,7 +112,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
                     }
                 }
 
-                val avgRate = if (sessionList.isNotEmpty()) totalRate / sessionList.size else 0f
+                val avgRate = if (rates.isNotEmpty()) totalRate / rates.size else 0f
                 val avgTemp = if (tempCount > 0) totalTemp / tempCount else 0f
 
                 // Stability calculation: 1 - (stdDev / avgRate)

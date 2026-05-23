@@ -62,7 +62,7 @@ fun BatteryTipsSection(
                     imageVector = Icons.Default.Refresh,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
