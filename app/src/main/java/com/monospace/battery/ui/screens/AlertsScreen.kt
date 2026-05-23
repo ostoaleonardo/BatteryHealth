@@ -46,14 +46,16 @@ fun AlertsScreen(
                         .padding(horizontal = 16.dp)
                         .padding(top = 8.dp, bottom = 16.dp)
                 )
-            } else if (!hasPermission) {
+            }
+            if (!hasPermission) {
                 PermissionCard(
                     title = stringResource(R.string.permission_notifications_title),
                     description = stringResource(R.string.permission_notifications_description),
-                    buttonText = stringResource(R.string.permission_notifications_button),
-                    onClick = actions.onNotificationPermissionRequest
+                    onClick = actions.onNotificationPermissionRequest,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 8.dp, bottom = 16.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // 1. Charge Alarms

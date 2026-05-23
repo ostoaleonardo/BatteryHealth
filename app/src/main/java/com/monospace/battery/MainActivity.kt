@@ -104,7 +104,6 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         updatePermissionState()
-        checkPermissions()
         setupWidgetPreviews()
 
         setContent {
@@ -293,6 +292,14 @@ class MainActivity : ComponentActivity() {
                             Constants.KEY_PURCHASE_SHEET_SHOWN,
                             true
                         )
+                    }
+                }
+
+                LaunchedEffect(isPurchased) {
+                    if (isPurchased) {
+                        checkPermissions()
+                    } else {
+                        startBatteryAlertService()
                     }
                 }
 
