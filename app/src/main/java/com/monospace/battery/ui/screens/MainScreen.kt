@@ -3,7 +3,6 @@ package com.monospace.battery.ui.screens
 import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Build
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -340,7 +339,6 @@ private fun ChargingSection(
     onShowDialog: (DialogData) -> Unit
 ) {
     val capacityValue = BatteryStrings().getCapacityValue(state.capacity, state.capacityRemaining)
-    Log.d("capcity", capacityValue.toString())
 
     val currentTitle = stringResource(R.string.battery_current)
     val currentValue = stringResource(R.string.current_ma, state.currentNow)
