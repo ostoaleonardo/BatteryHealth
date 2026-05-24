@@ -60,7 +60,7 @@ fun AodScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(bottom = 8.dp),
+                    .padding(bottom = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val themePrimary = MaterialTheme.colorScheme.primary
@@ -78,54 +78,53 @@ fun AodScreen(
                     fontSizeDate = (state.aodFontSizeDate * 0.4f).toInt()
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Activation Controls Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    val isAodEnabled = state.alwaysOnDisplayEnabled
-
-                    // Reusable Segmented Control for Activation
-                    SegmentedControl(
-                        options = listOf(
-                            SegmentOption(Constants.OFF, R.string.aod_disabled),
-                            SegmentOption(Constants.ON, R.string.aod_enabled)
-                        ),
-                        selected = if (isAodEnabled) Constants.ON else Constants.OFF,
-                        onSelected = { id ->
-                            actions.onAlwaysOnDisplayChange(id == Constants.ON)
-                        }
-                    )
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    // Manual Try Button
-                    Button(
-                        onClick = {
-                            val intent = Intent(context, AlwaysOnDisplayActivity::class.java)
-                            context.startActivity(intent)
-                        },
-                        modifier = Modifier.size(40.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            contentColor = MaterialTheme.colorScheme.primary
-                        )
+                // Activation Controls Row (Only for Premium)
+                if (isPremium) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .padding(horizontal = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = stringResource(R.string.aod_try_now),
-                            modifier = Modifier.size(20.dp)
+                        val isAodEnabled = state.alwaysOnDisplayEnabled
+
+                        // Reusable Segmented Control for Activation
+                        SegmentedControl(
+                            options = listOf(
+                                SegmentOption(Constants.OFF, R.string.aod_disabled),
+                                SegmentOption(Constants.ON, R.string.aod_enabled)
+                            ),
+                            selected = if (isAodEnabled) Constants.ON else Constants.OFF,
+                            onSelected = { id ->
+                                actions.onAlwaysOnDisplayChange(id == Constants.ON)
+                            }
                         )
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        // Manual Try Button
+                        Button(
+                            onClick = {
+                                val intent = Intent(context, AlwaysOnDisplayActivity::class.java)
+                                context.startActivity(intent)
+                            },
+                            modifier = Modifier.size(40.dp),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = stringResource(R.string.aod_try_now),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             // 2. Scrollable Style Adjustments
@@ -178,6 +177,7 @@ fun AodScreen(
 
                 // Additional Preferences
                 item {
+                    Spacer(modifier = Modifier.height(16.dp))
                     SettingsSection(stringResource(R.string.aod_look_feel)) {
                         // Clock Size & 24h
                         sliderItem(
