@@ -19,7 +19,6 @@ import com.monospace.battery.ui.components.BatteryTipsSection
 import com.monospace.battery.ui.components.ChargeSessionsSection
 import com.monospace.battery.ui.components.ChargerAnalysisSection
 import com.monospace.battery.ui.components.SectionTitle
-import com.monospace.battery.ui.components.SotCard
 
 @Composable
 fun HistoryScreen(
@@ -30,10 +29,6 @@ fun HistoryScreen(
 ) {
     val history by viewModel.history.collectAsState()
     val sessions by viewModel.sessions.collectAsState()
-    val sot by viewModel.sot.collectAsState()
-    val batteryUsed by viewModel.batteryUsed.collectAsState()
-    val drainRate by viewModel.activeDrainRate.collectAsState()
-    val estimatedSot by viewModel.estimatedFullSot.collectAsState()
     val chargerStats by viewModel.chargerStats.collectAsState()
     val currentTip by viewModel.currentTip.collectAsState()
 
@@ -44,20 +39,9 @@ fun HistoryScreen(
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
-            // 1. SOT Diagnostics
+            // 1. Consumption Chart (Animated)
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                SotCard(
-                    sot = sot,
-                    batteryUsed = batteryUsed,
-                    drainRate = drainRate,
-                    estimatedFullSot = estimatedSot
-                )
-            }
-
-            // 2. Consumption Chart (Animated)
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle(stringResource(R.string.history_consumption_title))
                 BatteryChart(history)
             }
