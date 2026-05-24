@@ -279,8 +279,6 @@ class PurchaseManager(
         }
     }
 
-    fun restorePurchases() = getPurchases(silent = false)
-
     companion object {
         private const val TAG = "PurchaseManager"
         const val WIDGETS = "widgets"
