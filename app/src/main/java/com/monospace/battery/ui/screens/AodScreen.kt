@@ -110,7 +110,7 @@ fun AodScreen(
                             val intent = Intent(context, AlwaysOnDisplayActivity::class.java)
                             context.startActivity(intent)
                         },
-                        modifier = Modifier.size(44.dp),
+                        modifier = Modifier.size(40.dp),
                         contentPadding = PaddingValues(0.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
@@ -120,7 +120,7 @@ fun AodScreen(
                         Icon(
                             Icons.Default.PlayArrow,
                             contentDescription = stringResource(R.string.aod_try_now),
-                            modifier = Modifier.size(24.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }

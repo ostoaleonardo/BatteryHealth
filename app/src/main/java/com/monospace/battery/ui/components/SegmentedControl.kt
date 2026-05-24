@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
+import com.monospace.battery.ui.theme.Font
 
 data class SegmentOption(val id: String, val label: Int)
 
@@ -44,7 +44,7 @@ fun SegmentedControl(
                 Text(
                     text = stringResource(option.label),
                     style = MaterialTheme.typography.labelSmall,
-                    fontFamily = FontFamily.Monospace
+                    fontFamily = Font.AzeretMonoLight
                 )
             }
         }
