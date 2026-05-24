@@ -181,10 +181,11 @@ fun AODContent(
 ) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(meterStyle) {
+        val delayTime = if (meterStyle == 4) 50L else 1000L
         while (true) {
-            kotlinx.coroutines.delay(1000)
             currentTime = System.currentTimeMillis()
+            kotlinx.coroutines.delay(delayTime)
         }
     }
 
@@ -195,10 +196,23 @@ fun AODContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
-        contentAlignment = Alignment.Center
+            .background(Color.Black)
     ) {
+        // 1. Full Screen Water Background (if style 4)
+        if (meterStyle == 4) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawAodMeter(
+                    meterStyle,
+                    level,
+                    if (isCharging) accentColor else Color.White,
+                    currentTime
+                )
+            }
+        }
+
+        // 2. Main UI Content
         Column(
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -207,7 +221,10 @@ fun AODContent(
                 color = Color.White,
                 fontSize = fontSizeClock.sp,
                 fontFamily = AppFont.getAodFont(clockStyle),
-                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                    shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 12f) else null
+                )
             )
 
             if (showDate) {
@@ -216,36 +233,62 @@ fun AODContent(
                     color = Color.Gray,
                     fontSize = fontSizeDate.sp,
                     fontFamily = AppFont.AzeretMonoLight,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null
+                    ),
                     modifier = Modifier.offset(y = (-16).dp)
                 )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            Box(contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.size(200.dp)) {
-                    drawAodMeter(
-                        meterStyle,
-                        level,
-                        if (isCharging) accentColor else Color.White
-                    )
-                }
+            // 3. Regular Meters (if not style 4)
+            if (meterStyle != 4) {
+                Box(contentAlignment = Alignment.Center) {
+                    Canvas(modifier = Modifier.size(200.dp)) {
+                        drawAodMeter(
+                            meterStyle,
+                            level,
+                            if (isCharging) accentColor else Color.White,
+                            currentTime
+                        )
+                    }
 
-                // Percentage visible for all arc styles (0 to 3)
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "$level%",
+                            color = Color.White,
+                            fontSize = 44.sp,
+                            fontFamily = AppFont.getAodFont(clockStyle)
+                        )
+                        if (isCharging) {
+                            Text(
+                                text = "${speed}W",
+                                color = accentColor,
+                                fontSize = 16.sp,
+                                fontFamily = AppFont.getAodFont(clockStyle)
+                            )
+                        }
+                    }
+                }
+            } else {
+                // Percentage only overlay for water glass
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "$level%",
                         color = Color.White,
-                        fontSize = 44.sp,
-                        fontFamily = AppFont.getAodFont(clockStyle)
+                        fontSize = 54.sp,
+                        fontFamily = AppFont.getAodFont(clockStyle),
+                        style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 16f))
                     )
                     if (isCharging) {
                         Text(
                             text = "${speed}W",
                             color = accentColor,
-                            fontSize = 16.sp,
-                            fontFamily = AppFont.getAodFont(clockStyle)
+                            fontSize = 20.sp,
+                            fontFamily = AppFont.getAodFont(clockStyle),
+                            style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f))
                         )
                     }
                 }
@@ -257,7 +300,8 @@ fun AODContent(
                     text = remaining,
                     color = Color.Gray,
                     fontSize = 18.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle)
+                    fontFamily = AppFont.getAodFont(clockStyle),
+                    style = TextStyle(shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null)
                 )
             }
         }

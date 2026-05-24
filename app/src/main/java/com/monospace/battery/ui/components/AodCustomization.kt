@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -57,6 +58,15 @@ fun AodStyleSelectors(
     onMeterStyleChange: (Int) -> Unit,
     onColorChange: (Long) -> Unit
 ) {
+    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = System.currentTimeMillis()
+            kotlinx.coroutines.delay(50L) // Redraw for animated styles
+        }
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         // 1. Clock Style (Squares)
         StyleSelector(
@@ -76,21 +86,23 @@ fun AodStyleSelectors(
         // 2. Speedometer Style (Squares)
         StyleSelector(
             title = stringResource(R.string.aod_meter_style),
-            count = 4,
+            count = 5, // Added style 4 (Water Glass)
             selectedIndex = meterStyle,
             onSelect = onMeterStyleChange
         ) { index ->
             Box(contentAlignment = Alignment.Center) {
                 Canvas(modifier = Modifier.size(36.dp)) {
-                    drawAodMeter(index, level, selectedColor)
+                    drawAodMeter(index, level, selectedColor, currentTime)
                 }
-                // Show percentage for all styles
-                Text(
-                    text = "$level%",
-                    color = Color.White,
-                    fontSize = 9.sp,
-                    fontFamily = AppFont.AzeretMonoLight
-                )
+                // Show percentage inside if it's not the water glass (which takes full space)
+                if (index != 4) {
+                    Text(
+                        text = "$level%",
+                        color = Color.White,
+                        fontSize = 9.sp,
+                        fontFamily = AppFont.AzeretMonoLight
+                    )
+                }
             }
         }
 
@@ -112,10 +124,11 @@ fun AodPreviewCard(
 ) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(meterStyle) {
+        val delayTime = if (meterStyle == 4) 50L else 1000L
         while (true) {
-            kotlinx.coroutines.delay(1000)
             currentTime = System.currentTimeMillis()
+            kotlinx.coroutines.delay(delayTime)
         }
     }
 
@@ -130,7 +143,6 @@ fun AodPreviewCard(
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
-        // Smartphone Frame 9:19.5 proportional
         Box(
             modifier = Modifier
                 .width(130.dp)
@@ -143,13 +155,24 @@ fun AodPreviewCard(
                 .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
+            // 1. Water Background (if style 4)
+            if (meterStyle == 4) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawAodMeter(meterStyle, level, color, currentTime)
+                }
+            }
+
+            // 2. Content
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = timeFormat.format(Date(currentTime)),
                     color = Color.White,
                     fontSize = fontSizeClock.sp,
                     fontFamily = AppFont.getAodFont(clockStyle),
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                    style = TextStyle(
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
+                        shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 6f) else null
+                    )
                 )
                 if (showDate) {
                     Text(
@@ -157,22 +180,37 @@ fun AodPreviewCard(
                         color = Color.Gray,
                         fontSize = fontSizeDate.sp,
                         fontFamily = AppFont.AzeretMonoLight,
-                        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false)),
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false),
+                            shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 4f) else null
+                        ),
                         modifier = Modifier.offset(y = (-8).dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                Box(contentAlignment = Alignment.Center) {
-                    Canvas(modifier = Modifier.size(50.dp)) {
-                        drawAodMeter(meterStyle, level, color)
+                // 3. Regular Meters (if not style 4)
+                if (meterStyle != 4) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Canvas(modifier = Modifier.size(50.dp)) {
+                            drawAodMeter(meterStyle, level, color, currentTime)
+                        }
+                        Text(
+                            text = "$level%",
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontFamily = AppFont.getAodFont(clockStyle)
+                        )
                     }
+                } else {
+                    // Percentage only for water glass
                     Text(
                         text = "$level%",
                         color = Color.White,
-                        fontSize = 11.sp,
-                        fontFamily = AppFont.getAodFont(clockStyle)
+                        fontSize = 14.sp,
+                        fontFamily = AppFont.getAodFont(clockStyle),
+                        style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 10f))
                     )
                 }
             }

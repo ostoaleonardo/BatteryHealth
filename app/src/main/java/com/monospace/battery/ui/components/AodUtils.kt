@@ -2,6 +2,7 @@ package com.monospace.battery.ui.components
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -11,7 +12,8 @@ import kotlin.math.sin
 fun DrawScope.drawAodMeter(
     style: Int,
     level: Int,
-    color: Color
+    color: Color,
+    timeMillis: Long = System.currentTimeMillis()
 ) {
     val strokeWidth = size.width * 0.05f
 
@@ -20,6 +22,7 @@ fun DrawScope.drawAodMeter(
         1 -> drawSolidArc(level, color, strokeWidth, rounded = false)
         2 -> drawDottedArc(level, color, strokeWidth, rounded = false)
         3 -> drawDottedArc(level, color, strokeWidth, rounded = true)
+        4 -> drawWaterGlass(level, color, timeMillis)
     }
 }
 
@@ -86,4 +89,49 @@ private fun DrawScope.drawDottedArc(
             cap = cap
         )
     }
+}
+
+private fun DrawScope.drawWaterGlass(level: Int, color: Color, timeMillis: Long) {
+    val width = size.width
+    val height = size.height
+    val fillHeight = (level / 100f) * height
+
+    // Wave parameters - Optimized for screen width
+    val waveHeight = height * 0.02f
+    // Time-based phase for continuous movement
+    val phase = (timeMillis % 3000) / 3000f * 2 * Math.PI.toFloat()
+
+    val path = Path()
+    path.moveTo(0f, height)
+    path.lineTo(0f, height - fillHeight)
+
+    for (x in 0..width.toInt() step 10) {
+        val relativeX = x.toFloat() / width
+        val y = height - fillHeight + waveHeight * sin(2 * Math.PI.toFloat() * relativeX + phase)
+        path.lineTo(x.toFloat(), y)
+    }
+
+    path.lineTo(width, height - fillHeight)
+    path.lineTo(width, height)
+    path.close()
+
+    // Layer 1: Base Liquid
+    drawPath(path, color.copy(alpha = 0.5f))
+
+    // Layer 2: Secondary wave for depth
+    val phase2 = (timeMillis % 5000) / 5000f * 2 * Math.PI.toFloat()
+    val path2 = Path()
+    path2.moveTo(0f, height)
+    path2.lineTo(0f, height - fillHeight + 5f)
+
+    for (x in 0..width.toInt() step 10) {
+        val relativeX = x.toFloat() / width
+        val y = height - fillHeight + 5f + (waveHeight * 0.8f) *
+                sin(2 * Math.PI.toFloat() * relativeX - phase2)
+        path2.lineTo(x.toFloat(), y)
+    }
+
+    path2.lineTo(width, height)
+    path2.close()
+    drawPath(path2, color.copy(alpha = 0.3f))
 }
