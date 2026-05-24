@@ -86,7 +86,7 @@ fun AodStyleSelectors(
                 }
                 // Show percentage for all styles
                 Text(
-                    text = "$level",
+                    text = "$level%",
                     color = Color.White,
                     fontSize = 9.sp,
                     fontFamily = AppFont.AzeretMonoLight
