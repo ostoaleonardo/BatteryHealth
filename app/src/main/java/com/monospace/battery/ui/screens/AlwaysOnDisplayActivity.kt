@@ -39,11 +39,15 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.ui.components.drawAodMeter
+import com.monospace.battery.ui.theme.BatteryTheme
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.monospace.battery.ui.theme.Font as AppFont
@@ -98,9 +102,6 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
-        } else {
-            @Suppress("DEPRECATION")
-            window.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -110,42 +111,31 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-        // Hide status bar and navigation bar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
-            val controller = window.insetsController
-            if (controller != null) {
-                controller.hide(android.view.WindowInsets.Type.statusBars() or android.view.WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior =
-                    android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = (android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
-                    or android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    or android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    or android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    or android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    or android.view.View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-        }
+        // Immersive mode using WindowInsetsController
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
-            val themePrimary = MaterialTheme.colorScheme.primary
-            val finalAccentColor = if (colorLong == 0L) themePrimary else Color(colorLong)
+            BatteryTheme {
+                val themePrimary = MaterialTheme.colorScheme.primary
+                val finalAccentColor = if (colorLong == 0L) themePrimary else Color(colorLong)
 
-            AODContent(
-                level = batteryLevel,
-                isCharging = isCharging,
-                speed = chargingSpeed,
-                remaining = timeRemaining,
-                clockStyle = clockStyle,
-                meterStyle = meterStyle,
-                accentColor = finalAccentColor,
-                showDate = showDate,
-                is24h = is24h,
-                fontSizeClock = fontSizeClock,
-                fontSizeDate = fontSizeDate
-            )
+                AODContent(
+                    level = batteryLevel,
+                    isCharging = isCharging,
+                    speed = chargingSpeed,
+                    remaining = timeRemaining,
+                    clockStyle = clockStyle,
+                    meterStyle = meterStyle,
+                    accentColor = finalAccentColor,
+                    showDate = showDate,
+                    is24h = is24h,
+                    fontSizeClock = fontSizeClock,
+                    fontSizeDate = fontSizeDate
+                )
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -198,19 +188,19 @@ fun AODContent(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // 1. Full Screen Water Background (if style 5)
+        // 1. Water Background (if style 5)
         if (meterStyle == 5) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
                     meterStyle,
                     level,
-                    if (isCharging) accentColor else Color.White,
+                    accentColor,
                     currentTime
                 )
             }
         }
 
-        // 2. Main UI Content
+        // 2. Content
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -223,7 +213,10 @@ fun AODContent(
                 fontFamily = AppFont.getAodFont(clockStyle),
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false),
-                    shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 12f) else null
+                    shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
+                        Color.Black,
+                        blurRadius = 12f
+                    ) else null
                 )
             )
 
@@ -235,7 +228,10 @@ fun AODContent(
                     fontFamily = AppFont.AzeretMonoLight,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null
+                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
+                            Color.Black,
+                            blurRadius = 8f
+                        ) else null
                     ),
                     modifier = Modifier.offset(y = (-16).dp)
                 )
@@ -243,7 +239,7 @@ fun AODContent(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // 3. Meters (if not style 5)
+            // 3. Regular Meters (if not style 5)
             if (meterStyle != 5) {
                 Box(contentAlignment = Alignment.Center) {
                     // Draw graphics for non-None styles
@@ -258,6 +254,7 @@ fun AODContent(
                         }
                     }
 
+                    // Always show text overlay for battery percentage
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "$level%",
@@ -283,7 +280,12 @@ fun AODContent(
                         color = Color.White,
                         fontSize = 54.sp,
                         fontFamily = AppFont.getAodFont(clockStyle),
-                        style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 16f))
+                        style = TextStyle(
+                            shadow = androidx.compose.ui.graphics.Shadow(
+                                Color.Black,
+                                blurRadius = 16f
+                            )
+                        )
                     )
                     if (isCharging) {
                         Text(
@@ -291,7 +293,12 @@ fun AODContent(
                             color = accentColor,
                             fontSize = 20.sp,
                             fontFamily = AppFont.getAodFont(clockStyle),
-                            style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f))
+                            style = TextStyle(
+                                shadow = androidx.compose.ui.graphics.Shadow(
+                                    Color.Black,
+                                    blurRadius = 8f
+                                )
+                            )
                         )
                     }
                 }
@@ -304,7 +311,12 @@ fun AODContent(
                     color = Color.Gray,
                     fontSize = 18.sp,
                     fontFamily = AppFont.getAodFont(clockStyle),
-                    style = TextStyle(shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null)
+                    style = TextStyle(
+                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
+                            Color.Black,
+                            blurRadius = 8f
+                        ) else null
+                    )
                 )
             }
         }
