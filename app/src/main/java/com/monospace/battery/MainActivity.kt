@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -27,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +50,7 @@ import com.monospace.battery.ui.components.BottomNavigation
 import com.monospace.battery.ui.components.Screen
 import com.monospace.battery.ui.components.TopAppBar
 import com.monospace.battery.ui.screens.AlertsScreen
+import com.monospace.battery.ui.screens.AodScreen
 import com.monospace.battery.ui.screens.HistoryScreen
 import com.monospace.battery.ui.screens.MainScreen
 import com.monospace.battery.ui.screens.SettingsScreen
@@ -66,6 +69,7 @@ class MainActivity : ComponentActivity() {
 
     private var batteryState by mutableStateOf(BatteryState())
     private var hasNotificationPermission by mutableStateOf(false)
+    private var hasOverlayPermission by mutableStateOf(false)
     private val batteryUtils by lazy { BatteryUtils(this) }
     private val permissionManager by lazy { PermissionManager(this) }
 
@@ -77,6 +81,12 @@ class MainActivity : ComponentActivity() {
         if (isGranted) {
             startBatteryAlertService()
         }
+    }
+
+    private val overlayPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) {
+        updatePermissionState()
     }
 
     private val batteryReceiver = object : BroadcastReceiver() {
@@ -92,6 +102,7 @@ class MainActivity : ComponentActivity() {
 
     private fun updatePermissionState() {
         hasNotificationPermission = permissionManager.hasNotificationPermission()
+        hasOverlayPermission = Settings.canDrawOverlays(this)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -179,6 +190,49 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
+                val aodEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_ENABLED
+                        )
+                    )
+                }
+                val aodClockStyleState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, 0)
+                    )
+                }
+                val aodMeterStyleState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, 0)
+                    )
+                }
+                val aodColorState = remember {
+                    mutableStateOf(
+                        prefs.getLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, 0xFF00A25B)
+                    )
+                }
+                val aodShowDateState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, true)
+                    )
+                }
+                val aod24hFormatState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, true)
+                    )
+                }
+                val aodFontSizeClockState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, 80)
+                    )
+                }
+                val aodFontSizeDateState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
+                    )
+                }
 
                 val settingsState = SettingsUiState(
                     isWidgetsPurchased = isPurchased,
@@ -194,7 +248,16 @@ class MainActivity : ComponentActivity() {
                     fastDischargeEnabled = fastDischargeEnabledState.value,
                     slowChargeEnabled = slowChargeEnabledState.value,
                     healthyChargeLevel = healthyChargeLevelState.intValue,
-                    lowBatteryLevel = lowBatteryLevelState.intValue
+                    lowBatteryLevel = lowBatteryLevelState.intValue,
+                    alwaysOnDisplayEnabled = aodEnabledState.value,
+                    hasOverlayPermission = hasOverlayPermission,
+                    aodClockStyle = aodClockStyleState.intValue,
+                    aodMeterStyle = aodMeterStyleState.intValue,
+                    aodColor = aodColorState.value,
+                    aodShowDate = aodShowDateState.value,
+                    aod24hFormat = aod24hFormatState.value,
+                    aodFontSizeClock = aodFontSizeClockState.intValue,
+                    aodFontSizeDate = aodFontSizeDateState.intValue
                 )
 
                 val settingsActions = SettingsUiActions(
@@ -253,6 +316,49 @@ class MainActivity : ComponentActivity() {
                             Constants.KEY_LOW_BATTERY_LEVEL,
                             it
                         )
+                    },
+                    onAlwaysOnDisplayChange = {
+                        aodEnabledState.value = it
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_ENABLED,
+                            it
+                        )
+                    },
+                    onAodClockStyleChange = {
+                        aodClockStyleState.intValue = it
+                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, it)
+                    },
+                    onAodMeterStyleChange = {
+                        aodMeterStyleState.intValue = it
+                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, it)
+                    },
+                    onAodColorChange = {
+                        aodColorState.value = it
+                        prefs.setLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, it)
+                    },
+                    onAodShowDateChange = {
+                        aodShowDateState.value = it
+                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, it)
+                    },
+                    onAod24hFormatChange = {
+                        aod24hFormatState.value = it
+                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, it)
+                    },
+                    onAodFontSizeClockChange = {
+                        aodFontSizeClockState.intValue = it
+                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, it)
+                    },
+                    onAodFontSizeDateChange = {
+                        aodFontSizeDateState.intValue = it
+                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, it)
+                    },
+                    onOverlayPermissionRequest = {
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            "package:$packageName".toUri()
+                        )
+                        overlayPermissionLauncher.launch(intent)
                     },
                     onUnlockClick = {
                         Log.d(TAG, "Launching buy billing flow directly")
@@ -342,6 +448,13 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Screen.Alerts.route) {
                             AlertsScreen(state = settingsState, actions = settingsActions)
+                        }
+                        composable(Screen.Aod.route) {
+                            AodScreen(
+                                state = settingsState,
+                                actions = settingsActions,
+                                currentBatteryLevel = batteryState.level
+                            )
                         }
                         composable(Screen.Settings.route) {
                             SettingsScreen(

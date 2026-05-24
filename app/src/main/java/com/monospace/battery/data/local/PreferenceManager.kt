@@ -19,6 +19,10 @@ class PreferenceManager(
         }
     }
 
+    fun getLong(file: String, key: String, defaultValue: Long = 0L): Long {
+        return getPrefs(file).getLong(key, defaultValue)
+    }
+
     fun setLong(file: String, key: String, value: Long) {
         getPrefs(file).edit {
             putLong(key, value)

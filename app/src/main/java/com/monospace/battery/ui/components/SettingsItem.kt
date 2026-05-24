@@ -20,11 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.ui.theme.BatteryTheme
 import com.monospace.battery.ui.theme.Font
 
 enum class SettingsItemPosition {
@@ -90,13 +87,22 @@ class SettingsSectionScope {
 
     fun sliderItem(
         title: String? = null,
+        description: String,
         value: Int,
         onValueChange: (Int) -> Unit,
         enabled: Boolean = true,
         range: ClosedFloatingPointRange<Float> = 0f..100f
     ) {
         items.add { position ->
-            SettingsSliderItem(title, value, onValueChange, position, enabled, range)
+            SettingsSliderItem(
+                title = title,
+                description = description,
+                value = value,
+                onValueChange = onValueChange,
+                position = position,
+                enabled = enabled,
+                range = range
+            )
         }
     }
 
@@ -227,6 +233,7 @@ fun SettingsSwitchItem(
 @Composable
 fun SettingsSliderItem(
     title: String? = null,
+    description: String,
     value: Int,
     onValueChange: (Int) -> Unit,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
@@ -235,7 +242,7 @@ fun SettingsSliderItem(
 ) {
     SettingsBaseItem(
         title = title,
-        description = stringResource(R.string.settings_healthy_charge_level, value),
+        description = description,
         position = position,
         enabled = enabled,
         horizontal = false
@@ -246,18 +253,6 @@ fun SettingsSliderItem(
             valueRange = range,
             modifier = Modifier.padding(top = 8.dp),
             enabled = enabled
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SettingsItemPreview() {
-    BatteryTheme {
-        SettingsItem(
-            title = "Unlock Full Version",
-            description = "Get access to all widgets",
-            onClick = {}
         )
     }
 }

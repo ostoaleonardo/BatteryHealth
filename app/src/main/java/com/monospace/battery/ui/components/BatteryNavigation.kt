@@ -24,6 +24,7 @@ sealed class Screen(val route: String, val labelRes: Int = 0, val iconRes: Int =
     object Home : Screen("home", R.string.nav_home, R.drawable.bolt)
     object History : Screen("history", R.string.nav_history, R.drawable.schedule)
     object Alerts : Screen("alerts", R.string.nav_alerts, R.drawable.battery_alert)
+    object Aod : Screen("aod", R.string.nav_aod, R.drawable.bolt_fill)
     object Settings : Screen("settings")
 }
 
@@ -35,7 +36,8 @@ fun BottomNavigation(
     val items = listOf(
         Screen.Home,
         Screen.History,
-        Screen.Alerts
+        Screen.Alerts,
+        Screen.Aod
     )
 
     NavigationBar {
@@ -84,6 +86,7 @@ fun TopAppBar(
                     Screen.Settings.route -> stringResource(R.string.action_settings)
                     Screen.History.route -> stringResource(R.string.nav_history)
                     Screen.Alerts.route -> stringResource(R.string.nav_alerts)
+                    Screen.Aod.route -> stringResource(R.string.nav_aod)
                     else -> stringResource(R.string.app_name)
                 }
             )

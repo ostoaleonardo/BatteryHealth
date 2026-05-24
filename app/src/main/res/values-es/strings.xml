@@ -6,6 +6,15 @@
     <string name="nav_home">Inicio</string>
     <string name="nav_history">Historial</string>
     <string name="nav_alerts">Alertas</string>
+    <string name="nav_aod">Pantalla</string>
+    <string name="aod_try_now">Probar</string>
+    <string name="aod_enabled">Activado</string>
+    <string name="aod_disabled">Desactivado</string>
+    <string name="aod_look_feel">Diseño y Estilo</string>
+    <string name="aod_show_date">Mostrar fecha</string>
+    <string name="aod_24h_format">Usar formato de 24 horas</string>
+    <string name="aod_font_size_clock">Tamaño del Reloj</string>
+    <string name="aod_font_size_date">Tamaño de la Fecha</string>
 
     <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Buena</string>
@@ -188,4 +197,15 @@
     <string name="alerts_category_charge">Alertas de carga</string>
     <string name="alerts_category_discharge">Alertas de descarga</string>
     <string name="alerts_category_safety">Alertas de seguridad</string>
+    <string name="alerts_category_monitoring">Monitoreo del Sistema</string>
+    <string name="settings_active_monitoring">Monitoreo Activo</string>
+    <string name="settings_active_monitoring_desc">Activa diagnósticos de hardware y alertas de seguridad en tiempo real. Desactivar esto detiene el registro del historial.</string>
+    <string name="settings_aod">Pantalla Siempre Encendida</string>
+    <string name="settings_aod_desc">Muestra el estado de carga y la hora en la pantalla de bloqueo.</string>
+    <string name="aod_clock_style">Estilo de Reloj</string>
+    <string name="aod_meter_style">Estilo de Medidor</string>
+    <string name="aod_accent_color">Color de Acento</string>
+    <string name="aod_dynamic_color">Dinámico</string>
+    <string name="permission_overlay_title">Permiso de Superposición Requerido</string>
+    <string name="permission_overlay_desc">Always-On Display necesita permiso para mostrarse sobre la pantalla de bloqueo.</string>
 </resources>

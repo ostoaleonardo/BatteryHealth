@@ -28,7 +28,6 @@ fun AlertsScreen(
     actions: SettingsUiActions
 ) {
     val isPremium = state.isWidgetsPurchased
-    val hasPermission = state.hasNotificationPermission
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -49,8 +48,7 @@ fun AlertsScreen(
                         .padding(horizontal = 16.dp)
                         .padding(top = 8.dp, bottom = 16.dp)
                 )
-            }
-            if (!hasPermission) {
+            } else if (!state.hasNotificationPermission) {
                 BannerActionCard(
                     title = stringResource(R.string.permission_notifications_title),
                     description = stringResource(R.string.permission_notifications_description),
@@ -75,6 +73,7 @@ fun AlertsScreen(
 
                 if (state.healthyChargeEnabled) {
                     sliderItem(
+                        description = "${state.healthyChargeLevel}%",
                         value = state.healthyChargeLevel,
                         enabled = isPremium,
                         onValueChange = actions.onHealthyChargeLevelChange
@@ -103,6 +102,7 @@ fun AlertsScreen(
 
                 if (state.lowBatteryEnabled) {
                     sliderItem(
+                        description = "${state.lowBatteryLevel}%",
                         value = state.lowBatteryLevel,
                         enabled = isPremium,
                         onValueChange = actions.onLowBatteryLevelChange,

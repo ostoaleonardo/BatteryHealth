@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -19,13 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.AppUtils
-import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.WidgetsUtils
-import com.monospace.battery.data.models.SettingsUiActions
-import com.monospace.battery.data.models.SettingsUiState
-import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.BatteryTheme
 
@@ -35,154 +29,22 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
-    val prefs = remember { PreferenceManager(context) }
-    val permissionManager = remember { PermissionManager(context) }
-
-    val healthyChargeEnabledState = remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_HEALTHY_CHARGE_ENABLED
-            )
-        )
-    }
-    val tempAlertEnabledState = remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_TEMP_ALERT_ENABLED
-            )
-        )
-    }
-    val healthyChargeLevelState = remember {
-        mutableIntStateOf(
-            prefs.getInt(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_HEALTHY_CHARGE_LEVEL,
-                80
-            )
-        )
-    }
-    val lowBatteryEnabledState = remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_LOW_BATTERY_ENABLED
-            )
-        )
-    }
-    val lowBatteryLevelState = remember {
-        mutableIntStateOf(
-            prefs.getInt(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_LOW_BATTERY_LEVEL,
-                20
-            )
-        )
-    }
-    val fastDischargeEnabledState = remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_FAST_DISCHARGE_ENABLED
-            )
-        )
-    }
-    val slowChargeEnabledState = remember {
-        mutableStateOf(
-            prefs.getBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_SLOW_CHARGE_ENABLED
-            )
-        )
-    }
-
     val versionName = remember { AppUtils.getVersionName(context) }
-    val hasPermission = permissionManager.hasNotificationPermission()
 
-    val state = SettingsUiState(
-        isWidgetsPurchased = isWidgetsPurchased,
-        hasNotificationPermission = hasPermission,
+    SettingsContent(
+        isPremium = isWidgetsPurchased,
         versionName = versionName,
-        healthyChargeEnabled = healthyChargeEnabledState.value,
-        tempAlertEnabled = tempAlertEnabledState.value,
-        lowBatteryEnabled = lowBatteryEnabledState.value,
-        fastDischargeEnabled = fastDischargeEnabledState.value,
-        slowChargeEnabled = slowChargeEnabledState.value,
-        healthyChargeLevel = healthyChargeLevelState.intValue,
-        lowBatteryLevel = lowBatteryLevelState.intValue
-    )
-
-    val actions = SettingsUiActions(
-        onHealthyChargeChange = {
-            healthyChargeEnabledState.value = it
-            prefs.setBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_HEALTHY_CHARGE_ENABLED,
-                it
-            )
-        },
-        onTempAlertChange = {
-            tempAlertEnabledState.value = it
-            prefs.setBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_TEMP_ALERT_ENABLED,
-                it
-            )
-        },
-        onLowBatteryChange = {
-            lowBatteryEnabledState.value = it
-            prefs.setBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_LOW_BATTERY_ENABLED,
-                it
-            )
-        },
-        onFastDischargeChange = {
-            fastDischargeEnabledState.value = it
-            prefs.setBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_FAST_DISCHARGE_ENABLED,
-                it
-            )
-        },
-        onSlowChargeChange = {
-            slowChargeEnabledState.value = it
-            prefs.setBoolean(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_SLOW_CHARGE_ENABLED,
-                it
-            )
-        },
-        onHealthyChargeLevelChange = {
-            healthyChargeLevelState.intValue = it
-            prefs.setInt(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_HEALTHY_CHARGE_LEVEL,
-                it
-            )
-        },
-        onLowBatteryLevelChange = {
-            lowBatteryLevelState.intValue = it
-            prefs.setInt(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_LOW_BATTERY_LEVEL,
-                it
-            )
-        },
         onUnlockClick = onUnlockClick,
-        onNotificationPermissionRequest = {},
-        onUpdateClick = { AppUtils.openPlayStore(context) },
-        onRateClick = { AppUtils.openPlayStore(context) }
+        onGoogleClick = { AppUtils.openPlayStore(context) }
     )
-
-    SettingsContent(state, actions)
 }
 
 @Composable
 fun SettingsContent(
-    state: SettingsUiState,
-    actions: SettingsUiActions
+    isPremium: Boolean,
+    versionName: String,
+    onUnlockClick: () -> Unit,
+    onGoogleClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -193,7 +55,7 @@ fun SettingsContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            if (!state.isWidgetsPurchased) {
+            if (!isPremium) {
                 SettingsSection(stringResource(R.string.premium_title)) {
                     val unlockTitle = stringResource(R.string.settings_unlock_full)
                     val unlockDesc = stringResource(R.string.widget_purchase_description)
@@ -201,7 +63,7 @@ fun SettingsContent(
                     item(
                         title = unlockTitle,
                         description = unlockDesc,
-                        onClick = actions.onUnlockClick
+                        onClick = onUnlockClick
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -209,18 +71,18 @@ fun SettingsContent(
 
             SettingsSection(stringResource(R.string.settings_about_app)) {
                 val updateTitle = stringResource(R.string.settings_software_update)
-                val updateDesc = stringResource(R.string.settings_version, state.versionName)
+                val updateDesc = stringResource(R.string.settings_version, versionName)
                 val rateTitle = stringResource(R.string.settings_rate_us)
 
                 item(
                     title = updateTitle,
                     description = updateDesc,
-                    onClick = actions.onUpdateClick
+                    onClick = onGoogleClick
                 )
 
                 item(
                     title = rateTitle,
-                    onClick = actions.onRateClick
+                    onClick = onGoogleClick
                 )
             }
 
@@ -234,31 +96,10 @@ fun SettingsContent(
 fun SettingsScreenPreview() {
     BatteryTheme {
         SettingsContent(
-            state = SettingsUiState(
-                isWidgetsPurchased = false,
-                hasNotificationPermission = true,
-                versionName = "1.0.0",
-                healthyChargeEnabled = true,
-                tempAlertEnabled = true,
-                lowBatteryEnabled = true,
-                fastDischargeEnabled = false,
-                slowChargeEnabled = false,
-                healthyChargeLevel = 80,
-                lowBatteryLevel = 20
-            ),
-            actions = SettingsUiActions(
-                onHealthyChargeChange = {},
-                onTempAlertChange = {},
-                onLowBatteryChange = {},
-                onFastDischargeChange = {},
-                onSlowChargeChange = {},
-                onHealthyChargeLevelChange = {},
-                onLowBatteryLevelChange = {},
-                onUnlockClick = {},
-                onNotificationPermissionRequest = {},
-                onUpdateClick = {},
-                onRateClick = {}
-            )
+            isPremium = false,
+            versionName = "1.1.2",
+            onUnlockClick = {},
+            onGoogleClick = {}
         )
     }
 }

@@ -10,7 +10,16 @@ data class SettingsUiState(
     val fastDischargeEnabled: Boolean,
     val slowChargeEnabled: Boolean,
     val healthyChargeLevel: Int,
-    val lowBatteryLevel: Int
+    val lowBatteryLevel: Int,
+    val alwaysOnDisplayEnabled: Boolean,
+    val hasOverlayPermission: Boolean,
+    val aodClockStyle: Int,
+    val aodMeterStyle: Int,
+    val aodColor: Long,
+    val aodShowDate: Boolean,
+    val aod24hFormat: Boolean,
+    val aodFontSizeClock: Int,
+    val aodFontSizeDate: Int
 )
 
 data class SettingsUiActions(
@@ -21,6 +30,15 @@ data class SettingsUiActions(
     val onSlowChargeChange: (Boolean) -> Unit,
     val onHealthyChargeLevelChange: (Int) -> Unit,
     val onLowBatteryLevelChange: (Int) -> Unit,
+    val onAlwaysOnDisplayChange: (Boolean) -> Unit,
+    val onAodClockStyleChange: (Int) -> Unit,
+    val onAodMeterStyleChange: (Int) -> Unit,
+    val onAodColorChange: (Long) -> Unit,
+    val onAodShowDateChange: (Boolean) -> Unit,
+    val onAod24hFormatChange: (Boolean) -> Unit,
+    val onAodFontSizeClockChange: (Int) -> Unit,
+    val onAodFontSizeDateChange: (Int) -> Unit,
+    val onOverlayPermissionRequest: () -> Unit,
     val onUnlockClick: () -> Unit,
     val onNotificationPermissionRequest: () -> Unit,
     val onUpdateClick: () -> Unit,

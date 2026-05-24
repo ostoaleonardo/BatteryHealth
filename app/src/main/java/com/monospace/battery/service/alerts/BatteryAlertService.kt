@@ -12,6 +12,7 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.monospace.battery.MainActivity
@@ -25,6 +26,7 @@ import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ScreenEvent
 import com.monospace.battery.notifications.NotificationHelper
+import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -52,7 +54,10 @@ class BatteryAlertService : Service() {
         if (intent.action != Intent.ACTION_BATTERY_CHANGED) {
             when (intent.action) {
                 Intent.ACTION_SCREEN_ON -> recordScreenEvent(true)
-                Intent.ACTION_SCREEN_OFF -> recordScreenEvent(false)
+                Intent.ACTION_SCREEN_OFF -> {
+                    recordScreenEvent(false)
+                    checkAodStart()
+                }
             }
             return
         }
@@ -268,6 +273,22 @@ class BatteryAlertService : Service() {
                     batteryLevel = lastLevel
                 )
             )
+        }
+    }
+
+    private fun checkAodStart() {
+        val aodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val isPremium = WidgetsUtils.isWidgetsPurchased(this)
+        
+        // Only start if enabled, premium, and currently charging
+        if (aodEnabled && isPremium && lastStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
+            if (Settings.canDrawOverlays(this)) {
+                val intent = Intent(this, AlwaysOnDisplayActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                }
+                startActivity(intent)
+            }
         }
     }
 

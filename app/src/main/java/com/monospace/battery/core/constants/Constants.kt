@@ -30,6 +30,18 @@ object Constants {
     const val KEY_TEMP_ALERT_ENABLED = "temp_alert_enabled"
     const val KEY_FAST_DISCHARGE_ENABLED = "fast_discharge_enabled"
     const val KEY_SLOW_CHARGE_ENABLED = "slow_charge_enabled"
+    const val KEY_AOD_ENABLED = "aod_enabled"
+    const val KEY_AOD_CLOCK_STYLE = "aod_clock_style"
+    const val KEY_AOD_METER_STYLE = "aod_meter_style"
+    const val KEY_AOD_COLOR = "aod_color"
+    const val KEY_AOD_SHOW_DATE = "aod_show_date"
+    const val KEY_AOD_24H_FORMAT = "aod_24h_format"
+    const val KEY_AOD_FONT_SIZE_CLOCK = "aod_font_size_clock"
+    const val KEY_AOD_FONT_SIZE_DATE = "aod_font_size_date"
+
+    // General
+    const val OFF = "off"
+    const val ON = "on"
 
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"
@@ -40,8 +52,6 @@ object Constants {
     const val PLAY_STORE_MARKET_URL = "market://details?id="
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
-    // Format Strings
-    const val FORMAT_PERCENT_ONE_DECIMAL = "%.1f%%"
     const val EMPTY_VALUE_DASH = "--"
 
     // Colors
