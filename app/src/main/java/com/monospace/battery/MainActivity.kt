@@ -15,9 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -47,10 +45,8 @@ import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.service.alerts.BatteryAlertService
 import com.monospace.battery.ui.components.BottomNavigation
-import com.monospace.battery.ui.components.CompleteWidgetsPurchaseContent
 import com.monospace.battery.ui.components.Screen
 import com.monospace.battery.ui.components.TopAppBar
-import com.monospace.battery.ui.components.WidgetsPurchaseContent
 import com.monospace.battery.ui.screens.AlertsScreen
 import com.monospace.battery.ui.screens.HistoryScreen
 import com.monospace.battery.ui.screens.MainScreen
@@ -121,8 +117,6 @@ class MainActivity : ComponentActivity() {
 
                 val prefs = remember { PreferenceManager(context) }
 
-                var showPurchaseSheet by remember { mutableStateOf(false) }
-                var showSuccessSheet by remember { mutableStateOf(false) }
                 var purchaseError by remember {
                     mutableStateOf<PurchaseManager.PurchaseEvent.Error?>(null)
                 }
@@ -281,21 +275,6 @@ class MainActivity : ComponentActivity() {
                 )
 
                 LaunchedEffect(isPurchased) {
-                    val alreadyShown = prefs.getBoolean(
-                        Constants.PREFS_WIDGETS,
-                        Constants.KEY_PURCHASE_SHEET_SHOWN
-                    )
-                    if (!isPurchased && !alreadyShown) {
-                        showPurchaseSheet = true
-                        prefs.setBoolean(
-                            Constants.PREFS_WIDGETS,
-                            Constants.KEY_PURCHASE_SHEET_SHOWN,
-                            true
-                        )
-                    }
-                }
-
-                LaunchedEffect(isPurchased) {
                     if (isPurchased) {
                         checkPermissions()
                     } else {
@@ -307,8 +286,7 @@ class MainActivity : ComponentActivity() {
                     purchaseManager.purchaseEvents.collect { event ->
                         when (event) {
                             is PurchaseManager.PurchaseEvent.Success -> {
-                                showPurchaseSheet = false
-                                showSuccessSheet = true
+
                             }
 
                             is PurchaseManager.PurchaseEvent.Error -> {
@@ -324,34 +302,6 @@ class MainActivity : ComponentActivity() {
                     LaunchedEffect(error) {
                         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                         purchaseError = null
-                    }
-                }
-
-                if (showPurchaseSheet) {
-                    ModalBottomSheet(
-                        sheetState = rememberModalBottomSheetState(),
-                        onDismissRequest = {
-                            showPurchaseSheet = false
-                        }
-                    ) {
-                        WidgetsPurchaseContent(
-                            onBuyClick = {
-                                Log.d(TAG, "User clicked buy")
-                                purchaseManager.launchBuyBillingFlow(this@MainActivity)
-                            },
-                            onRestoreClick = {
-                                Log.d(TAG, "User clicked restore")
-                                purchaseManager.restorePurchases()
-                            }
-                        )
-                    }
-                }
-
-                if (showSuccessSheet) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showSuccessSheet = false }
-                    ) {
-                        CompleteWidgetsPurchaseContent()
                     }
                 }
 
