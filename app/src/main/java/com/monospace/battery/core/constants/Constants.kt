@@ -38,6 +38,9 @@ object Constants {
     const val KEY_AOD_24H_FORMAT = "aod_24h_format"
     const val KEY_AOD_FONT_SIZE_CLOCK = "aod_font_size_clock"
     const val KEY_AOD_FONT_SIZE_DATE = "aod_font_size_date"
+    const val KEY_AOD_SHOW_CLOCK = "aod_show_clock"
+    const val KEY_AOD_DIM_AMOUNT = "aod_dim_amount"
+    const val KEY_AOD_SHOW_SHORTCUTS = "aod_show_shortcuts"
 
     // General
     const val OFF = "off"

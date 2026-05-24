@@ -73,6 +73,8 @@ fun AodScreen(
                     clockStyle = state.aodClockStyle,
                     meterStyle = state.aodMeterStyle,
                     showDate = state.aodShowDate,
+                    showClock = state.aodShowClock,
+                    showShortcuts = state.aodShowShortcuts,
                     is24h = state.aod24hFormat,
                     fontSizeClock = (state.aodFontSizeClock * 0.3f).toInt(),
                     fontSizeDate = (state.aodFontSizeDate * 0.4f).toInt()
@@ -179,23 +181,31 @@ fun AodScreen(
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
                     SettingsSection(stringResource(R.string.aod_look_feel)) {
-                        // Clock Size & 24h
-                        sliderItem(
-                            title = stringResource(R.string.aod_font_size_clock),
-                            description = "${((state.aodFontSizeClock - 40) * 100 / 80)}%",
-                            value = state.aodFontSizeClock,
-                            onValueChange = actions.onAodFontSizeClockChange,
-                            range = 40f..120f
-                        )
-
+                        // Clock Settings
                         switchItem(
-                            title = stringResource(R.string.aod_24h_format),
-                            checked = state.aod24hFormat,
-                            enabled = true,
-                            onCheckedChange = actions.onAod24hFormatChange
+                            title = stringResource(R.string.aod_show_clock),
+                            checked = state.aodShowClock,
+                            onCheckedChange = actions.onAodShowClockChange
                         )
 
-                        // Date Size & Show Date (Adjacent)
+                        if (state.aodShowClock) {
+                            sliderItem(
+                                title = stringResource(R.string.aod_font_size_clock),
+                                description = "${((state.aodFontSizeClock - 40) * 100 / 80)}%",
+                                value = state.aodFontSizeClock,
+                                onValueChange = actions.onAodFontSizeClockChange,
+                                range = 40f..120f
+                            )
+
+                            switchItem(
+                                title = stringResource(R.string.aod_24h_format),
+                                checked = state.aod24hFormat,
+                                enabled = true,
+                                onCheckedChange = actions.onAod24hFormatChange
+                            )
+                        }
+
+                        // Date Settings
                         switchItem(
                             title = stringResource(R.string.aod_show_date),
                             checked = state.aodShowDate,
@@ -212,6 +222,22 @@ fun AodScreen(
                                 range = 10f..30f
                             )
                         }
+
+                        // Advanced Options
+                        switchItem(
+                            title = stringResource(R.string.aod_show_shortcuts),
+                            description = stringResource(R.string.aod_show_shortcuts_desc),
+                            checked = state.aodShowShortcuts,
+                            onCheckedChange = actions.onAodShowShortcutsChange
+                        )
+
+                        sliderItem(
+                            title = stringResource(R.string.aod_dim_amount),
+                            description = "${state.aodDimAmount}%",
+                            value = state.aodDimAmount,
+                            onValueChange = actions.onAodDimAmountChange,
+                            range = 0f..80f
+                        )
                     }
                 }
             }

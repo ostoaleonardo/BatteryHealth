@@ -14,6 +14,12 @@
     <string name="aod_24h_format">Use 24-hour format</string>
     <string name="aod_font_size_clock">Clock Size</string>
     <string name="aod_font_size_date">Date Size</string>
+    <string name="aod_show_clock">Show Clock</string>
+    <string name="aod_dim_amount">Screen Dimming</string>
+    <string name="aod_show_shortcuts">Show Shortcuts</string>
+    <string name="aod_show_shortcuts_desc">Show quick access to Flashlight and Camera.</string>
+    <string name="aod_charging_speed_label">Charging Speed</string>
+    <string name="aod_time_remaining_label">Estimated Time</string>
 
     <!-- Battery parameters -->
     <string name="battery_percentage" translatable="false">%d%%</string>

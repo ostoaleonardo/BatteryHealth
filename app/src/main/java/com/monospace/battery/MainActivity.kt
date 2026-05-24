@@ -233,6 +233,21 @@ class MainActivity : ComponentActivity() {
                         prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
                     )
                 }
+                val aodShowClockState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, true)
+                    )
+                }
+                val aodDimAmountState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, 0)
+                    )
+                }
+                val aodShowShortcutsState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, false)
+                    )
+                }
 
                 val settingsState = SettingsUiState(
                     isWidgetsPurchased = isPurchased,
@@ -255,9 +270,12 @@ class MainActivity : ComponentActivity() {
                     aodMeterStyle = aodMeterStyleState.intValue,
                     aodColor = aodColorState.value,
                     aodShowDate = aodShowDateState.value,
+                    aodShowClock = aodShowClockState.value,
                     aod24hFormat = aod24hFormatState.value,
                     aodFontSizeClock = aodFontSizeClockState.intValue,
-                    aodFontSizeDate = aodFontSizeDateState.intValue
+                    aodFontSizeDate = aodFontSizeDateState.intValue,
+                    aodDimAmount = aodDimAmountState.intValue,
+                    aodShowShortcuts = aodShowShortcutsState.value
                 )
 
                 val settingsActions = SettingsUiActions(
@@ -341,6 +359,10 @@ class MainActivity : ComponentActivity() {
                         aodShowDateState.value = it
                         prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, it)
                     },
+                    onAodShowClockChange = {
+                        aodShowClockState.value = it
+                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, it)
+                    },
                     onAod24hFormatChange = {
                         aod24hFormatState.value = it
                         prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, it)
@@ -352,6 +374,14 @@ class MainActivity : ComponentActivity() {
                     onAodFontSizeDateChange = {
                         aodFontSizeDateState.intValue = it
                         prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, it)
+                    },
+                    onAodDimAmountChange = {
+                        aodDimAmountState.intValue = it
+                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, it)
+                    },
+                    onAodShowShortcutsChange = {
+                        aodShowShortcutsState.value = it
+                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, it)
                     },
                     onOverlayPermissionRequest = {
                         val intent = Intent(

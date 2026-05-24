@@ -4,22 +4,30 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.hardware.camera2.CameraManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +41,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -42,15 +54,16 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.ui.components.drawAodMeter
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.theme.Font
 import java.text.SimpleDateFormat
 import java.util.Date
-import com.monospace.battery.ui.theme.Font as AppFont
 
 class AlwaysOnDisplayActivity : ComponentActivity() {
 
@@ -63,9 +76,12 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
     private var meterStyle by mutableIntStateOf(0)
     private var colorLong by mutableLongStateOf(0xFF00A25B)
     private var showDate by mutableStateOf(true)
+    private var showClock by mutableStateOf(true)
     private var is24h by mutableStateOf(true)
     private var fontSizeClock by mutableIntStateOf(80)
     private var fontSizeDate by mutableIntStateOf(14)
+    private var dimAmount by mutableIntStateOf(0)
+    private var showShortcuts by mutableStateOf(false)
 
     private val batteryUtils by lazy { BatteryUtils(this) }
     private val prefs by lazy { PreferenceManager(this) }
@@ -87,9 +103,13 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
         meterStyle = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, 0)
         colorLong = prefs.getLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, 0xFF00A25B)
         showDate = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, true)
+        showClock = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, true)
         is24h = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, true)
         fontSizeClock = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, 80)
         fontSizeDate = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
+        dimAmount = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, 0)
+        showShortcuts =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,9 +151,12 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
                     meterStyle = meterStyle,
                     accentColor = finalAccentColor,
                     showDate = showDate,
+                    showClock = showClock,
                     is24h = is24h,
                     fontSizeClock = fontSizeClock,
-                    fontSizeDate = fontSizeDate
+                    fontSizeDate = fontSizeDate,
+                    dimAmount = dimAmount,
+                    showShortcuts = showShortcuts
                 )
             }
         }
@@ -151,7 +174,7 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(batteryReceiver)
+        runCatching { unregisterReceiver(batteryReceiver) }
     }
 }
 
@@ -165,9 +188,12 @@ fun AODContent(
     meterStyle: Int,
     accentColor: Color,
     showDate: Boolean,
+    showClock: Boolean,
     is24h: Boolean,
     fontSizeClock: Int,
-    fontSizeDate: Int
+    fontSizeDate: Int,
+    dimAmount: Int,
+    showShortcuts: Boolean
 ) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
@@ -179,16 +205,12 @@ fun AODContent(
         }
     }
 
-    val timeFormat =
-        SimpleDateFormat(if (is24h) "HH:mm" else "hh:mm a", LocalLocale.current.platformLocale)
-    val dateFormat = SimpleDateFormat("EEEE, d MMMM", LocalLocale.current.platformLocale)
-
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // 1. Water Background (if style 5)
+        // 1. Water Background
         if (meterStyle == 5) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
@@ -200,125 +222,267 @@ fun AODContent(
             }
         }
 
-        // 2. Content
+        // 2. Main Content
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = timeFormat.format(Date(currentTime)),
-                color = Color.White,
-                fontSize = fontSizeClock.sp,
-                fontFamily = AppFont.getAodFont(clockStyle),
-                style = TextStyle(
-                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                    shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
-                        Color.Black,
-                        blurRadius = 12f
-                    ) else null
-                )
+            AODClockSection(
+                currentTime = currentTime,
+                showClock = showClock,
+                showDate = showDate,
+                is24h = is24h,
+                fontSizeClock = fontSizeClock,
+                fontSizeDate = fontSizeDate,
+                clockStyle = clockStyle
             )
-
-            if (showDate) {
-                Text(
-                    text = dateFormat.format(Date(currentTime)).uppercase(),
-                    color = Color.Gray,
-                    fontSize = fontSizeDate.sp,
-                    fontFamily = AppFont.AzeretMonoLight,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
-                            Color.Black,
-                            blurRadius = 8f
-                        ) else null
-                    ),
-                    modifier = Modifier.offset(y = (-16).dp)
-                )
-            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // 3. Regular Meters (if not style 5)
-            if (meterStyle != 5) {
-                Box(contentAlignment = Alignment.Center) {
-                    // Draw graphics for non-None styles
-                    if (meterStyle != 0) {
-                        Canvas(modifier = Modifier.size(200.dp)) {
-                            drawAodMeter(
-                                meterStyle,
-                                level,
-                                if (isCharging) accentColor else Color.White,
-                                currentTime
-                            )
-                        }
-                    }
+            AODMeterSection(
+                level = level,
+                isCharging = isCharging,
+                speed = speed,
+                meterStyle = meterStyle,
+                accentColor = accentColor,
+                currentTime = currentTime,
+                clockStyle = clockStyle
+            )
 
-                    // Always show text overlay for battery percentage
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "$level%",
-                            color = Color.White,
-                            fontSize = 44.sp,
-                            fontFamily = AppFont.getAodFont(clockStyle)
-                        )
-                        if (isCharging) {
-                            Text(
-                                text = "${speed}W",
-                                color = accentColor,
-                                fontSize = 16.sp,
-                                fontFamily = AppFont.getAodFont(clockStyle)
-                            )
-                        }
-                    }
-                }
-            } else {
-                // Percentage only overlay for water glass
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = "$level%",
-                        color = Color.White,
-                        fontSize = 54.sp,
-                        fontFamily = AppFont.getAodFont(clockStyle),
-                        style = TextStyle(
-                            shadow = androidx.compose.ui.graphics.Shadow(
-                                Color.Black,
-                                blurRadius = 16f
-                            )
-                        )
+            if (isCharging && remaining.isNotEmpty() && remaining != "00:00") {
+                Spacer(modifier = Modifier.height(24.dp))
+                AODRemainingTimeSection(
+                    remaining = remaining,
+                    clockStyle = clockStyle
+                )
+            }
+        }
+
+        // 3. Shortcuts Row
+        if (showShortcuts) {
+            AODShortcutsSection()
+        }
+
+        // 4. Dim Overlay
+        if (dimAmount > 0) {
+            AODDimOverlay(dimAmount)
+        }
+    }
+}
+
+@Composable
+fun AODClockSection(
+    currentTime: Long,
+    showClock: Boolean,
+    showDate: Boolean,
+    is24h: Boolean,
+    fontSizeClock: Int,
+    fontSizeDate: Int,
+    clockStyle: Int
+) {
+    val dateFormat = SimpleDateFormat("EEEE, d MMMM", LocalLocale.current.platformLocale)
+    val timeFormat = SimpleDateFormat(
+        if (is24h) "HH:mm" else "hh:mm", LocalLocale.current.platformLocale
+    )
+
+    if (showClock) {
+        Text(
+            text = timeFormat.format(Date(currentTime)),
+            color = Color.White,
+            fontSize = fontSizeClock.sp,
+            fontFamily = Font.getAodFont(clockStyle),
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+    }
+
+    if (showDate) {
+        Text(
+            text = dateFormat.format(Date(currentTime)).uppercase(),
+            color = Color.Gray,
+            fontSize = fontSizeDate.sp,
+            fontFamily = Font.AzeretMonoLight,
+            style = TextStyle(
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
+        )
+    }
+}
+
+@Composable
+fun AODMeterSection(
+    level: Int,
+    isCharging: Boolean,
+    speed: Double,
+    meterStyle: Int,
+    accentColor: Color,
+    currentTime: Long,
+    clockStyle: Int
+) {
+    if (meterStyle != 5) {
+        Box(contentAlignment = Alignment.Center) {
+            if (meterStyle != 0) {
+                Canvas(modifier = Modifier.size(200.dp)) {
+                    drawAodMeter(
+                        meterStyle,
+                        level,
+                        if (isCharging) accentColor else Color.White,
+                        currentTime
                     )
-                    if (isCharging) {
+                }
+            }
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "$level%",
+                    color = Color.White,
+                    fontSize = 44.sp,
+                    fontFamily = Font.getAodFont(clockStyle)
+                )
+                if (isCharging) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = stringResource(R.string.aod_charging_speed_label).uppercase(),
+                            color = Color.Gray,
+                            fontSize = 10.sp,
+                            fontFamily = Font.AzeretMonoLight
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "${speed}W",
                             color = accentColor,
-                            fontSize = 20.sp,
-                            fontFamily = AppFont.getAodFont(clockStyle),
-                            style = TextStyle(
-                                shadow = androidx.compose.ui.graphics.Shadow(
-                                    Color.Black,
-                                    blurRadius = 8f
-                                )
-                            )
+                            fontSize = 16.sp,
+                            fontFamily = Font.getAodFont(clockStyle)
                         )
                     }
                 }
             }
-
-            if (isCharging && remaining.isNotEmpty() && remaining != "00:00") {
-                Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = remaining,
-                    color = Color.Gray,
-                    fontSize = 18.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle),
-                    style = TextStyle(
-                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(
-                            Color.Black,
-                            blurRadius = 8f
-                        ) else null
+        }
+    } else {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "$level%",
+                color = Color.White,
+                fontSize = 54.sp,
+                fontFamily = Font.getAodFont(clockStyle)
+            )
+            if (isCharging) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(R.string.aod_charging_speed_label).uppercase(),
+                        color = Color.Gray.copy(alpha = 0.7f),
+                        fontSize = 10.sp,
+                        fontFamily = Font.AzeretMonoLight
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${speed}W",
+                        color = accentColor,
+                        fontSize = 20.sp,
+                        fontFamily = Font.getAodFont(clockStyle)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AODRemainingTimeSection(
+    remaining: String,
+    clockStyle: Int
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            text = stringResource(R.string.aod_time_remaining_label).uppercase(),
+            color = Color.Gray,
+            fontSize = 10.sp,
+            fontFamily = Font.AzeretMonoLight
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = remaining,
+            color = Color.Gray,
+            fontSize = 18.sp,
+            fontFamily = Font.getAodFont(clockStyle)
+        )
+    }
+}
+
+@Composable
+fun AODShortcutsSection() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 24.dp)
+            .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            val context = LocalContext.current
+            var isFlashlightOn by remember { mutableStateOf(false) }
+
+            // Flashlight
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.1f))
+                    .clickable {
+                        runCatching {
+                            val cameraManager =
+                                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                            val cameraId = cameraManager.cameraIdList[0]
+                            isFlashlightOn = !isFlashlightOn
+                            cameraManager.setTorchMode(cameraId, isFlashlightOn)
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(if (isFlashlightOn) R.drawable.flashlight_on else R.drawable.flashlight_off),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            // Camera
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.1f))
+                    .clickable {
+                        runCatching {
+                            val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            context.startActivity(intent)
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.photo_camera),
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
     }
+}
+
+@Composable
+fun AODDimOverlay(dimAmount: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = dimAmount / 100f))
+    )
 }

@@ -17,9 +17,12 @@ data class SettingsUiState(
     val aodMeterStyle: Int,
     val aodColor: Long,
     val aodShowDate: Boolean,
+    val aodShowClock: Boolean,
     val aod24hFormat: Boolean,
     val aodFontSizeClock: Int,
-    val aodFontSizeDate: Int
+    val aodFontSizeDate: Int,
+    val aodDimAmount: Int,
+    val aodShowShortcuts: Boolean
 )
 
 data class SettingsUiActions(
@@ -35,9 +38,12 @@ data class SettingsUiActions(
     val onAodMeterStyleChange: (Int) -> Unit,
     val onAodColorChange: (Long) -> Unit,
     val onAodShowDateChange: (Boolean) -> Unit,
+    val onAodShowClockChange: (Boolean) -> Unit,
     val onAod24hFormatChange: (Boolean) -> Unit,
     val onAodFontSizeClockChange: (Int) -> Unit,
     val onAodFontSizeDateChange: (Int) -> Unit,
+    val onAodDimAmountChange: (Int) -> Unit,
+    val onAodShowShortcutsChange: (Boolean) -> Unit,
     val onOverlayPermissionRequest: () -> Unit,
     val onUnlockClick: () -> Unit,
     val onNotificationPermissionRequest: () -> Unit,

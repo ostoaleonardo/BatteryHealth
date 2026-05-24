@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,6 +43,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.monospace.battery.ui.theme.Font as AppFont
@@ -63,51 +64,84 @@ fun AodStyleSelectors(
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = System.currentTimeMillis()
-            kotlinx.coroutines.delay(50L) // Redraw for animated styles
+            delay(50L) // Redraw for animated styles
         }
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        // 1. Clock Style (Squares)
-        StyleSelector(
-            title = stringResource(R.string.aod_clock_style),
-            count = 6,
+        // 1. Clock Style Selector
+        AodClockStyleSelector(
             selectedIndex = clockStyle,
+            is24h = is24h,
             onSelect = onClockStyleChange
-        ) { index ->
-            Text(
-                text = if (is24h) "14:30" else "02:30",
-                color = Color.White,
-                fontSize = 18.sp,
-                fontFamily = AppFont.getAodFont(index)
-            )
-        }
+        )
 
-        // 2. Speedometer Style (Squares)
-        StyleSelector(
-            title = stringResource(R.string.aod_meter_style),
-            count = 6, // 0 to 5
+        // 2. Meter Style Selector
+        AodMeterStyleSelector(
+            level = level,
             selectedIndex = meterStyle,
+            selectedColor = selectedColor,
+            currentTime = currentTime,
             onSelect = onMeterStyleChange
-        ) { index ->
-            Box(contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.size(36.dp)) {
-                    drawAodMeter(index, level, selectedColor, currentTime)
-                }
-                // Percentage visible for all except water glass (index 5)
-                if (index != 5) {
-                    Text(
-                        text = "$level%",
-                        color = Color.White,
-                        fontSize = 9.sp,
-                        fontFamily = AppFont.AzeretMonoLight
-                    )
-                }
+        )
+
+        // 3. Color Selector
+        AodColorSelector(
+            selectedColor = selectedColor,
+            onColorSelect = onColorChange
+        )
+    }
+}
+
+@Composable
+fun AodClockStyleSelector(
+    selectedIndex: Int,
+    is24h: Boolean,
+    onSelect: (Int) -> Unit
+) {
+    StyleSelector(
+        title = stringResource(R.string.aod_clock_style),
+        count = 6,
+        selectedIndex = selectedIndex,
+        onSelect = onSelect
+    ) { index ->
+        Text(
+            text = if (is24h) "14:30" else "02:30",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontFamily = AppFont.getAodFont(index)
+        )
+    }
+}
+
+@Composable
+fun AodMeterStyleSelector(
+    level: Int,
+    selectedIndex: Int,
+    selectedColor: Color,
+    currentTime: Long,
+    onSelect: (Int) -> Unit
+) {
+    StyleSelector(
+        title = stringResource(R.string.aod_meter_style),
+        count = 6, // 0 to 5
+        selectedIndex = selectedIndex,
+        onSelect = onSelect
+    ) { index ->
+        Box(contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.size(36.dp)) {
+                drawAodMeter(index, level, selectedColor, currentTime)
+            }
+            // Percentage visible for all except water glass (index 5)
+            if (index != 5) {
+                Text(
+                    text = "$level%",
+                    color = Color.White,
+                    fontSize = 9.sp,
+                    fontFamily = AppFont.AzeretMonoLight
+                )
             }
         }
-
-        // 3. Color Style (Circles)
-        ColorSelector(selectedColor = selectedColor, onColorSelect = onColorChange)
     }
 }
 
@@ -118,6 +152,8 @@ fun AodPreviewCard(
     clockStyle: Int,
     meterStyle: Int,
     showDate: Boolean,
+    showClock: Boolean = true,
+    showShortcuts: Boolean = false,
     is24h: Boolean,
     fontSizeClock: Int = 24,
     fontSizeDate: Int = 6
@@ -128,13 +164,9 @@ fun AodPreviewCard(
         val delayTime = if (meterStyle == 5) 50L else 1000L
         while (true) {
             currentTime = System.currentTimeMillis()
-            kotlinx.coroutines.delay(delayTime)
+            delay(delayTime)
         }
     }
-
-    val locale = LocalLocale.current.platformLocale
-    val timeFormat = SimpleDateFormat(if (is24h) "HH:mm" else "hh:mm a", locale)
-    val dateFormat = SimpleDateFormat("EEE, d MMM", locale)
 
     Box(
         modifier = Modifier
@@ -148,7 +180,6 @@ fun AodPreviewCard(
                 .width(130.dp)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(24.dp))
-                .background(Color(0xFF1A1A1A))
                 .border(2.dp, Color.DarkGray, RoundedCornerShape(24.dp))
                 .padding(4.dp)
                 .clip(RoundedCornerShape(20.dp))
@@ -163,63 +194,124 @@ fun AodPreviewCard(
             }
 
             // 2. Content
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = timeFormat.format(Date(currentTime)),
-                    color = Color.White,
-                    fontSize = fontSizeClock.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle),
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 6f) else null
-                    )
-                )
-                if (showDate) {
-                    Text(
-                        text = dateFormat.format(Date(currentTime)).uppercase(),
-                        color = Color.Gray,
-                        fontSize = fontSizeDate.sp,
-                        fontFamily = AppFont.AzeretMonoLight,
-                        style = TextStyle(
-                            platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 4f) else null
-                        ),
-                        modifier = Modifier.offset(y = (-8).dp)
-                    )
-                }
+            AodPreviewContent(
+                currentTime = currentTime,
+                showClock = showClock,
+                showDate = showDate,
+                is24h = is24h,
+                fontSizeClock = fontSizeClock,
+                fontSizeDate = fontSizeDate,
+                clockStyle = clockStyle,
+                meterStyle = meterStyle,
+                level = level,
+                color = color
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // 3. Regular Meters (if not style 5)
-                if (meterStyle != 5) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Canvas(modifier = Modifier.size(50.dp)) {
-                            drawAodMeter(meterStyle, level, color, currentTime)
-                        }
-                        Text(
-                            text = "$level%",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontFamily = AppFont.getAodFont(clockStyle)
-                        )
-                    }
-                } else {
-                    // Percentage only overlay for water glass
-                    Text(
-                        text = "$level%",
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        fontFamily = AppFont.getAodFont(clockStyle),
-                        style = TextStyle(shadow = androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 10f))
-                    )
-                }
+            // 4. Shortcuts Preview
+            if (showShortcuts) {
+                AodPreviewShortcuts()
             }
         }
     }
 }
 
 @Composable
-fun ColorSelector(
+fun AodPreviewContent(
+    currentTime: Long,
+    showClock: Boolean,
+    showDate: Boolean,
+    is24h: Boolean,
+    fontSizeClock: Int,
+    fontSizeDate: Int,
+    clockStyle: Int,
+    meterStyle: Int,
+    level: Int,
+    color: Color
+) {
+    val locale = LocalLocale.current.platformLocale
+    val timeFormat = SimpleDateFormat(if (is24h) "HH:mm" else "hh:mm", locale)
+    val dateFormat = SimpleDateFormat("EEE, d MMM", locale)
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (showClock) {
+            Text(
+                text = timeFormat.format(Date(currentTime)),
+                color = Color.White,
+                fontSize = fontSizeClock.sp,
+                fontFamily = AppFont.getAodFont(clockStyle),
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                )
+            )
+        }
+        if (showDate) {
+            Text(
+                text = dateFormat.format(Date(currentTime)).uppercase(),
+                color = Color.Gray,
+                fontSize = fontSizeDate.sp,
+                fontFamily = AppFont.AzeretMonoLight,
+                style = TextStyle(
+                    platformStyle = PlatformTextStyle(includeFontPadding = false)
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Regular Meters (if not style 5)
+        if (meterStyle != 5) {
+            Box(contentAlignment = Alignment.Center) {
+                Canvas(modifier = Modifier.size(50.dp)) {
+                    drawAodMeter(meterStyle, level, color, currentTime)
+                }
+                Text(
+                    text = "$level%",
+                    color = Color.White,
+                    fontSize = 11.sp,
+                    fontFamily = AppFont.getAodFont(clockStyle)
+                )
+            }
+        } else {
+            // Percentage only overlay for water glass
+            Text(
+                text = "$level%",
+                color = Color.White,
+                fontSize = 14.sp,
+                fontFamily = AppFont.getAodFont(clockStyle)
+            )
+        }
+    }
+}
+
+@Composable
+fun AodPreviewShortcuts() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 8.dp)
+            .padding(horizontal = 8.dp),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
+            )
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
+            )
+        }
+    }
+}
+
+@Composable
+fun AodColorSelector(
     selectedColor: Color,
     onColorSelect: (Long) -> Unit
 ) {

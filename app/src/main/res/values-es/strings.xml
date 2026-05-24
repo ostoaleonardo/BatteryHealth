@@ -15,6 +15,12 @@
     <string name="aod_24h_format">Usar formato de 24 horas</string>
     <string name="aod_font_size_clock">Tamaño del Reloj</string>
     <string name="aod_font_size_date">Tamaño de la Fecha</string>
+    <string name="aod_show_clock">Mostrar Reloj</string>
+    <string name="aod_dim_amount">Atenuación de Pantalla</string>
+    <string name="aod_show_shortcuts">Mostrar Accesos Directos</string>
+    <string name="aod_show_shortcuts_desc">Muestra botones de acceso rápido a Linterna y Cámara.</string>
+    <string name="aod_charging_speed_label">Velocidad de Carga</string>
+    <string name="aod_time_remaining_label">Tiempo Estimado</string>
 
     <!-- Strings used for the home fragment -->
     <string name="battery_health_good">Buena</string>
