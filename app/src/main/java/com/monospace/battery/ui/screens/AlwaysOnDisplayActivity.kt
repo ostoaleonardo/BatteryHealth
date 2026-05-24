@@ -34,8 +34,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
@@ -45,6 +43,7 @@ import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
+import com.monospace.battery.ui.components.drawAodMeter
 import java.text.SimpleDateFormat
 import java.util.Date
 import com.monospace.battery.ui.theme.Font as AppFont
@@ -226,31 +225,14 @@ fun AODContent(
 
             Box(contentAlignment = Alignment.Center) {
                 Canvas(modifier = Modifier.size(200.dp)) {
-                    val strokeWidth = 8.dp.toPx()
-                    val sweep = if (meterStyle == 2) 360f else 260f
-                    val start = if (meterStyle == 2) 0f else 140f
-
-                    drawArc(
-                        color = Color.DarkGray.copy(alpha = 0.3f),
-                        startAngle = start,
-                        sweepAngle = sweep,
-                        useCenter = false,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                    )
-
-                    drawArc(
-                        color = if (isCharging) accentColor else Color.White,
-                        startAngle = start,
-                        sweepAngle = (level / 100f) * sweep,
-                        useCenter = false,
-                        style = if (meterStyle == 1) Stroke(
-                            width = strokeWidth,
-                            cap = StrokeCap.Butt
-                        )
-                        else Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    drawAodMeter(
+                        meterStyle,
+                        level,
+                        if (isCharging) accentColor else Color.White
                     )
                 }
 
+                // Percentage visible for all arc styles (0 to 3)
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "$level%",

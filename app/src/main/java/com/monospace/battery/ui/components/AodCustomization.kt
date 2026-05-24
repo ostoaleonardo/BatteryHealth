@@ -35,8 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
@@ -78,36 +76,18 @@ fun AodStyleSelectors(
         // 2. Speedometer Style (Squares)
         StyleSelector(
             title = stringResource(R.string.aod_meter_style),
-            count = 3,
+            count = 4,
             selectedIndex = meterStyle,
             onSelect = onMeterStyleChange
         ) { index ->
             Box(contentAlignment = Alignment.Center) {
                 Canvas(modifier = Modifier.size(36.dp)) {
-                    val strokeWidth = 2.dp.toPx()
-                    val sweep = if (index == 2) 360f else 260f
-                    val start = if (index == 2) 0f else 140f
-                    
-                    drawArc(
-                        color = Color.Gray.copy(alpha = 0.2f),
-                        startAngle = start,
-                        sweepAngle = sweep,
-                        useCenter = false,
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                    )
-                    
-                    drawArc(
-                        color = selectedColor,
-                        startAngle = start,
-                        sweepAngle = (level / 100f) * sweep,
-                        useCenter = false,
-                        style = if (index == 1) Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-                                else Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                    )
+                    drawAodMeter(index, level, selectedColor)
                 }
+                // Show percentage for all styles
                 Text(
-                    text = "$level", 
-                    color = Color.White, 
+                    text = "$level",
+                    color = Color.White,
                     fontSize = 9.sp,
                     fontFamily = AppFont.AzeretMonoLight
                 )
@@ -186,25 +166,7 @@ fun AodPreviewCard(
 
                 Box(contentAlignment = Alignment.Center) {
                     Canvas(modifier = Modifier.size(50.dp)) {
-                        val strokeWidth = 3.dp.toPx()
-                        val sweep = if (meterStyle == 2) 360f else 260f
-                        val start = if (meterStyle == 2) 0f else 140f
-                        
-                        drawArc(
-                            color = Color.DarkGray.copy(alpha = 0.3f),
-                            startAngle = start,
-                            sweepAngle = sweep,
-                            useCenter = false,
-                            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                        )
-                        drawArc(
-                            color = color,
-                            startAngle = start,
-                            sweepAngle = (level / 100f) * sweep,
-                            useCenter = false,
-                            style = if (meterStyle == 1) Stroke(width = strokeWidth, cap = StrokeCap.Butt)
-                                    else Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                        )
+                        drawAodMeter(meterStyle, level, color)
                     }
                     Text(
                         text = "$level%",
@@ -225,7 +187,7 @@ fun ColorSelector(
 ) {
     // 0L represents Dynamic Color
     val colors = listOf(
-        0L, 0xFF00A25B, 0xFF2196F3, 0xFFE91E63, 
+        0L, 0xFF00A25B, 0xFF2196F3, 0xFFE91E63,
         0xFFFF9800, 0xFF9C27B0, 0xFF00BCD4, 0xFFFFEB3B, 0xFFFFFFFF
     )
 
@@ -244,7 +206,7 @@ fun ColorSelector(
             itemsIndexed(colors) { _, colorValue ->
                 val isDynamic = colorValue == 0L
                 val color = if (isDynamic) MaterialTheme.colorScheme.primary else Color(colorValue)
-                
+
                 Box(
                     modifier = Modifier
                         .size(52.dp)
@@ -296,13 +258,13 @@ fun StyleSelector(
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
                         .border(
                             width = if (selectedIndex == index) 2.dp else 1.dp,
-                            color = if (selectedIndex == index) MaterialTheme.colorScheme.primary 
-                                    else Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(16.dp)
+                            color = if (selectedIndex == index) MaterialTheme.colorScheme.primary
+                            else Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(12.dp)
                         )
                         .clickable { onSelect(index) },
                     contentAlignment = Alignment.Center
