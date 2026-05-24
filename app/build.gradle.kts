@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.monospace.battery"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.monospace.battery"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 11
         versionName = "1.1.2"
 
@@ -36,8 +36,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         viewBinding = true
