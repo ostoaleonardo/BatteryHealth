@@ -86,7 +86,7 @@ fun AodStyleSelectors(
         // 2. Speedometer Style (Squares)
         StyleSelector(
             title = stringResource(R.string.aod_meter_style),
-            count = 5, // Added style 4 (Water Glass)
+            count = 6, // 0 to 5
             selectedIndex = meterStyle,
             onSelect = onMeterStyleChange
         ) { index ->
@@ -94,8 +94,8 @@ fun AodStyleSelectors(
                 Canvas(modifier = Modifier.size(36.dp)) {
                     drawAodMeter(index, level, selectedColor, currentTime)
                 }
-                // Show percentage inside if it's not the water glass (which takes full space)
-                if (index != 4) {
+                // Percentage visible for all except water glass (index 5)
+                if (index != 5) {
                     Text(
                         text = "$level%",
                         color = Color.White,
@@ -125,7 +125,7 @@ fun AodPreviewCard(
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(meterStyle) {
-        val delayTime = if (meterStyle == 4) 50L else 1000L
+        val delayTime = if (meterStyle == 5) 50L else 1000L
         while (true) {
             currentTime = System.currentTimeMillis()
             kotlinx.coroutines.delay(delayTime)
@@ -155,8 +155,8 @@ fun AodPreviewCard(
                 .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            // 1. Water Background (if style 4)
-            if (meterStyle == 4) {
+            // 1. Water Background (if style 5)
+            if (meterStyle == 5) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     drawAodMeter(meterStyle, level, color, currentTime)
                 }
@@ -171,7 +171,7 @@ fun AodPreviewCard(
                     fontFamily = AppFont.getAodFont(clockStyle),
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 6f) else null
+                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 6f) else null
                     )
                 )
                 if (showDate) {
@@ -182,7 +182,7 @@ fun AodPreviewCard(
                         fontFamily = AppFont.AzeretMonoLight,
                         style = TextStyle(
                             platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 4f) else null
+                            shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 4f) else null
                         ),
                         modifier = Modifier.offset(y = (-8).dp)
                     )
@@ -190,8 +190,8 @@ fun AodPreviewCard(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // 3. Regular Meters (if not style 4)
-                if (meterStyle != 4) {
+                // 3. Regular Meters (if not style 5)
+                if (meterStyle != 5) {
                     Box(contentAlignment = Alignment.Center) {
                         Canvas(modifier = Modifier.size(50.dp)) {
                             drawAodMeter(meterStyle, level, color, currentTime)
@@ -204,7 +204,7 @@ fun AodPreviewCard(
                         )
                     }
                 } else {
-                    // Percentage only for water glass
+                    // Percentage only overlay for water glass
                     Text(
                         text = "$level%",
                         color = Color.White,

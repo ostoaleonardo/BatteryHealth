@@ -182,7 +182,7 @@ fun AODContent(
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(meterStyle) {
-        val delayTime = if (meterStyle == 4) 50L else 1000L
+        val delayTime = if (meterStyle == 5) 50L else 1000L
         while (true) {
             currentTime = System.currentTimeMillis()
             kotlinx.coroutines.delay(delayTime)
@@ -198,8 +198,8 @@ fun AODContent(
             .fillMaxSize()
             .background(Color.Black)
     ) {
-        // 1. Full Screen Water Background (if style 4)
-        if (meterStyle == 4) {
+        // 1. Full Screen Water Background (if style 5)
+        if (meterStyle == 5) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
                     meterStyle,
@@ -223,7 +223,7 @@ fun AODContent(
                 fontFamily = AppFont.getAodFont(clockStyle),
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false),
-                    shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 12f) else null
+                    shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 12f) else null
                 )
             )
 
@@ -235,7 +235,7 @@ fun AODContent(
                     fontFamily = AppFont.AzeretMonoLight,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null
+                        shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null
                     ),
                     modifier = Modifier.offset(y = (-16).dp)
                 )
@@ -243,16 +243,19 @@ fun AODContent(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // 3. Regular Meters (if not style 4)
-            if (meterStyle != 4) {
+            // 3. Meters (if not style 5)
+            if (meterStyle != 5) {
                 Box(contentAlignment = Alignment.Center) {
-                    Canvas(modifier = Modifier.size(200.dp)) {
-                        drawAodMeter(
-                            meterStyle,
-                            level,
-                            if (isCharging) accentColor else Color.White,
-                            currentTime
-                        )
+                    // Draw graphics for non-None styles
+                    if (meterStyle != 0) {
+                        Canvas(modifier = Modifier.size(200.dp)) {
+                            drawAodMeter(
+                                meterStyle,
+                                level,
+                                if (isCharging) accentColor else Color.White,
+                                currentTime
+                            )
+                        }
                     }
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -301,7 +304,7 @@ fun AODContent(
                     color = Color.Gray,
                     fontSize = 18.sp,
                     fontFamily = AppFont.getAodFont(clockStyle),
-                    style = TextStyle(shadow = if (meterStyle == 4) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null)
+                    style = TextStyle(shadow = if (meterStyle == 5) androidx.compose.ui.graphics.Shadow(Color.Black, blurRadius = 8f) else null)
                 )
             }
         }

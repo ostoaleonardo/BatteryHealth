@@ -18,11 +18,12 @@ fun DrawScope.drawAodMeter(
     val strokeWidth = size.width * 0.05f
 
     when (style) {
-        0 -> drawSolidArc(level, color, strokeWidth, rounded = true)
-        1 -> drawSolidArc(level, color, strokeWidth, rounded = false)
-        2 -> drawDottedArc(level, color, strokeWidth, rounded = false)
-        3 -> drawDottedArc(level, color, strokeWidth, rounded = true)
-        4 -> drawWaterGlass(level, color, timeMillis)
+        0 -> { /* None - Percentage only */ }
+        1 -> drawSolidArc(level, color, strokeWidth, rounded = true)
+        2 -> drawSolidArc(level, color, strokeWidth, rounded = false)
+        3 -> drawDottedArc(level, color, strokeWidth, rounded = false)
+        4 -> drawDottedArc(level, color, strokeWidth, rounded = true)
+        5 -> drawWaterGlass(level, color, timeMillis)
     }
 }
 
