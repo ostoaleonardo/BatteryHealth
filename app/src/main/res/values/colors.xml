@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>r>
     <color name="md_theme_background">#F9F9FF</color>
-
-    <!-- Custom Colors -->
-    <color name="bg_transparent_5">#0D000000</color>
-    <color name="battery_health_good">#00A25B</color>
-    <color name="bg_battery_health_good">#1A00A25B</color>
-    <color name="battery_health_overheat">#FF9800</color>
-    <color name="bg_battery_health_overheat">#1AFF9800</color>
-    <color name="battery_health_dead">#F44336</color>
-    <color name="bg_battery_health_dead">#1AF44336</color>
-    <color name="battery_health_over_voltage">#FF5722</color>
-    <color name="bg_battery_health_over_voltage">#1AFF5722</color>
-    <color name="battery_health_unspecified_failure">#9E9E9E</color>
-    <color name="bg_battery_health_unspecified_failure">#1A9E9E9E</color>
-    <color name="battery_health_unknown">#9E9E9E</color>
-    <color name="bg_battery_health_unknown">#1A9E9E9E</color>
 </resources>

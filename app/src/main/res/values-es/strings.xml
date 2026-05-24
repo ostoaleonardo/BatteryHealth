@@ -34,15 +34,9 @@
     <string name="charger_quality_fast">Rápido</string>
 
     <!-- Strings used for the widget purchase bottom sheet -->
-    <string name="widget_purchase_title">🔋 Desbloquear Widgets</string>
     <string name="widget_purchase_description">Desbloquea herramientas profesionales: alertas avanzadas, widgets exclusivos y análisis completo del historial.</string>
-    <string name="widget_purchase_unlock_full">Obtener Widgets</string>
-    <string name="widget_purchase_restore_purchases">Restaurar compras</string>
-    <string name="widget_purchase_complete_purchase">Gracias por tu compra</string>
-    <string name="widget_purchase_complete_purchase_description">Ahora puedes acceder a los widgets.</string>
     <string name="widget_purchase_no_purchases_found">No se encontraron compras para este producto</string>
     <string name="widget_purchase_no_restorable_purchases">No se encontraron compras restaurables</string>
-    <string name="widget_purchase_error_google_play">Error al conectar con Google Play</string>
     <string name="widget_purchase_error_service_unavailable">El servicio de Google Play no está disponible</string>
     <string name="widget_purchase_error_billing_unavailable">La facturación no está disponible en este dispositivo</string>
     <string name="widget_purchase_error_item_already_owned">Ya eres dueño de este artículo</string>
@@ -61,10 +55,8 @@
     <!-- Premium -->
     <string name="premium_title">Función Premium</string>
     <string name="premium_description">Obtén la experiencia completa: alertas personalizables, widgets pro y seguimiento detallado del historial.</string>
-    <string name="premium_button">Obtener versión completa</string>
 
     <!-- Alarms -->
-    <string name="settings_alerts_title">Alertas</string>
     <string name="settings_healthy_charge">Alarma de carga saludable</string>
     <string name="settings_healthy_charge_desc">Avisar cuando la batería llegue a un nivel específico para prolongar su vida útil.</string>
     <string name="settings_healthy_charge_level">Nivel de alerta: %d%%</string>
@@ -94,7 +86,6 @@
     <!-- Permissions -->
     <string name="permission_notifications_title">Permitir notificaciones</string>
     <string name="permission_notifications_description">Habilita las notificaciones para recibir alertas de batería y monitorear la salud en tiempo real.</string>
-    <string name="permission_notifications_button">Conceder permiso</string>
 
     <!-- Battery Health Modal Descriptions -->
     <string name="battery_health_description_good">La batería está en óptimas condiciones y funcionando correctamente dentro de sus parámetros normales.</string>
@@ -102,7 +93,7 @@
     <string name="battery_health_description_dead">La batería ha llegado al final de su vida útil y necesita ser reemplazada para garantizar un funcionamiento seguro y estable.</string>
     <string name="battery_health_description_over_voltage">Se ha detectado un voltaje superior al límite de seguridad. Esto suele deberse a un cargador o cable defectuoso.</string>
     <string name="battery_health_description_cold">La batería está demasiado fría. Esto puede reducir temporalmente el rendimiento y ralentizar significativamente la velocidad de carga.</string>
-    <string name="battery_health_description_unknown">El sistema está analizando los sensores para determinar el estado de salud. Asegúrate de usar accesorios originales.</string>
+    <string name="battery_health_description_unknown">La sistema está analizando los sensores para determinar el estado de salud. Asegúrate de usar accesorios originales.</string>
 
     <!-- Other Metric Descriptions -->
     <string name="description_status">Indica si la batería se está cargando o descargando actualmente.</string>
@@ -117,16 +108,11 @@
     <string name="description_speed">La velocidad a la que se carga la batería, medida en vatios (W).</string>
     <string name="description_time">Tiempo estimado hasta que la batería alcance el 100% de carga según la velocidad actual.</string>
     <string name="history_consumption_title">Consumo de batería (24h)</string>
-    <string name="history_collecting_data">Recopilando datos…</string>
     <string name="history_sot_title">TIEMPO DE PANTALLA</string>
     <string name="history_sessions_title">Sesiones de carga recientes</string>
     <string name="history_no_sessions">Aún no hay sesiones registradas</string>
-    <string name="history_charge_at">Carga a las %s</string>
     <string name="history_charge_duration_title">Carga por %s</string>
-    <string name="history_charge_summary">Ganó %1$d%% en %2$s</string>
-    <string name="history_charging">Cargando…</string>
     <string name="history_currently_charging">Cargando…</string>
-    <string name="history_session_duration">Duración de carga</string>
     <string name="history_show_more">Ver más (%d+)</string>
     <string name="history_unlock_full">Ver historial completo</string>
     <string name="history_unlock_full_desc">Actualiza a la versión completa para acceder a todo tu historial de carga y análisis avanzados.</string>
@@ -138,19 +124,13 @@
     <string name="charger_analysis_stability">Estabilidad</string>
     <string name="charger_analysis_avg_temp">Temp. Media</string>
     <string name="charger_analysis_sessions">Sesiones</string>
-    <string name="charger_analysis_comparison">Tu cargador %1$s es un %2$d%% más %3$s que %4$s.</string>
-    <string name="charger_analysis_faster">rápido</string>
-    <string name="charger_analysis_slower">lento</string>
     <string name="charger_analysis_stability_desc">Consistencia de la corriente. Valores bajos pueden indicar un cable o puerto defectuoso.</string>
     <string name="charger_analysis_avg_temp_desc">Temperatura promedio de la batería mientras se carga con esta fuente.</string>
     <string name="charger_analysis_avg_speed_desc">Tasa de ganancia por minuto. Cargadores rápidos suelen superar el 1.2%/m.</string>
     <string name="charger_analysis_upsell_desc">Desbloquea métricas como estabilidad e impacto térmico.</string>
-    <string name="charger_analysis_what_measured_title">¿Qué se mide?</string>
-    <string name="charger_analysis_what_measured_desc">Esta sección evalúa cargadores por fuente. Medimos la tasa de carga (%/min), eficiencia térmica (impacto de calor) y estabilidad (consistencia entre sesiones).</string>
 
     <!-- Consejos de Salud -->
     <string name="tips_title">¿Sabías que…?</string>
-    <string name="tips_show_another">Mostrar otro</string>
     <string name="tips_20_80_rule">Regla del 20–80%</string>
     <string name="tips_20_80_rule_desc">Mantener la batería entre el 20% y el 80% puede extender significativamente su vida útil al reducir el estrés.</string>
     <string name="tips_heat_kill">Evita el calor extremo</string>
