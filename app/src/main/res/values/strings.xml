@@ -94,6 +94,7 @@
     <string name="notification_slow_charge_title">Slow Charging Detected!</string>
     <string name="notification_slow_charge_message">Charging speed is lower than expected. Check your cable or charger.</string>
     <string name="notification_service_running">Monitoring battery alerts in background</string>
+    <string name="notification_action_stop">Stop Monitoring</string>
 
     <!-- Permissions -->
     <string name="permission_notifications_title">Allow Notifications</string>

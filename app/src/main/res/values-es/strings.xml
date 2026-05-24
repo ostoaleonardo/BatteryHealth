@@ -82,6 +82,7 @@
     <string name="notification_slow_charge_title">¡Carga lenta detectada!</string>
     <string name="notification_slow_charge_message">La velocidad de carga es menor de lo esperado. Revisa tu cable o cargador.</string>
     <string name="notification_service_running">Monitoreando alertas de batería en segundo plano</string>
+    <string name="notification_action_stop">Detener monitoreo</string>
 
     <!-- Permissions -->
     <string name="permission_notifications_title">Permitir notificaciones</string>

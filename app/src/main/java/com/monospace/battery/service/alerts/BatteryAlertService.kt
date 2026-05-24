@@ -156,6 +156,15 @@ class BatteryAlertService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        // Add a stop action for the user to comply with Android 14 policies
+        val stopIntent = Intent(this, BatteryAlertService::class.java).apply {
+            action = ACTION_STOP_SERVICE
+        }
+        val stopPendingIntent = PendingIntent.getService(
+            this, 0, stopIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
         val notification: Notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.notification_service_running))
@@ -163,6 +172,11 @@ class BatteryAlertService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .addAction(
+                R.drawable.bolt,
+                getString(R.string.notification_action_stop),
+                stopPendingIntent
+            )
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -181,7 +195,14 @@ class BatteryAlertService : Service() {
         unregisterReceiver(batteryReceiver)
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int = START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_STOP_SERVICE) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        return START_STICKY
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -322,5 +343,6 @@ class BatteryAlertService : Service() {
 
     companion object {
         const val TAG = "BatteryAlertService"
+        const val ACTION_STOP_SERVICE = "STOP_BATTERY_MONITORING"
     }
 }
