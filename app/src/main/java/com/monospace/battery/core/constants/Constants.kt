@@ -31,6 +31,7 @@ object Constants {
     const val KEY_FAST_DISCHARGE_ENABLED = "fast_discharge_enabled"
     const val KEY_SLOW_CHARGE_ENABLED = "slow_charge_enabled"
     const val KEY_AOD_ENABLED = "aod_enabled"
+    const val EXTRA_AOD_TEST = "extra_aod_test"
     const val KEY_AOD_CLOCK_STYLE = "aod_clock_style"
     const val KEY_AOD_METER_STYLE = "aod_meter_style"
     const val KEY_AOD_COLOR = "aod_color"

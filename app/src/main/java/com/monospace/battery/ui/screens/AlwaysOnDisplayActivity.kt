@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.screens
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -86,6 +87,8 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
     private val batteryUtils by lazy { BatteryUtils(this) }
     private val prefs by lazy { PreferenceManager(this) }
 
+    private var isTestMode = false
+
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val info = BatteryInfo(intent)
@@ -94,8 +97,8 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
             chargingSpeed = batteryUtils.getChargeSpeed(info.voltage, info.isCharging)
             timeRemaining = batteryUtils.getChargeTimeRemaining(info.isCharging)
 
-            // Close AOD if disconnected
-            if (!info.isCharging && intent?.action == Intent.ACTION_BATTERY_CHANGED) {
+            // Close AOD if disconnected (unless in test mode)
+            if (!isTestMode && !info.isCharging && intent?.action == Intent.ACTION_BATTERY_CHANGED) {
                 finish()
             }
 
@@ -119,6 +122,7 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        isTestMode = intent.getBooleanExtra(Constants.EXTRA_AOD_TEST, false)
         loadSettings()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -139,7 +143,8 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val controller = WindowCompat.getInsetsController(window, window.decorView)
         controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
-        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         setContent {
             BatteryTheme {
@@ -200,6 +205,7 @@ fun AODContent(
     showShortcuts: Boolean
 ) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val context = LocalContext.current
 
     LaunchedEffect(meterStyle) {
         val delayTime = if (meterStyle == 5) 50L else 1000L
@@ -213,6 +219,7 @@ fun AODContent(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
+            .clickable { (context as? Activity)?.finish() }
     ) {
         // 1. Water Background
         if (meterStyle == 5) {

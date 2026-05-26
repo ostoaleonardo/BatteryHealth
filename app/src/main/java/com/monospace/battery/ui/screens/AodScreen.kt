@@ -109,7 +109,12 @@ fun AodScreen(
                         // Manual Try Button
                         Button(
                             onClick = {
-                                val intent = Intent(context, AlwaysOnDisplayActivity::class.java)
+                                val intent = Intent(
+                                    context, AlwaysOnDisplayActivity::class.java
+                                ).apply {
+                                    putExtra(Constants.EXTRA_AOD_TEST, true)
+                                }
+
                                 context.startActivity(intent)
                             },
                             modifier = Modifier.size(40.dp),
