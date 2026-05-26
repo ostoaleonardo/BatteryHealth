@@ -74,7 +74,6 @@
     <!-- Alarms -->
     <string name="settings_healthy_charge">Alarma de carga saludable</string>
     <string name="settings_healthy_charge_desc">Avisar cuando la batería llegue a un nivel específico para prolongar su vida útil.</string>
-    <string name="settings_healthy_charge_level">Nivel de alerta: %d%%</string>
     <string name="settings_temp_alert">Alerta de temperatura alta</string>
     <string name="settings_temp_alert_desc">Avisar si la temperatura de la batería supera los 40°C.</string>
     <string name="settings_low_battery">Alarma de batería baja</string>
@@ -124,7 +123,6 @@
     <string name="description_speed">La velocidad a la que se carga la batería, medida en vatios (W).</string>
     <string name="description_time">Tiempo estimado hasta que la batería alcance el 100\u0025 de carga según la velocidad actual.</string>
     <string name="history_consumption_title">Consumo de batería (24h)</string>
-    <string name="history_sot_title">TIEMPO DE PANTALLA</string>
     <string name="history_sessions_title">Sesiones de carga recientes</string>
     <string name="history_no_sessions">Aún no hay sesiones registradas</string>
     <string name="history_charge_duration_title">Carga por %s</string>
@@ -188,30 +186,13 @@
     <string name="tips_sync_freq">Sincronización Automática</string>
     <string name="tips_sync_freq_desc">Reducir la frecuencia de sincronización de correo y nube ahorra mucha energía diaria.</string>
 
-    <!-- SOT Card Labels -->
-    <string name="sot_label_used">USO</string>
-    <string name="sot_label_drain">DRENAJE/H</string>
-    <string name="sot_label_est_full">EST. 100\u0025</string>
-
-    <!-- SOT Descriptions -->
-    <string name="sot_description">Tiempo total que la pantalla ha estado activa desde la última carga al 100\u0025.</string>
-    <string name="sot_label_used_description">Porcentaje de batería consumido durante este periodo.</string>
-    <string name="sot_label_drain_description">Promedio de consumo de batería por hora de uso activo.</string>
-    <string name="sot_label_est_full_description">Tiempo de pantalla total estimado que obtendrías con una carga completa (100\u0025 a 0\u0025).</string>
-
     <!-- Alert Categories -->
     <string name="alerts_category_charge">Alertas de carga</string>
     <string name="alerts_category_discharge">Alertas de descarga</string>
     <string name="alerts_category_safety">Alertas de seguridad</string>
-    <string name="alerts_category_monitoring">Monitoreo del Sistema</string>
-    <string name="settings_active_monitoring">Monitoreo Activo</string>
-    <string name="settings_active_monitoring_desc">Activa diagnósticos de hardware y alertas de seguridad en tiempo real. Desactivar esto detiene el registro del historial.</string>
-    <string name="settings_aod">Pantalla Siempre Encendida</string>
-    <string name="settings_aod_desc">Muestra el estado de carga y la hora en la pantalla de bloqueo.</string>
     <string name="aod_clock_style">Estilo de Reloj</string>
     <string name="aod_meter_style">Estilo de Medidor</string>
     <string name="aod_accent_color">Color de Acento</string>
-    <string name="aod_dynamic_color">Dinámico</string>
     <string name="permission_overlay_title">Permiso de Superposición Requerido</string>
     <string name="permission_overlay_desc">Always-On Display necesita permiso para mostrarse sobre la pantalla de bloqueo.</string>
 </resources>

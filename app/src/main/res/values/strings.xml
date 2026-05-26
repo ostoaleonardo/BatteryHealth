@@ -86,7 +86,6 @@
     <!-- Alarms -->
     <string name="settings_healthy_charge">Healthy charge alarm</string>
     <string name="settings_healthy_charge_desc">Notify when battery reaches a specific level to extend its lifespan.</string>
-    <string name="settings_healthy_charge_level">Alert level: %d%%</string>
     <string name="settings_temp_alert">High temperature alert</string>
     <string name="settings_temp_alert_desc">Notify if battery temperature exceeds 40°C.</string>
     <string name="settings_low_battery">Low battery alarm</string>
@@ -136,7 +135,6 @@
     <string name="description_speed">The rate at which the battery is being charged, measured in Watts (W).</string>
     <string name="description_time">Estimated time until the battery reaches 100\u0025 charge based on current speed.</string>
     <string name="history_consumption_title">Battery Consumption (24h)</string>
-    <string name="history_sot_title">SCREEN ON TIME</string>
     <string name="history_sessions_title">Recent Charge Sessions</string>
     <string name="history_no_sessions">No sessions recorded yet</string>
     <string name="history_charge_duration_title">Charge for %s</string>
@@ -200,30 +198,13 @@
     <string name="tips_sync_freq">Auto-Sync</string>
     <string name="tips_sync_freq_desc">Reducing the frequency of mail and cloud sync can save a surprising amount of daily energy.</string>
 
-    <!-- SOT Card Labels -->
-    <string name="sot_label_used">USED</string>
-    <string name="sot_label_drain">DRAIN/H</string>
-    <string name="sot_label_est_full">EST. 100\u0025</string>
-
-    <!-- SOT Descriptions -->
-    <string name="sot_description">Total time the screen has been active since the last 100\u0025 charge.</string>
-    <string name="sot_label_used_description">Percentage of battery consumed during this period.</string>
-    <string name="sot_label_drain_description">Average battery consumption percentage per hour of active use.</string>
-    <string name="sot_label_est_full_description">Estimated total screen time you would get on a full charge (100\u0025 to 0\u0025).</string>
-
     <!-- Alert Categories -->
     <string name="alerts_category_charge">Charge Alarms</string>
     <string name="alerts_category_discharge">Discharge Alarms</string>
     <string name="alerts_category_safety">Safety Alarms</string>
-    <string name="alerts_category_monitoring">System Monitoring</string>
-    <string name="settings_active_monitoring">Active Monitoring</string>
-    <string name="settings_active_monitoring_desc">Enable real-time hardware diagnostics and safety alerts. Disabling this stops all history recording.</string>
-    <string name="settings_aod">Always-On Display</string>
-    <string name="settings_aod_desc">Show charging status and time on lock screen.</string>
     <string name="aod_clock_style">Clock Style</string>
     <string name="aod_meter_style">Meter Style</string>
     <string name="aod_accent_color">Accent Color</string>
-    <string name="aod_dynamic_color">Dynamic</string>
     <string name="permission_overlay_title">Overlay Permission Required</string>
     <string name="permission_overlay_desc">Always-On Display needs permission to show over the lock screen.</string>
 </resources>
