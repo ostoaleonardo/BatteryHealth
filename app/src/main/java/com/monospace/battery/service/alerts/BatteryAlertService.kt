@@ -12,7 +12,6 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.monospace.battery.MainActivity
@@ -22,8 +21,6 @@ import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.local.db.BatteryDatabase
-import com.monospace.battery.data.models.BatteryHistoryEntry
-import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ScreenEvent
 import com.monospace.battery.notifications.NotificationHelper
 import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
@@ -56,7 +53,7 @@ class BatteryAlertService : Service() {
                 Intent.ACTION_SCREEN_ON -> recordScreenEvent(true)
                 Intent.ACTION_SCREEN_OFF -> {
                     recordScreenEvent(false)
-                    checkAodStart()
+                    checkAodStart("SCREEN_OFF")
                 }
             }
             return
@@ -71,8 +68,6 @@ class BatteryAlertService : Service() {
         val source = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
         val voltage = intent.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0)
 
-        // A session is valid ONLY if it reports charging AND has a physical source
-        // This avoids creating ghost sessions with source "None" when disconnecting
         val isCharging = (status == BatteryManager.BATTERY_STATUS_CHARGING ||
                 status == BatteryManager.BATTERY_STATUS_FULL) && source != 0
 
@@ -81,18 +76,51 @@ class BatteryAlertService : Service() {
 
         checkAlerts(batteryPct, temperature, isCharging, voltage)
 
-        // Capture previous state before updating to avoid race conditions in the coroutine
-        val prevLevel = lastLevel
-        recordBatteryData(batteryPct, prevLevel, temperature, isCharging, wasCharging, source)
+        // Launch AOD if charging just started
+        if (isCharging && !wasCharging) {
+            checkAodStart("CHARGE_STARTED")
+        }
 
-        // Update states immediately on main thread
+        // Use WorkManager for recording history and cycles
+        if (batteryPct != lastLevel || isCharging != wasCharging) {
+            BatteryWorker.enqueue(
+                context = this,
+                level = batteryPct,
+                temperature = temperature,
+                isCharging = isCharging,
+                wasCharging = wasCharging,
+                source = source
+            )
+        }
+
         lastLevel = batteryPct
         lastStatus = status
     }
 
+    private fun checkAodStart(trigger: String) {
+        val aodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val isPremium = WidgetsUtils.isWidgetsPurchased(this)
+
+        if (aodEnabled && isPremium && lastStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
+            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
+
+            if (!powerManager.isInteractive) {
+                if (android.provider.Settings.canDrawOverlays(this)) {
+                    Log.d(TAG, "Launching AOD ($trigger)")
+
+                    val intent = Intent(this, AlwaysOnDisplayActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    }
+
+                    startActivity(intent)
+                }
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "Service created")
 
         runCatching {
             notificationHelper = NotificationHelper(this)
@@ -211,59 +239,6 @@ class BatteryAlertService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun recordBatteryData(
-        level: Int,
-        prevLevel: Int,
-        temperature: Int,
-        isCharging: Boolean,
-        wasCharging: Boolean,
-        source: Int
-    ) {
-        if (level == -1) return
-
-        serviceScope.launch {
-            runCatching {
-                // 1. History Entry
-                if (level != prevLevel || prevLevel == -1) {
-                    db.batteryDao().insertBatteryEntry(
-                        BatteryHistoryEntry(
-                            timestamp = System.currentTimeMillis(),
-                            level = level,
-                            temperature = temperature
-                        )
-                    )
-                }
-
-                // 2. Charge Session Logic
-                if (isCharging && !wasCharging) {
-                    Log.d(TAG, "DB: Session Started (Source: $source)")
-
-                    db.batteryDao().insertChargeSession(
-                        ChargeSession(
-                            startTime = System.currentTimeMillis(),
-                            startLevel = level,
-                            chargeSource = source
-                        )
-                    )
-                } else if (!isCharging && wasCharging) {
-                    Log.d(TAG, "DB: Session Ended")
-                    val activeSession = db.batteryDao().getActiveSession()
-
-                    activeSession?.let {
-                        db.batteryDao().updateChargeSession(
-                            it.copy(
-                                endTime = System.currentTimeMillis(),
-                                endLevel = level
-                            )
-                        )
-                    }
-                }
-            }.onFailure { e ->
-                Log.e(TAG, "Database error", e)
-            }
-        }
-    }
-
     private fun recordScreenEvent(isOn: Boolean) {
         serviceScope.launch {
             db.batteryDao().insertScreenEvent(
@@ -273,22 +248,6 @@ class BatteryAlertService : Service() {
                     batteryLevel = lastLevel
                 )
             )
-        }
-    }
-
-    private fun checkAodStart() {
-        val aodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
-        val isPremium = WidgetsUtils.isWidgetsPurchased(this)
-        
-        // Only start if enabled, premium, and currently charging
-        if (aodEnabled && isPremium && lastStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
-            if (Settings.canDrawOverlays(this)) {
-                val intent = Intent(this, AlwaysOnDisplayActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                }
-                startActivity(intent)
-            }
         }
     }
 

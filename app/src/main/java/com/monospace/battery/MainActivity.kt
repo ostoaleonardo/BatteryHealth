@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.utils.AppUtils
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.BatteryInfo
@@ -79,7 +81,7 @@ class MainActivity : ComponentActivity() {
         hasNotificationPermission = isGranted
 
         if (isGranted) {
-            startBatteryAlertService()
+            updateMonitoringService()
         }
     }
 
@@ -103,6 +105,15 @@ class MainActivity : ComponentActivity() {
     private fun updatePermissionState() {
         hasNotificationPermission = permissionManager.hasNotificationPermission()
         hasOverlayPermission = Settings.canDrawOverlays(this)
+    }
+
+    private fun ensureNotificationPermission(enabled: Boolean) {
+        if (enabled && !hasNotificationPermission) {
+            permissionManager.requestNotificationPermission(
+                this,
+                requestPermissionLauncher
+            )
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -200,63 +211,99 @@ class MainActivity : ComponentActivity() {
                 }
                 val aodClockStyleState = remember {
                     mutableIntStateOf(
-                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, 0)
+                        prefs.getInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_CLOCK_STYLE,
+                            0
+                        )
                     )
                 }
                 val aodMeterStyleState = remember {
                     mutableIntStateOf(
-                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, 0)
+                        prefs.getInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_METER_STYLE,
+                            0
+                        )
                     )
                 }
                 val aodColorState = remember {
-                    mutableStateOf(
-                        prefs.getLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, 0xFF00A25B)
+                    mutableLongStateOf(
+                        prefs.getLong(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_COLOR,
+                            0xFF00A25B
+                        )
                     )
                 }
                 val aodShowDateState = remember {
                     mutableStateOf(
-                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, true)
-                    )
-                }
-                val aod24hFormatState = remember {
-                    mutableStateOf(
-                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, true)
-                    )
-                }
-                val aodFontSizeClockState = remember {
-                    mutableIntStateOf(
-                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, 80)
-                    )
-                }
-                val aodFontSizeDateState = remember {
-                    mutableIntStateOf(
-                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_DATE,
+                            true
+                        )
                     )
                 }
                 val aodShowClockState = remember {
                     mutableStateOf(
-                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, true)
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_CLOCK,
+                            true
+                        )
                     )
                 }
-                val aodDimAmountState = remember {
+                val aod24hFormatState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_24H_FORMAT,
+                            true
+                        )
+                    )
+                }
+                val aodFontSizeClockState = remember {
                     mutableIntStateOf(
-                        prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, 0)
+                        prefs.getInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_FONT_SIZE_CLOCK,
+                            80
+                        )
+                    )
+                }
+                val aodFontSizeDateState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_FONT_SIZE_DATE,
+                            14
+                        )
                     )
                 }
                 val aodShowShortcutsState = remember {
                     mutableStateOf(
-                        prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, false)
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_SHORTCUTS,
+                            false
+                        )
+                    )
+                }
+                val aodDimAmountState = remember {
+                    mutableIntStateOf(
+                        prefs.getInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_DIM_AMOUNT,
+                            0
+                        )
                     )
                 }
 
                 val settingsState = SettingsUiState(
                     isWidgetsPurchased = isPurchased,
                     hasNotificationPermission = hasNotificationPermission,
-                    versionName = remember {
-                        com.monospace.battery.core.utils.AppUtils.getVersionName(
-                            context
-                        )
-                    },
+                    versionName = remember { AppUtils.getVersionName(context) },
                     healthyChargeEnabled = healthyChargeEnabledState.value,
                     tempAlertEnabled = tempAlertEnabledState.value,
                     lowBatteryEnabled = lowBatteryEnabledState.value,
@@ -268,7 +315,7 @@ class MainActivity : ComponentActivity() {
                     hasOverlayPermission = hasOverlayPermission,
                     aodClockStyle = aodClockStyleState.intValue,
                     aodMeterStyle = aodMeterStyleState.intValue,
-                    aodColor = aodColorState.value,
+                    aodColor = aodColorState.longValue,
                     aodShowDate = aodShowDateState.value,
                     aodShowClock = aodShowClockState.value,
                     aod24hFormat = aod24hFormatState.value,
@@ -279,45 +326,55 @@ class MainActivity : ComponentActivity() {
                 )
 
                 val settingsActions = SettingsUiActions(
-                    onHealthyChargeChange = {
-                        healthyChargeEnabledState.value = it
+                    onHealthyChargeChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        healthyChargeEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_HEALTHY_CHARGE_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
-                    onTempAlertChange = {
-                        tempAlertEnabledState.value = it
+                    onTempAlertChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        tempAlertEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_TEMP_ALERT_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
-                    onLowBatteryChange = {
-                        lowBatteryEnabledState.value = it
+                    onLowBatteryChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        lowBatteryEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_LOW_BATTERY_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
-                    onFastDischargeChange = {
-                        fastDischargeEnabledState.value = it
+                    onFastDischargeChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        fastDischargeEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_FAST_DISCHARGE_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
-                    onSlowChargeChange = {
-                        slowChargeEnabledState.value = it
+                    onSlowChargeChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        slowChargeEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_SLOW_CHARGE_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
                     onHealthyChargeLevelChange = {
                         healthyChargeLevelState.intValue = it
@@ -335,53 +392,94 @@ class MainActivity : ComponentActivity() {
                             it
                         )
                     },
-                    onAlwaysOnDisplayChange = {
-                        aodEnabledState.value = it
+                    onAlwaysOnDisplayChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        aodEnabledState.value = enabled
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_AOD_ENABLED,
-                            it
+                            enabled
                         )
+                        updateMonitoringService()
                     },
                     onAodClockStyleChange = {
                         aodClockStyleState.intValue = it
-                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, it)
+                        prefs.setInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_CLOCK_STYLE,
+                            it
+                        )
                     },
                     onAodMeterStyleChange = {
                         aodMeterStyleState.intValue = it
-                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, it)
+                        prefs.setInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_METER_STYLE,
+                            it
+                        )
                     },
                     onAodColorChange = {
-                        aodColorState.value = it
-                        prefs.setLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, it)
+                        aodColorState.longValue = it
+                        prefs.setLong(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_COLOR, it
+                        )
                     },
                     onAodShowDateChange = {
                         aodShowDateState.value = it
-                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, it)
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_DATE,
+                            it
+                        )
                     },
                     onAodShowClockChange = {
                         aodShowClockState.value = it
-                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, it)
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_CLOCK,
+                            it
+                        )
                     },
                     onAod24hFormatChange = {
                         aod24hFormatState.value = it
-                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, it)
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_24H_FORMAT,
+                            it
+                        )
                     },
                     onAodFontSizeClockChange = {
                         aodFontSizeClockState.intValue = it
-                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, it)
+                        prefs.setInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_FONT_SIZE_CLOCK,
+                            it
+                        )
                     },
                     onAodFontSizeDateChange = {
                         aodFontSizeDateState.intValue = it
-                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, it)
+                        prefs.setInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_FONT_SIZE_DATE,
+                            it
+                        )
                     },
                     onAodDimAmountChange = {
                         aodDimAmountState.intValue = it
-                        prefs.setInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, it)
+                        prefs.setInt(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_DIM_AMOUNT,
+                            it
+                        )
                     },
                     onAodShowShortcutsChange = {
                         aodShowShortcutsState.value = it
-                        prefs.setBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, it)
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_AOD_SHOW_SHORTCUTS,
+                            it
+                        )
                     },
                     onOverlayPermissionRequest = {
                         val intent = Intent(
@@ -391,39 +489,27 @@ class MainActivity : ComponentActivity() {
                         overlayPermissionLauncher.launch(intent)
                     },
                     onUnlockClick = {
-                        Log.d(TAG, "Launching buy billing flow directly")
                         purchaseManager.launchBuyBillingFlow(this@MainActivity)
                     },
                     onNotificationPermissionRequest = {
-                        Log.d(TAG, "Notification permission requested manually")
                         permissionManager.requestNotificationPermission(
                             this@MainActivity,
                             requestPermissionLauncher,
                             forceSettings = true // Manual click, can go to settings
                         )
                     },
-                    onUpdateClick = {
-                        com.monospace.battery.core.utils.AppUtils.openPlayStore(
-                            context
-                        )
-                    },
-                    onRateClick = { com.monospace.battery.core.utils.AppUtils.openPlayStore(context) }
+                    onUpdateClick = { AppUtils.openPlayStore(context) },
+                    onRateClick = { AppUtils.openPlayStore(context) }
                 )
 
                 LaunchedEffect(isPurchased) {
-                    if (isPurchased) {
-                        checkPermissions()
-                    } else {
-                        startBatteryAlertService()
-                    }
+                    updateMonitoringService()
                 }
 
                 LaunchedEffect(Unit) {
                     purchaseManager.purchaseEvents.collect { event ->
                         when (event) {
-                            is PurchaseManager.PurchaseEvent.Success -> {
-
-                            }
+                            is PurchaseManager.PurchaseEvent.Success -> {}
 
                             is PurchaseManager.PurchaseEvent.Error -> {
                                 purchaseError = event
@@ -582,11 +668,27 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkPermissions() {
-        if (permissionManager.hasNotificationPermission()) {
+    private fun updateMonitoringService() {
+        val prefs = PreferenceManager(this)
+        val isAodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val isHealthyChargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED)
+        val isLowBatteryEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_ENABLED)
+        val isTempAlertEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_TEMP_ALERT_ENABLED)
+        val isFastDischargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_FAST_DISCHARGE_ENABLED)
+        val isSlowChargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED)
+
+        val shouldRun = isAodEnabled || isHealthyChargeEnabled || isLowBatteryEnabled ||
+                isTempAlertEnabled || isFastDischargeEnabled || isSlowChargeEnabled
+
+        if (shouldRun) {
             startBatteryAlertService()
         } else {
-            permissionManager.requestNotificationPermission(this, requestPermissionLauncher)
+            stopBatteryAlertService()
         }
     }
 
@@ -601,6 +703,15 @@ class MainActivity : ComponentActivity() {
             }
         }.onFailure { e ->
             Log.e(TAG, "Failed to start BatteryAlertService", e)
+        }
+    }
+
+    private fun stopBatteryAlertService() {
+        runCatching {
+            val intent = Intent(this, BatteryAlertService::class.java)
+            stopService(intent)
+        }.onFailure { e ->
+            Log.e(TAG, "Failed to stop BatteryAlertService", e)
         }
     }
 

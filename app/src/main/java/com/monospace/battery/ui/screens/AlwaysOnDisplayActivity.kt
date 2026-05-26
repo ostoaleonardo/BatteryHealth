@@ -94,6 +94,11 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
             chargingSpeed = batteryUtils.getChargeSpeed(info.voltage, info.isCharging)
             timeRemaining = batteryUtils.getChargeTimeRemaining(info.isCharging)
 
+            // Close AOD if disconnected
+            if (!info.isCharging && intent?.action == Intent.ACTION_BATTERY_CHANGED) {
+                finish()
+            }
+
             loadSettings()
         }
     }
@@ -114,7 +119,6 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         loadSettings()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
