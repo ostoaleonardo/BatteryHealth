@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -253,19 +252,19 @@ fun AODContent(
 
             AODMeterSection(
                 level = level,
-                isCharging = isCharging,
-                speed = speed,
                 meterStyle = meterStyle,
                 accentColor = accentColor,
                 currentTime = currentTime,
                 clockStyle = clockStyle
             )
 
-            if (isCharging && remaining.isNotEmpty() && remaining != "00:00") {
-                Spacer(modifier = Modifier.height(24.dp))
-                AODRemainingTimeSection(
+            if (isCharging) {
+                Spacer(modifier = Modifier.height(32.dp))
+                AODMetricsSection(
+                    speed = speed,
                     remaining = remaining,
-                    clockStyle = clockStyle
+                    clockStyle = clockStyle,
+                    accentColor = accentColor
                 )
             }
         }
@@ -325,8 +324,6 @@ fun AODClockSection(
 @Composable
 fun AODMeterSection(
     level: Int,
-    isCharging: Boolean,
-    speed: Double,
     meterStyle: Int,
     accentColor: Color,
     currentTime: Long,
@@ -339,86 +336,73 @@ fun AODMeterSection(
                     drawAodMeter(
                         meterStyle,
                         level,
-                        if (isCharging) accentColor else Color.White,
+                        accentColor,
                         currentTime
                     )
                 }
             }
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "$level%",
-                    color = Color.White,
-                    fontSize = 44.sp,
-                    fontFamily = Font.getAodFont(clockStyle)
-                )
-                if (isCharging) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = stringResource(R.string.aod_charging_speed_label).uppercase(),
-                            color = Color.Gray,
-                            fontSize = 10.sp,
-                            fontFamily = Font.AzeretMonoLight
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "${speed}W",
-                            color = accentColor,
-                            fontSize = 16.sp,
-                            fontFamily = Font.getAodFont(clockStyle)
-                        )
-                    }
-                }
-            }
-        }
-    } else {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = "$level%",
                 color = Color.White,
-                fontSize = 54.sp,
+                fontSize = 44.sp,
                 fontFamily = Font.getAodFont(clockStyle)
             )
-            if (isCharging) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = stringResource(R.string.aod_charging_speed_label).uppercase(),
-                        color = Color.Gray.copy(alpha = 0.7f),
-                        fontSize = 10.sp,
-                        fontFamily = Font.AzeretMonoLight
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${speed}W",
-                        color = accentColor,
-                        fontSize = 20.sp,
-                        fontFamily = Font.getAodFont(clockStyle)
-                    )
-                }
-            }
         }
+    } else {
+        Text(
+            text = "$level%",
+            color = Color.White,
+            fontSize = 54.sp,
+            fontFamily = Font.getAodFont(clockStyle)
+        )
     }
 }
 
 @Composable
-fun AODRemainingTimeSection(
+fun AODMetricsSection(
+    speed: Double,
     remaining: String,
-    clockStyle: Int
+    clockStyle: Int,
+    accentColor: Color
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(R.string.aod_time_remaining_label).uppercase(),
-            color = Color.Gray,
-            fontSize = 10.sp,
-            fontFamily = Font.AzeretMonoLight
-        )
-        Spacer(modifier = Modifier.width(6.dp))
-        Text(
-            text = remaining,
-            color = Color.Gray,
-            fontSize = 18.sp,
-            fontFamily = Font.getAodFont(clockStyle)
-        )
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // 1. Charging Speed
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = "${speed}W",
+                color = accentColor,
+                fontSize = 20.sp,
+                fontFamily = Font.getAodFont(clockStyle),
+                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+            )
+            Text(
+                text = stringResource(R.string.aod_charging_speed_label).uppercase(),
+                color = Color.Gray,
+                fontSize = 10.sp,
+                fontFamily = Font.AzeretMonoLight
+            )
+        }
+
+        // 2. Remaining Time
+        if (remaining.isNotEmpty() && remaining != "00:00") {
+            Spacer(modifier = Modifier.height(20.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = remaining,
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    fontFamily = Font.getAodFont(clockStyle),
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+                Text(
+                    text = stringResource(R.string.aod_time_remaining_label).uppercase(),
+                    color = Color.Gray,
+                    fontSize = 10.sp,
+                    fontFamily = Font.AzeretMonoLight
+                )
+            }
+        }
     }
 }
 

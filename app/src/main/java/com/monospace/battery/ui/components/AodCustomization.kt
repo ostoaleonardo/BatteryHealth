@@ -258,7 +258,7 @@ fun AodPreviewContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Regular Meters (if not style 5)
+        // 1. Meter (Percentage only inside)
         if (meterStyle != 5) {
             Box(contentAlignment = Alignment.Center) {
                 Canvas(modifier = Modifier.size(50.dp)) {
@@ -272,13 +272,50 @@ fun AodPreviewContent(
                 )
             }
         } else {
-            // Percentage only overlay for water glass
             Text(
                 text = "$level%",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontFamily = AppFont.getAodFont(clockStyle)
             )
+        }
+
+        // 2. Metrics (Always shown in preview for context)
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "25W",
+                    color = color,
+                    fontSize = 6.sp,
+                    fontFamily = AppFont.getAodFont(clockStyle),
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+                Text(
+                    text = stringResource(R.string.aod_charging_speed_label).uppercase(),
+                    color = Color.Gray,
+                    fontSize = 3.sp,
+                    fontFamily = AppFont.AzeretMonoLight,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "01:20",
+                    color = Color.White,
+                    fontSize = 6.sp,
+                    fontFamily = AppFont.getAodFont(clockStyle),
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+                Text(
+                    text = stringResource(R.string.aod_time_remaining_label).uppercase(),
+                    color = Color.Gray,
+                    fontSize = 3.sp,
+                    fontFamily = AppFont.AzeretMonoLight,
+                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+                )
+            }
         }
     }
 }
