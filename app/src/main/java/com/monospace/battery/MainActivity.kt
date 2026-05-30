@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,26 +32,22 @@ import androidx.core.net.toUri
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monospace.battery.core.utils.AppUtils
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.service.alerts.BatteryAlertService
+import com.monospace.battery.ui.components.AppNavHost
 import com.monospace.battery.ui.components.BottomNavigation
 import com.monospace.battery.ui.components.Screen
 import com.monospace.battery.ui.components.TopAppBar
-import com.monospace.battery.ui.screens.AlertsScreen
-import com.monospace.battery.ui.screens.AodScreen
-import com.monospace.battery.ui.screens.HistoryScreen
-import com.monospace.battery.ui.screens.MainScreen
-import com.monospace.battery.ui.screens.SettingsScreen
 import com.monospace.battery.ui.theme.BatteryTheme
 import com.monospace.battery.ui.viewmodels.SettingsViewModel
 import com.monospace.battery.widgets.charging.BatteryLevelWidget
@@ -222,58 +219,33 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(
-                            currentRoute,
-                            { navController.navigate(Screen.Settings.route) },
-                            { navController.popBackStack() })
-                    },
-                    bottomBar = {
-                        if (currentRoute != Screen.Settings.route) {
-                            BottomNavigation(
+                CompositionLocalProvider(
+                    LocalSettingsState provides settingsState,
+                    LocalSettingsActions provides settingsActions
+                ) {
+                    Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        topBar = {
+                            TopAppBar(
                                 currentRoute,
-                                navController
+                                { navController.navigate(Screen.Settings.route) },
+                                { navController.popBackStack() }
                             )
-                        }
-                    }
-                ) { innerPadding ->
-                    NavHost(
-                        navController,
-                        Screen.Home.route,
-                        Modifier.padding(innerPadding)
-                    ) {
-                        composable(Screen.Home.route) {
-                            MainScreen(batteryState)
-                        }
-                        composable(Screen.History.route) {
-                            HistoryScreen(
-                                isPurchased,
-                                batteryState.level,
-                                { purchaseManager.launchBuyBillingFlow(this@MainActivity) },
-                                settingsState,
-                                settingsActions
-                            )
-                        }
-                        composable(Screen.Alerts.route) {
-                            AlertsScreen(
-                                settingsState,
-                                settingsActions
-                            )
-                        }
-                        composable(Screen.Aod.route) {
-                            AodScreen(
-                                settingsState,
-                                settingsActions,
-                                batteryState.level
-                            )
-                        }
-                        composable(Screen.Settings.route) {
-                            SettingsScreen {
-                                purchaseManager.launchBuyBillingFlow(this@MainActivity)
+                        },
+                        bottomBar = {
+                            if (currentRoute != Screen.Settings.route) {
+                                BottomNavigation(
+                                    currentRoute,
+                                    navController
+                                )
                             }
                         }
+                    ) { innerPadding ->
+                        AppNavHost(
+                            navController = navController,
+                            modifier = Modifier.padding(innerPadding),
+                            batteryState = batteryState
+                        )
                     }
                 }
             }

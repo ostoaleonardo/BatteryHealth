@@ -44,6 +44,13 @@ object Constants {
     const val KEY_AOD_SHOW_SHORTCUTS = "aod_show_shortcuts"
     const val KEY_ACTIVE_MONITORING = "active_monitoring"
 
+    // Navigation Routes
+    const val ROUTE_HOME = "home"
+    const val ROUTE_HISTORY = "history"
+    const val ROUTE_ALERTS = "alerts"
+    const val ROUTE_AOD = "aod"
+    const val ROUTE_SETTINGS = "settings"
+
     // General
     const val OFF = "off"
     const val ON = "on"

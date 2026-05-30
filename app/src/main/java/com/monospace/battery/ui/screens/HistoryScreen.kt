@@ -14,8 +14,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.R
-import com.monospace.battery.data.models.SettingsUiActions
-import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.BatteryChart
 import com.monospace.battery.ui.components.BatteryTipsSection
 import com.monospace.battery.ui.components.ChargeSessionsSection
@@ -26,13 +26,13 @@ import com.monospace.battery.ui.viewmodels.HistoryViewModel
 
 @Composable
 fun HistoryScreen(
-    isPremium: Boolean = false,
-    currentLevel: Int = 0,
-    onUpgradeClick: () -> Unit = {},
-    state: SettingsUiState,
-    actions: SettingsUiActions,
+    batteryLevel: Int = 0,
     viewModel: HistoryViewModel = viewModel()
 ) {
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
+    val isPremium = state.isWidgetsPurchased
+
     val history by viewModel.history.collectAsState()
     val sessions by viewModel.sessions.collectAsState()
     val chargerStats by viewModel.chargerStats.collectAsState()
@@ -68,13 +68,13 @@ fun HistoryScreen(
             // 3. Charger Analysis (Pro feature)
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                ChargerAnalysisSection(chargerStats, isPremium, onUpgradeClick)
+                ChargerAnalysisSection(chargerStats, isPremium, actions.onUnlockClick)
             }
 
             // 4. Charging Sessions
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                ChargeSessionsSection(sessions, isPremium, currentLevel, onUpgradeClick)
+                ChargeSessionsSection(sessions, isPremium, batteryLevel, actions.onUnlockClick)
             }
 
             // 5. Battery Tips

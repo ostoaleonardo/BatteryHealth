@@ -18,14 +18,52 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.ui.screens.AlertsScreen
+import com.monospace.battery.ui.screens.AodScreen
+import com.monospace.battery.ui.screens.HistoryScreen
+import com.monospace.battery.ui.screens.MainScreen
+import com.monospace.battery.ui.screens.SettingsScreen
 
 sealed class Screen(val route: String, val labelRes: Int = 0, val iconRes: Int = 0) {
-    object Home : Screen("home", R.string.nav_home, R.drawable.bolt)
-    object History : Screen("history", R.string.nav_history, R.drawable.schedule)
-    object Alerts : Screen("alerts", R.string.nav_alerts, R.drawable.battery_alert)
-    object Aod : Screen("aod", R.string.nav_aod, R.drawable.bolt_fill)
-    object Settings : Screen("settings")
+    object Home : Screen(Constants.ROUTE_HOME, R.string.nav_home, R.drawable.bolt_fill)
+    object History : Screen(Constants.ROUTE_HISTORY, R.string.nav_history, R.drawable.schedule_fill)
+    object Alerts : Screen(Constants.ROUTE_ALERTS, R.string.nav_alerts, R.drawable.battery_full)
+    object Aod : Screen(Constants.ROUTE_AOD, R.string.nav_aod, R.drawable.power_fill)
+    object Settings : Screen(Constants.ROUTE_SETTINGS)
+}
+
+@Composable
+fun AppNavHost(
+    navController: NavHostController,
+    modifier: Modifier = Modifier,
+    batteryState: BatteryState
+) {
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Home.route,
+        modifier = modifier
+    ) {
+        composable(Screen.Home.route) {
+            MainScreen(batteryState)
+        }
+        composable(Screen.History.route) {
+            HistoryScreen(batteryLevel = batteryState.level)
+        }
+        composable(Screen.Alerts.route) {
+            AlertsScreen()
+        }
+        composable(Screen.Aod.route) {
+            AodScreen(currentBatteryLevel = batteryState.level)
+        }
+        composable(Screen.Settings.route) {
+            SettingsScreen()
+        }
+    }
 }
 
 @Composable
@@ -86,7 +124,7 @@ fun TopAppBar(
                     Screen.Settings.route -> stringResource(R.string.action_settings)
                     Screen.History.route -> stringResource(R.string.nav_history)
                     Screen.Alerts.route -> stringResource(R.string.nav_alerts)
-                    Screen.Aod.route -> stringResource(R.string.nav_aod)
+                    Screen.Aod.route -> stringResource(R.string.screen_aod_title)
                     else -> stringResource(R.string.app_name)
                 }
             )

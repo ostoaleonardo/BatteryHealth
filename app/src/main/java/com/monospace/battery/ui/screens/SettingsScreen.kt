@@ -9,9 +9,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -19,22 +16,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.core.utils.AppUtils
-import com.monospace.battery.data.local.WidgetsUtils
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
-fun SettingsScreen(
-    onUnlockClick: () -> Unit
-) {
+fun SettingsScreen() {
     val context = LocalContext.current
-    val isWidgetsPurchased by remember { mutableStateOf(WidgetsUtils.isWidgetsPurchased(context)) }
-    val versionName = remember { AppUtils.getVersionName(context) }
-
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
+    
     SettingsContent(
-        isPremium = isWidgetsPurchased,
-        versionName = versionName,
-        onUnlockClick = onUnlockClick,
+        isPremium = state.isWidgetsPurchased,
+        versionName = state.versionName,
+        onUnlockClick = actions.onUnlockClick,
         onGoogleClick = { AppUtils.openPlayStore(context) }
     )
 }

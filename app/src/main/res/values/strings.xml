@@ -5,7 +5,8 @@
     <string name="nav_home">Home</string>
     <string name="nav_history">History</string>
     <string name="nav_alerts">Alerts</string>
-    <string name="nav_aod">Display</string>
+    <string name="nav_aod">AOD</string>
+    <string name="screen_aod_title">Always-On Display</string>
     <string name="aod_try_now">Try</string>
     <string name="aod_enabled">Enabled</string>
     <string name="aod_disabled">Disabled</string>

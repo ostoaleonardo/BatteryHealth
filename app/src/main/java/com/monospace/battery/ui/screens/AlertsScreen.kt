@@ -17,16 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
-import com.monospace.battery.data.models.SettingsUiActions
-import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.BannerActionCard
 import com.monospace.battery.ui.components.SettingsSection
 
 @Composable
-fun AlertsScreen(
-    state: SettingsUiState,
-    actions: SettingsUiActions
-) {
+fun AlertsScreen() {
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
     val isPremium = state.isWidgetsPurchased
 
     Surface(

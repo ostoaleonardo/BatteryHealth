@@ -32,8 +32,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
-import com.monospace.battery.data.models.SettingsUiActions
-import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.AodPreviewCard
 import com.monospace.battery.ui.components.AodStyleSelectors
 import com.monospace.battery.ui.components.BannerActionCard
@@ -42,11 +42,9 @@ import com.monospace.battery.ui.components.SegmentedControl
 import com.monospace.battery.ui.components.SettingsSection
 
 @Composable
-fun AodScreen(
-    state: SettingsUiState,
-    actions: SettingsUiActions,
-    currentBatteryLevel: Int
-) {
+fun AodScreen(currentBatteryLevel: Int) {
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
     val isPremium = state.isWidgetsPurchased
     val context = LocalContext.current
 
