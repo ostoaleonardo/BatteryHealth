@@ -1,8 +1,8 @@
 package com.monospace.battery.ui.screens
 
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,12 +16,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.BatteryChart
-import com.monospace.battery.ui.components.BatteryTipsSection
-import com.monospace.battery.ui.components.ChargeSessionsSection
-import com.monospace.battery.ui.components.ChargerAnalysisSection
-import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.history.BatteryTipsSection
+import com.monospace.battery.ui.components.history.ChargeSessionsSection
+import com.monospace.battery.ui.components.history.ChargerAnalysisSection
+import com.monospace.battery.ui.components.history.ConsumptionChartSection
 import com.monospace.battery.ui.viewmodels.HistoryViewModel
 
 @Composable
@@ -42,12 +41,15 @@ fun HistoryScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
             // 1. Active Monitoring Switch
             if (!state.anyAlertEnabled) {
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    SettingsSection(title = stringResource(R.string.alerts_category_monitoring)) {
+                    SettingsSection(stringResource(R.string.alerts_category_monitoring)) {
                         switchItem(
                             title = stringResource(R.string.settings_active_monitoring),
                             description = stringResource(R.string.settings_active_monitoring_desc),
@@ -60,28 +62,22 @@ fun HistoryScreen(
 
             // 2. Consumption Chart
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                SectionTitle(stringResource(R.string.history_consumption_title))
-                BatteryChart(history)
+                ConsumptionChartSection(history)
             }
 
             // 3. Charger Analysis (Pro feature)
             item {
-                Spacer(modifier = Modifier.height(24.dp))
                 ChargerAnalysisSection(chargerStats, isPremium, actions.onUnlockClick)
             }
 
             // 4. Charging Sessions
             item {
-                Spacer(modifier = Modifier.height(24.dp))
                 ChargeSessionsSection(sessions, isPremium, batteryLevel, actions.onUnlockClick)
             }
 
             // 5. Battery Tips
             item {
-                Spacer(modifier = Modifier.height(24.dp))
                 BatteryTipsSection(currentTip.second, viewModel::nextTip)
-                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.history
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +22,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.ChargeSession
+import com.monospace.battery.ui.components.BannerActionCard
+import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.theme.Font
 
 @Composable

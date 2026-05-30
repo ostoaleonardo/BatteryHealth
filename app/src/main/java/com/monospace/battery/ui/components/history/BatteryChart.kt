@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.history
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

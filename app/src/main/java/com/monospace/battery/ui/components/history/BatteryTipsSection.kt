@@ -1,7 +1,6 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.history
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -36,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.BatteryTip
+import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.theme.Font
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BatteryTipsSection(
     tip: BatteryTip,

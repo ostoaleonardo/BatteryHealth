@@ -1,9 +1,8 @@
 package com.monospace.battery.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -36,6 +35,8 @@ fun AlertsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .padding(top = 8.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             if (!isPremium) {
                 BannerActionCard(
@@ -45,7 +46,6 @@ fun AlertsScreen() {
                     onClick = actions.onUnlockClick,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .padding(top = 8.dp, bottom = 16.dp)
                 )
             } else if (!state.hasNotificationPermission) {
                 BannerActionCard(
@@ -56,7 +56,6 @@ fun AlertsScreen() {
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .padding(top = 8.dp, bottom = 16.dp)
                 )
             }
 
@@ -89,7 +88,6 @@ fun AlertsScreen() {
             }
 
             // 2. Discharge Alarms
-            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.alerts_category_discharge)) {
                 switchItem(
                     title = stringResource(R.string.settings_low_battery),
@@ -119,7 +117,6 @@ fun AlertsScreen() {
             }
 
             // 3. Safety Alarms
-            Spacer(modifier = Modifier.height(24.dp))
             SettingsSection(stringResource(R.string.alerts_category_safety)) {
                 switchItem(
                     title = stringResource(R.string.settings_temp_alert),
@@ -129,8 +126,6 @@ fun AlertsScreen() {
                     onCheckedChange = actions.onTempAlertChange
                 )
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

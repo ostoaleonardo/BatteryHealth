@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,7 +57,7 @@ fun AodScreen(currentBatteryLevel: Int) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(bottom = 10.dp),
+                    .padding(vertical = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val themePrimary = MaterialTheme.colorScheme.primary
@@ -135,7 +134,8 @@ fun AodScreen(currentBatteryLevel: Int) {
             // 2. Scrollable Style Adjustments
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(bottom = 32.dp)
+                contentPadding = PaddingValues(top = 8.dp, bottom = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 if (!isPremium) {
                     item {
@@ -146,7 +146,6 @@ fun AodScreen(currentBatteryLevel: Int) {
                             onClick = actions.onUnlockClick,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
-                                .padding(bottom = 16.dp)
                         )
                     }
                 } else if (state.alwaysOnDisplayEnabled && !state.hasOverlayPermission) {
@@ -159,7 +158,6 @@ fun AodScreen(currentBatteryLevel: Int) {
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .padding(horizontal = 16.dp)
-                                .padding(bottom = 16.dp)
                         )
                     }
                 }
@@ -182,7 +180,6 @@ fun AodScreen(currentBatteryLevel: Int) {
 
                 // Additional Preferences
                 item {
-                    Spacer(modifier = Modifier.height(16.dp))
                     SettingsSection(stringResource(R.string.aod_look_feel)) {
                         // Clock Settings
                         switchItem(
