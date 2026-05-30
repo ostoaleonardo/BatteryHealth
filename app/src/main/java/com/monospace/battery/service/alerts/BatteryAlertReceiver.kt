@@ -26,11 +26,33 @@ class BatteryAlertReceiver : BroadcastReceiver() {
     }
 
     private fun startAlertService(context: Context) {
-        val serviceIntent = Intent(context, BatteryAlertService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
-        } else {
-            context.startService(serviceIntent)
+        val prefs = PreferenceManager(context)
+        val isAodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val isActiveMonitoringEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_ACTIVE_MONITORING, false)
+        val isHealthyChargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED)
+        val isLowBatteryEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_ENABLED)
+        val isTempAlertEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_TEMP_ALERT_ENABLED)
+        val isFastDischargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_FAST_DISCHARGE_ENABLED)
+        val isSlowChargeEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED)
+
+        val shouldRun = isAodEnabled || isHealthyChargeEnabled || isLowBatteryEnabled ||
+                isTempAlertEnabled || isFastDischargeEnabled || isSlowChargeEnabled ||
+                isActiveMonitoringEnabled
+
+        if (shouldRun) {
+            val serviceIntent = Intent(context, BatteryAlertService::class.java)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
         }
     }
 

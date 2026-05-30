@@ -190,6 +190,9 @@
     <string name="alerts_category_charge">Alertas de carga</string>
     <string name="alerts_category_discharge">Alertas de descarga</string>
     <string name="alerts_category_safety">Alertas de seguridad</string>
+    <string name="alerts_category_monitoring">Monitoreo del Sistema</string>
+    <string name="settings_active_monitoring">Monitoreo Activo</string>
+    <string name="settings_active_monitoring_desc">Activa diagnósticos de hardware y alertas de seguridad en tiempo real. Desactivar esto detiene el registro del historial.</string>
     <string name="aod_clock_style">Estilo de Reloj</string>
     <string name="aod_meter_style">Estilo de Medidor</string>
     <string name="aod_accent_color">Color de Acento</string>

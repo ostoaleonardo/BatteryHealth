@@ -42,6 +42,7 @@ object Constants {
     const val KEY_AOD_SHOW_CLOCK = "aod_show_clock"
     const val KEY_AOD_DIM_AMOUNT = "aod_dim_amount"
     const val KEY_AOD_SHOW_SHORTCUTS = "aod_show_shortcuts"
+    const val KEY_ACTIVE_MONITORING = "active_monitoring"
 
     // General
     const val OFF = "off"

@@ -202,6 +202,9 @@
     <string name="alerts_category_charge">Charge Alarms</string>
     <string name="alerts_category_discharge">Discharge Alarms</string>
     <string name="alerts_category_safety">Safety Alarms</string>
+    <string name="alerts_category_monitoring">System Monitoring</string>
+    <string name="settings_active_monitoring">Active Monitoring</string>
+    <string name="settings_active_monitoring_desc">Enable real-time hardware diagnostics and safety alerts. Disabling this stops all history recording.</string>
     <string name="aod_clock_style">Clock Style</string>
     <string name="aod_meter_style">Meter Style</string>
     <string name="aod_accent_color">Accent Color</string>

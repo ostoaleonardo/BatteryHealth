@@ -209,6 +209,15 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 }
+                val activeMonitoringEnabledState = remember {
+                    mutableStateOf(
+                        prefs.getBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_ACTIVE_MONITORING,
+                            false
+                        )
+                    )
+                }
                 val aodClockStyleState = remember {
                     mutableIntStateOf(
                         prefs.getInt(
@@ -312,6 +321,7 @@ class MainActivity : ComponentActivity() {
                     healthyChargeLevel = healthyChargeLevelState.intValue,
                     lowBatteryLevel = lowBatteryLevelState.intValue,
                     alwaysOnDisplayEnabled = aodEnabledState.value,
+                    activeMonitoringEnabled = activeMonitoringEnabledState.value,
                     hasOverlayPermission = hasOverlayPermission,
                     aodClockStyle = aodClockStyleState.intValue,
                     aodMeterStyle = aodMeterStyleState.intValue,
@@ -398,6 +408,16 @@ class MainActivity : ComponentActivity() {
                         prefs.setBoolean(
                             Constants.PREFS_ALERTS,
                             Constants.KEY_AOD_ENABLED,
+                            enabled
+                        )
+                        updateMonitoringService()
+                    },
+                    onActiveMonitoringChange = { enabled ->
+                        ensureNotificationPermission(enabled)
+                        activeMonitoringEnabledState.value = enabled
+                        prefs.setBoolean(
+                            Constants.PREFS_ALERTS,
+                            Constants.KEY_ACTIVE_MONITORING,
                             enabled
                         )
                         updateMonitoringService()
@@ -559,7 +579,9 @@ class MainActivity : ComponentActivity() {
                                 currentLevel = batteryState.level,
                                 onUpgradeClick = {
                                     purchaseManager.launchBuyBillingFlow(this@MainActivity)
-                                }
+                                },
+                                state = settingsState,
+                                actions = settingsActions
                             )
                         }
                         composable(Screen.Alerts.route) {
@@ -671,6 +693,8 @@ class MainActivity : ComponentActivity() {
     private fun updateMonitoringService() {
         val prefs = PreferenceManager(this)
         val isAodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val isActiveMonitoringEnabled =
+            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_ACTIVE_MONITORING, false)
         val isHealthyChargeEnabled =
             prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED)
         val isLowBatteryEnabled =
@@ -683,7 +707,8 @@ class MainActivity : ComponentActivity() {
             prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED)
 
         val shouldRun = isAodEnabled || isHealthyChargeEnabled || isLowBatteryEnabled ||
-                isTempAlertEnabled || isFastDischargeEnabled || isSlowChargeEnabled
+                isTempAlertEnabled || isFastDischargeEnabled || isSlowChargeEnabled ||
+                isActiveMonitoringEnabled
 
         if (shouldRun) {
             startBatteryAlertService()
