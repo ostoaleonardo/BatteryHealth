@@ -26,26 +26,19 @@ class BatteryAlertReceiver : BroadcastReceiver() {
     }
 
     private fun startAlertService(context: Context) {
+        val monitoringKeys = listOf(
+            Constants.KEY_AOD_ENABLED,
+            Constants.KEY_HEALTHY_CHARGE_ENABLED,
+            Constants.KEY_LOW_BATTERY_ENABLED,
+            Constants.KEY_TEMP_ALERT_ENABLED,
+            Constants.KEY_FAST_DISCHARGE_ENABLED,
+            Constants.KEY_SLOW_CHARGE_ENABLED,
+            Constants.KEY_ACTIVE_MONITORING
+        )
+
         val prefs = PreferenceManager(context)
-        val isAodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
-        val isActiveMonitoringEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_ACTIVE_MONITORING, false)
-        val isHealthyChargeEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED)
-        val isLowBatteryEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_ENABLED)
-        val isTempAlertEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_TEMP_ALERT_ENABLED)
-        val isFastDischargeEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_FAST_DISCHARGE_ENABLED)
-        val isSlowChargeEnabled =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED)
 
-        val shouldRun = isAodEnabled || isHealthyChargeEnabled || isLowBatteryEnabled ||
-                isTempAlertEnabled || isFastDischargeEnabled || isSlowChargeEnabled ||
-                isActiveMonitoringEnabled
-
-        if (shouldRun) {
+        if (monitoringKeys.any { prefs.get(Constants.PREFS_ALERTS, it, false) }) {
             val serviceIntent = Intent(context, BatteryAlertService::class.java)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -58,7 +51,7 @@ class BatteryAlertReceiver : BroadcastReceiver() {
 
     private fun checkAndLaunchAod(context: Context) {
         val prefs = PreferenceManager(context)
-        val aodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val aodEnabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED, false)
         val isPremium = WidgetsUtils.isWidgetsPurchased(context)
 
         if (aodEnabled && isPremium) {

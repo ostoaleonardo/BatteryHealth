@@ -22,6 +22,7 @@ import com.monospace.battery.ui.components.ChargeSessionsSection
 import com.monospace.battery.ui.components.ChargerAnalysisSection
 import com.monospace.battery.ui.components.SectionTitle
 import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.viewmodels.HistoryViewModel
 
 @Composable
 fun HistoryScreen(
@@ -37,26 +38,16 @@ fun HistoryScreen(
     val chargerStats by viewModel.chargerStats.collectAsState()
     val currentTip by viewModel.currentTip.collectAsState()
 
-    val anyAlertEnabled = state.healthyChargeEnabled ||
-            state.tempAlertEnabled ||
-            state.lowBatteryEnabled ||
-            state.fastDischargeEnabled ||
-            state.slowChargeEnabled ||
-            state.alwaysOnDisplayEnabled
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // 1. Active Monitoring Switch (Only if no other alerts are active)
-            if (!anyAlertEnabled) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            // 1. Active Monitoring Switch
+            if (!state.anyAlertEnabled) {
                 item {
-                    SettingsSection(
-                        title = stringResource(R.string.alerts_category_monitoring)
-                    ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    SettingsSection(title = stringResource(R.string.alerts_category_monitoring)) {
                         switchItem(
                             title = stringResource(R.string.settings_active_monitoring),
                             description = stringResource(R.string.settings_active_monitoring_desc),
@@ -64,14 +55,12 @@ fun HistoryScreen(
                             onCheckedChange = actions.onActiveMonitoringChange
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
-            // 2. Consumption Chart (Animated)
+            // 2. Consumption Chart
             item {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 SectionTitle(stringResource(R.string.history_consumption_title))
                 BatteryChart(history)
             }
@@ -79,31 +68,19 @@ fun HistoryScreen(
             // 3. Charger Analysis (Pro feature)
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                ChargerAnalysisSection(
-                    stats = chargerStats,
-                    isPremium = isPremium,
-                    onUpgradeClick = onUpgradeClick
-                )
+                ChargerAnalysisSection(chargerStats, isPremium, onUpgradeClick)
             }
 
             // 4. Charging Sessions
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                ChargeSessionsSection(
-                    sessions = sessions,
-                    isPremium = isPremium,
-                    currentLevel = currentLevel,
-                    onUpgradeClick = onUpgradeClick
-                )
+                ChargeSessionsSection(sessions, isPremium, currentLevel, onUpgradeClick)
             }
 
-            // 5. Battery Tips (Free Value-Add)
+            // 5. Battery Tips
             item {
                 Spacer(modifier = Modifier.height(24.dp))
-                BatteryTipsSection(
-                    tip = currentTip.second,
-                    onNextTip = viewModel::nextTip
-                )
+                BatteryTipsSection(currentTip.second, viewModel::nextTip)
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }

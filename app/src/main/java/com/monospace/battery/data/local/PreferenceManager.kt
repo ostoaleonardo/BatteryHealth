@@ -3,55 +3,39 @@ package com.monospace.battery.data.local
 import android.content.Context
 import androidx.core.content.edit
 
-class PreferenceManager(
-    private val context: Context
-) {
+class PreferenceManager(private val context: Context) {
 
     private fun getPrefs(file: String) = context.getSharedPreferences(file, Context.MODE_PRIVATE)
 
-    fun getString(file: String, key: String, defaultValue: String? = null): String? {
-        return getPrefs(file).getString(key, defaultValue)
-    }
+    // Overloaded Getters
+    fun get(file: String, key: String, defaultValue: String): String =
+        getPrefs(file).getString(key, defaultValue) ?: defaultValue
 
-    fun setString(file: String, key: String, value: String?) {
+    fun get(file: String, key: String, defaultValue: Int): Int =
+        getPrefs(file).getInt(key, defaultValue)
+
+    fun get(file: String, key: String, defaultValue: Long): Long =
+        getPrefs(file).getLong(key, defaultValue)
+
+    fun get(file: String, key: String, defaultValue: Boolean): Boolean =
+        getPrefs(file).getBoolean(key, defaultValue)
+
+    fun get(file: String, key: String, defaultValue: Float): Float =
+        getPrefs(file).getFloat(key, defaultValue)
+
+    fun <T> set(file: String, key: String, value: T) {
         getPrefs(file).edit {
-            putString(key, value)
-        }
-    }
-
-    fun getLong(file: String, key: String, defaultValue: Long = 0L): Long {
-        return getPrefs(file).getLong(key, defaultValue)
-    }
-
-    fun setLong(file: String, key: String, value: Long) {
-        getPrefs(file).edit {
-            putLong(key, value)
+            when (value) {
+                is String -> putString(key, value)
+                is Int -> putInt(key, value)
+                is Long -> putLong(key, value)
+                is Boolean -> putBoolean(key, value)
+                is Float -> putFloat(key, value)
+            }
         }
     }
 
     fun remove(file: String, key: String) {
-        getPrefs(file).edit {
-            remove(key)
-        }
-    }
-
-    fun getBoolean(file: String, key: String, defaultValue: Boolean = false): Boolean {
-        return getPrefs(file).getBoolean(key, defaultValue)
-    }
-
-    fun setBoolean(file: String, key: String, value: Boolean) {
-        getPrefs(file).edit {
-            putBoolean(key, value)
-        }
-    }
-
-    fun getInt(file: String, key: String, defaultValue: Int = 0): Int {
-        return getPrefs(file).getInt(key, defaultValue)
-    }
-
-    fun setInt(file: String, key: String, value: Int) {
-        getPrefs(file).edit {
-            putInt(key, value)
-        }
+        getPrefs(file).edit { remove(key) }
     }
 }

@@ -9,7 +9,9 @@ object WidgetsUtils {
 
     fun isWidgetsPurchased(context: Context): Boolean {
         val prefs = PreferenceManager(context)
-        val token = prefs.getString(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN) ?: return false
+        val token = prefs.get(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN, "")
+
+        if (token.isEmpty()) return false
 
         return runCatching {
             val expectedToken = Base64.encodeToString(
@@ -30,8 +32,8 @@ object WidgetsUtils {
                 Base64.NO_WRAP
             )
 
-            prefs.setString(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN, token)
-            prefs.setLong(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_LAST_CHECK, System.currentTimeMillis())
+            prefs.set(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN, token)
+            prefs.set(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_LAST_CHECK, System.currentTimeMillis())
         } else {
             prefs.remove(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN)
             prefs.remove(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_LAST_CHECK)

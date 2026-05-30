@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.screens
+package com.monospace.battery.ui.viewmodels
 
 import android.app.Application
 import android.util.Log

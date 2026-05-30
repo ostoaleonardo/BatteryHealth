@@ -24,7 +24,11 @@ data class SettingsUiState(
     val aodFontSizeDate: Int,
     val aodDimAmount: Int,
     val aodShowShortcuts: Boolean
-)
+) {
+    val anyAlertEnabled: Boolean
+        get() = healthyChargeEnabled || tempAlertEnabled || lowBatteryEnabled ||
+                fastDischargeEnabled || slowChargeEnabled || alwaysOnDisplayEnabled
+}
 
 data class SettingsUiActions(
     val onHealthyChargeChange: (Boolean) -> Unit,

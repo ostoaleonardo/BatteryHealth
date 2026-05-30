@@ -98,7 +98,7 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkAodStart(trigger: String) {
-        val aodEnabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED)
+        val aodEnabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_ENABLED, false)
         val isPremium = WidgetsUtils.isWidgetsPurchased(this)
 
         if (aodEnabled && isPremium && lastStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
@@ -263,8 +263,8 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkHealthyChargeAlert(level: Int, isCharging: Boolean) {
-        val enabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED)
-        val threshold = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_LEVEL, 80)
+        val enabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_ENABLED, false)
+        val threshold = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_HEALTHY_CHARGE_LEVEL, 80)
 
         if (enabled && isCharging && level >= threshold && lastLevel != -1 && lastLevel < threshold) {
             notificationHelper.showHealthyChargeNotification()
@@ -272,8 +272,8 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkLowBatteryAlert(level: Int, isCharging: Boolean) {
-        val enabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_ENABLED)
-        val threshold = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_LEVEL, 20)
+        val enabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_ENABLED, false)
+        val threshold = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LOW_BATTERY_LEVEL, 20)
 
         if (enabled && !isCharging && level <= threshold && lastLevel != -1 && lastLevel > threshold) {
             notificationHelper.showLowBatteryNotification(threshold)
@@ -281,7 +281,7 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkHighTemperatureAlert(temperature: Int) {
-        val enabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_TEMP_ALERT_ENABLED)
+        val enabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_TEMP_ALERT_ENABLED, false)
         val tempCelsius = temperature / 10
 
         if (enabled && tempCelsius >= 40 && lastTemp != -1 && lastTemp < 40) {
@@ -292,7 +292,7 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkSlowChargeAlert(isCharging: Boolean, voltage: Int) {
-        val enabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED)
+        val enabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_SLOW_CHARGE_ENABLED, false)
 
         if (enabled && isCharging && lastStatus != BatteryManager.BATTERY_STATUS_CHARGING) {
             serviceScope.launch {
@@ -305,7 +305,7 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkFastDischargeAlert(level: Int, isCharging: Boolean) {
-        val enabled = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_FAST_DISCHARGE_ENABLED)
+        val enabled = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_FAST_DISCHARGE_ENABLED, false)
 
         if (enabled && !isCharging && lastLevel != -1 && level < lastLevel) {
             serviceScope.launch {

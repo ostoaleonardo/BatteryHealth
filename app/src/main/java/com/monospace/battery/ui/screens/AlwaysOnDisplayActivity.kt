@@ -106,17 +106,16 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
     }
 
     private fun loadSettings() {
-        clockStyle = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, 0)
-        meterStyle = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, 0)
-        colorLong = prefs.getLong(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, 0xFF00A25B)
-        showDate = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, true)
-        showClock = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, true)
-        is24h = prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, true)
-        fontSizeClock = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, 80)
-        fontSizeDate = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
-        dimAmount = prefs.getInt(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, 0)
-        showShortcuts =
-            prefs.getBoolean(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, false)
+        clockStyle = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_CLOCK_STYLE, 0)
+        meterStyle = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_METER_STYLE, 0)
+        colorLong = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_COLOR, 0xFF00A25B)
+        showDate = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_DATE, true)
+        showClock = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_CLOCK, true)
+        is24h = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_24H_FORMAT, true)
+        fontSizeClock = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_CLOCK, 80)
+        fontSizeDate = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_FONT_SIZE_DATE, 14)
+        dimAmount = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_DIM_AMOUNT, 0)
+        showShortcuts = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_AOD_SHOW_SHORTCUTS, false)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
