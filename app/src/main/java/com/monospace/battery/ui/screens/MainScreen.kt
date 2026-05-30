@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.ui.components.BatteryDialog
 import com.monospace.battery.ui.components.HealthCard
 import com.monospace.battery.ui.components.InfoCard
@@ -53,7 +55,8 @@ data class DialogData(
 )
 
 @Composable
-fun MainScreen(state: BatteryState) {
+fun MainScreen() {
+    val state = LocalBatteryState.current
     val healthColor = getHealthColor(state.health)
     val iconTint = if (state.isCharging) healthColor else MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -78,7 +81,8 @@ fun MainScreen(state: BatteryState) {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+                .padding(top = 8.dp, bottom = 16.dp)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             HealthSection(state, healthColor) { activeDialogData.value = it }
@@ -359,12 +363,13 @@ private fun ChargingSection(
             val speedWatts = stringResource(R.string.charge_speed_watts, state.chargeSpeed)
             val speedDesc = stringResource(R.string.description_speed)
             val qualityRes = BatteryStrings().getChargerQuality(state.chargeSpeed)
-            
-            val isGood = qualityRes == R.string.charger_quality_fast || qualityRes == R.string.charger_quality_normal
+
+            val isGood =
+                qualityRes == R.string.charger_quality_fast || qualityRes == R.string.charger_quality_normal
             val qualityIcon = if (isGood) R.drawable.arrow_drop_up else R.drawable.arrow_drop_down
             val qualityColor = if (isGood) Constants.ColorGreen else Constants.ColorRed
             val qualityText = stringResource(qualityRes)
-            
+
             LargeVerticalInfoCard(
                 title = speedTitleText,
                 value = speedWatts,
@@ -487,12 +492,12 @@ private fun TimeRemainingSection(
     }
 }
 
-@Preview(showBackground = true, name = "Light Mode")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun MainScreenLightPreview() {
     BatteryTheme {
-        MainScreen(
-            state = BatteryState(
+        CompositionLocalProvider(
+            LocalBatteryState provides BatteryState(
                 health = BatteryManager.BATTERY_HEALTH_GOOD,
                 level = 85,
                 isCharging = false,
@@ -504,50 +509,8 @@ fun MainScreenLightPreview() {
                 capacityRemaining = 4250,
                 currentNow = -250
             )
-        )
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Composable
-fun MainScreenDarkPreview() {
-    BatteryTheme {
-        MainScreen(
-            state = BatteryState(
-                health = BatteryManager.BATTERY_HEALTH_GOOD,
-                level = 85,
-                isCharging = true,
-                chargeSource = BatteryManager.BATTERY_PLUGGED_AC,
-                chargeCycles = 120,
-                technology = "Li-ion",
-                temperature = 320,
-                voltage = 4100,
-                capacity = 5000,
-                capacityRemaining = 4900,
-                currentNow = 3500,
-                timeRemaining = "00:30",
-                chargeSpeed = 18.5
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true, name = "Critical State")
-@Composable
-fun MainScreenCriticalPreview() {
-    BatteryTheme {
-        MainScreen(
-            state = BatteryState(
-                health = BatteryManager.BATTERY_HEALTH_OVERHEAT,
-                level = 15,
-                isCharging = false,
-                technology = "Li-ion",
-                temperature = 450,
-                voltage = 3700,
-                capacity = 5000,
-                capacityRemaining = 750,
-                currentNow = -1200
-            )
-        )
+        ) {
+            MainScreen()
+        }
     }
 }

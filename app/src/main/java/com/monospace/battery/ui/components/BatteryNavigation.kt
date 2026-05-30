@@ -22,7 +22,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
-import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.ui.screens.AlertsScreen
 import com.monospace.battery.ui.screens.AodScreen
 import com.monospace.battery.ui.screens.HistoryScreen
@@ -40,8 +39,7 @@ sealed class Screen(val route: String, val labelRes: Int = 0, val iconRes: Int =
 @Composable
 fun AppNavHost(
     navController: NavHostController,
-    modifier: Modifier = Modifier,
-    batteryState: BatteryState
+    modifier: Modifier = Modifier
 ) {
     NavHost(
         navController = navController,
@@ -49,16 +47,16 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable(Screen.Home.route) {
-            MainScreen(batteryState)
+            MainScreen()
         }
         composable(Screen.History.route) {
-            HistoryScreen(batteryLevel = batteryState.level)
+            HistoryScreen()
         }
         composable(Screen.Alerts.route) {
             AlertsScreen()
         }
         composable(Screen.Aod.route) {
-            AodScreen(currentBatteryLevel = batteryState.level)
+            AodScreen()
         }
         composable(Screen.Settings.route) {
             SettingsScreen()

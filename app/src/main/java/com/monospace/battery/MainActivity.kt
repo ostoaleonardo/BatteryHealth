@@ -1,9 +1,6 @@
 package com.monospace.battery
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -17,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.updateAll
@@ -35,9 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.monospace.battery.core.utils.AppUtils
-import com.monospace.battery.core.utils.BatteryUtils
-import com.monospace.battery.data.models.BatteryInfo
-import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
@@ -49,6 +42,7 @@ import com.monospace.battery.ui.components.BottomNavigation
 import com.monospace.battery.ui.components.Screen
 import com.monospace.battery.ui.components.TopAppBar
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.viewmodels.MainViewModel
 import com.monospace.battery.ui.viewmodels.SettingsViewModel
 import com.monospace.battery.widgets.charging.BatteryLevelWidget
 import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
@@ -62,10 +56,9 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private var batteryState by mutableStateOf(BatteryState())
-    private val batteryUtils by lazy { BatteryUtils(this) }
     private val permissionManager by lazy { PermissionManager(this) }
     private val settingsViewModel: SettingsViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -78,12 +71,6 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) {
         updatePermissionStates()
-    }
-
-    private val batteryReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            updateBatteryState(intent)
-        }
     }
 
     override fun onResume() {
@@ -118,12 +105,10 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
                 val context = LocalContext.current
 
-                val purchaseManager = remember {
-                    PurchaseManager(context, PurchaseManager.WIDGETS)
-                }
-
+                val purchaseManager = remember { PurchaseManager(context, PurchaseManager.WIDGETS) }
                 val isPurchased by purchaseManager.isPurchased.collectAsState()
                 val settingsState by settingsViewModel.uiState
+                val batteryState by mainViewModel.batteryState
 
                 var purchaseError by remember {
                     mutableStateOf<PurchaseManager.PurchaseEvent.Error?>(null)
@@ -221,7 +206,8 @@ class MainActivity : ComponentActivity() {
 
                 CompositionLocalProvider(
                     LocalSettingsState provides settingsState,
-                    LocalSettingsActions provides settingsActions
+                    LocalSettingsActions provides settingsActions,
+                    LocalBatteryState provides batteryState
                 ) {
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
@@ -234,29 +220,18 @@ class MainActivity : ComponentActivity() {
                         },
                         bottomBar = {
                             if (currentRoute != Screen.Settings.route) {
-                                BottomNavigation(
-                                    currentRoute,
-                                    navController
-                                )
+                                BottomNavigation(currentRoute, navController)
                             }
                         }
                     ) { innerPadding ->
                         AppNavHost(
                             navController = navController,
-                            modifier = Modifier.padding(innerPadding),
-                            batteryState = batteryState
+                            modifier = Modifier.padding(innerPadding)
                         )
                     }
                 }
             }
         }
-
-        registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        runCatching { unregisterReceiver(batteryReceiver) }
     }
 
     override fun onStop() {
@@ -264,38 +239,17 @@ class MainActivity : ComponentActivity() {
         updateAllWidgets()
     }
 
-    private fun updateBatteryState(intent: Intent?) {
-        val info = BatteryInfo(intent)
-
-        batteryState = batteryState.copy(
-            health = info.health,
-            level = info.level,
-            isCharging = info.isCharging,
-            chargeSource = info.chargeSource,
-            chargeCycles = info.chargeCycles,
-            technology = info.technology,
-            temperature = info.temperature,
-            voltage = info.voltage,
-            capacity = batteryUtils.getBatteryCapacity(),
-            capacityRemaining = batteryUtils.getCapacityRemaining(),
-            currentNow = batteryUtils.getCurrentNow(),
-            timeRemaining = batteryUtils.getChargeTimeRemaining(info.isCharging),
-            chargeSpeed = batteryUtils.getChargeSpeed(info.voltage, info.isCharging)
-        )
-    }
-
-    @Composable
     private fun getPurchaseErrorMessage(event: PurchaseManager.PurchaseEvent.Error): String {
         return when (event) {
-            is PurchaseManager.PurchaseEvent.Error.ServiceUnavailable -> stringResource(R.string.widget_purchase_error_service_unavailable)
-            is PurchaseManager.PurchaseEvent.Error.BillingUnavailable -> stringResource(R.string.widget_purchase_error_billing_unavailable)
-            is PurchaseManager.PurchaseEvent.Error.ItemAlreadyOwned -> stringResource(R.string.widget_purchase_error_item_already_owned)
-            is PurchaseManager.PurchaseEvent.Error.NetworkError -> stringResource(R.string.widget_purchase_error_network)
-            is PurchaseManager.PurchaseEvent.Error.DeveloperError -> stringResource(R.string.widget_purchase_error_developer)
-            is PurchaseManager.PurchaseEvent.Error.ProductUnavailable -> stringResource(R.string.widget_purchase_error_product_unavailable)
-            is PurchaseManager.PurchaseEvent.Error.NoRestorablePurchases -> stringResource(R.string.widget_purchase_no_restorable_purchases)
-            is PurchaseManager.PurchaseEvent.Error.NoPurchasesFound -> stringResource(R.string.widget_purchase_no_purchases_found)
-            is PurchaseManager.PurchaseEvent.Error.Unknown -> stringResource(
+            is PurchaseManager.PurchaseEvent.Error.ServiceUnavailable -> getString(R.string.widget_purchase_error_service_unavailable)
+            is PurchaseManager.PurchaseEvent.Error.BillingUnavailable -> getString(R.string.widget_purchase_error_billing_unavailable)
+            is PurchaseManager.PurchaseEvent.Error.ItemAlreadyOwned -> getString(R.string.widget_purchase_error_item_already_owned)
+            is PurchaseManager.PurchaseEvent.Error.NetworkError -> getString(R.string.widget_purchase_error_network)
+            is PurchaseManager.PurchaseEvent.Error.DeveloperError -> getString(R.string.widget_purchase_error_developer)
+            is PurchaseManager.PurchaseEvent.Error.ProductUnavailable -> getString(R.string.widget_purchase_error_product_unavailable)
+            is PurchaseManager.PurchaseEvent.Error.NoRestorablePurchases -> getString(R.string.widget_purchase_no_restorable_purchases)
+            is PurchaseManager.PurchaseEvent.Error.NoPurchasesFound -> getString(R.string.widget_purchase_no_purchases_found)
+            is PurchaseManager.PurchaseEvent.Error.Unknown -> getString(
                 R.string.widget_purchase_error_unknown, event.code
             )
         }
@@ -304,7 +258,6 @@ class MainActivity : ComponentActivity() {
     private fun updateMonitoringService() {
         val state = settingsViewModel.uiState.value
         val shouldRun = state.anyAlertEnabled || state.activeMonitoringEnabled
-
         val intent = Intent(this, BatteryAlertService::class.java)
 
         if (shouldRun) {

@@ -1,6 +1,7 @@
 package com.monospace.battery.data.models
 
 import android.os.BatteryManager
+import androidx.compose.runtime.staticCompositionLocalOf
 
 data class BatteryState(
     val health: Int = BatteryManager.BATTERY_HEALTH_UNKNOWN,
@@ -17,3 +18,5 @@ data class BatteryState(
     val timeRemaining: String = "00:00",
     val chargeSpeed: Double = 0.0
 )
+
+val LocalBatteryState = staticCompositionLocalOf { BatteryState() }

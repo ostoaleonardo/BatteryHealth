@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.AodPreviewCard
@@ -41,9 +42,10 @@ import com.monospace.battery.ui.components.SegmentedControl
 import com.monospace.battery.ui.components.SettingsSection
 
 @Composable
-fun AodScreen(currentBatteryLevel: Int) {
+fun AodScreen() {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
+    val batteryState = LocalBatteryState.current
     val isPremium = state.isWidgetsPurchased
     val context = LocalContext.current
 
@@ -65,7 +67,7 @@ fun AodScreen(currentBatteryLevel: Int) {
 
                 // Smartphone Preview (Always visible)
                 AodPreviewCard(
-                    level = currentBatteryLevel,
+                    level = batteryState.level,
                     color = previewColor,
                     clockStyle = state.aodClockStyle,
                     meterStyle = state.aodMeterStyle,
@@ -165,7 +167,7 @@ fun AodScreen(currentBatteryLevel: Int) {
                 // Style Selectors (Clock, Speedometer, Color)
                 item {
                     AodStyleSelectors(
-                        level = currentBatteryLevel,
+                        level = batteryState.level,
                         clockStyle = state.aodClockStyle,
                         meterStyle = state.aodMeterStyle,
                         selectedColor = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(
