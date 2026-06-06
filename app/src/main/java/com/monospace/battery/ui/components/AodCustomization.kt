@@ -105,10 +105,10 @@ fun AodClockStyleSelector(
         count = 6,
         selectedIndex = selectedIndex,
         onSelect = onSelect
-    ) { index ->
+    ) { index, isSelected ->
         Text(
             text = if (is24h) "14:30" else "02:30",
-            color = Color.White,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
             fontFamily = AppFont.getAodFont(index)
         )
@@ -128,16 +128,22 @@ fun AodMeterStyleSelector(
         count = 6, // 0 to 5
         selectedIndex = selectedIndex,
         onSelect = onSelect
-    ) { index ->
+    ) { index, isSelected ->
+        val unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
         Box(contentAlignment = Alignment.Center) {
             Canvas(modifier = Modifier.size(36.dp)) {
-                drawAodMeter(index, level, selectedColor, currentTime)
+                drawAodMeter(
+                    index,
+                    level,
+                    if (isSelected) selectedColor else unselectedColor,
+                    currentTime
+                )
             }
             // Percentage visible for all except water glass (index 5)
             if (index != 5) {
                 Text(
                     text = "$level%",
-                    color = Color.White,
+                    color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     fontSize = 9.sp,
                     fontFamily = AppFont.AzeretMonoLight
                 )
@@ -373,19 +379,16 @@ fun AodColorSelector(
                 Box(
                     modifier = Modifier
                         .size(52.dp)
-                        .clip(CircleShape)
-                        .background(if (isDynamic) Color.Transparent else color)
-                        .border(
-                            width = if (isSelected) 3.dp else 1.dp,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(
-                                alpha = 0.1f
-                            ),
-                            shape = CircleShape
+                        .selectionStyle(
+                            isSelected = isSelected,
+                            shape = CircleShape,
+                            showUnselectedBorder = isDynamic,
+                            backgroundColor = if (isDynamic) Color.Transparent else color
                         )
                         .clickable { onColorSelect(colorValue) },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (isDynamic && !isSelected) {
+                    if (isDynamic) {
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
@@ -405,7 +408,7 @@ fun StyleSelector(
     count: Int,
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
-    content: @Composable (Int) -> Unit
+    content: @Composable (Int, Boolean) -> Unit
 ) {
     Column(modifier = Modifier.padding(vertical = 12.dp)) {
         Text(
@@ -419,24 +422,19 @@ fun StyleSelector(
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            val shape = RoundedCornerShape(32.dp)
+            val shape = RoundedCornerShape(24.dp)
 
             items(count) { index ->
+                val isSelected = selectedIndex == index
+
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .clip(shape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
-                        .border(
-                            width = if (selectedIndex == index) 2.dp else 1.dp,
-                            color = if (selectedIndex == index) MaterialTheme.colorScheme.primary
-                            else Color.White.copy(alpha = 0.1f),
-                            shape = shape
-                        )
+                        .selectionStyle(isSelected, shape)
                         .clickable { onSelect(index) },
                     contentAlignment = Alignment.Center
                 ) {
-                    content(index)
+                    content(index, isSelected)
                 }
             }
         }

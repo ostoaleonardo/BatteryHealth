@@ -1,12 +1,43 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
+
+@Composable
+fun Modifier.selectionStyle(
+    isSelected: Boolean,
+    shape: Shape,
+    showUnselectedBorder: Boolean = true,
+    backgroundColor: Color = Color.Transparent
+): Modifier {
+    val borderColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+    }
+
+    return this
+        .clip(shape)
+        .background(backgroundColor)
+        .then(
+            if (isSelected || showUnselectedBorder) {
+                Modifier.border(if (isSelected) 3.dp else 1.dp, borderColor, shape)
+            } else {
+                Modifier
+            }
+        )
+}
 
 fun getHealthStatusRes(health: Int) = when (health) {
     BatteryManager.BATTERY_HEALTH_GOOD -> R.string.battery_health_good
@@ -95,18 +126,6 @@ fun getBatteryLevelColor(level: Int): Color = when {
     level >= 35 -> Constants.ColorOrange
     level >= 20 -> Constants.ColorDeepOrange
     else -> Constants.ColorRed
-}
-
-@Composable
-fun getHealthBgColor(health: Int): Color = when (health) {
-    BatteryManager.BATTERY_HEALTH_GOOD -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
-    BatteryManager.BATTERY_HEALTH_OVERHEAT,
-    BatteryManager.BATTERY_HEALTH_DEAD,
-    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> MaterialTheme.colorScheme.errorContainer.copy(
-        alpha = 0.4f
-    )
-
-    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
 }
 
 @Composable

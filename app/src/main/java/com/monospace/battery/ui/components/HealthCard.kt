@@ -28,8 +28,8 @@ fun HealthCard(
     health: Int,
     onClick: () -> Unit = {}
 ) {
-    val healthColor = getHealthColor(health)
-    val healthBgColor = getHealthBgColor(health)
+    val healthColor = MaterialTheme.colorScheme.onPrimary
+    val healthBgColor = MaterialTheme.colorScheme.primary
 
     Card(
         modifier = Modifier
@@ -62,7 +62,7 @@ fun HealthCard(
                 text = stringResource(R.string.battery_health).uppercase(),
                 fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
                 fontSize = MaterialTheme.typography.labelSmall.fontSize,
-                color = healthColor
+                color = healthColor.copy(alpha = 0.7f)
             )
         }
     }
