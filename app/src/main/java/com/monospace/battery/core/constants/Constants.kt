@@ -73,4 +73,18 @@ object Constants {
     val ColorDeepOrange = Color(0xFFFF5722)
     val ColorRed = Color(0xFFF44336)
     val ColorGray = Color(0xFF9E9E9E)
+
+    // AOD Accent Colors
+    val AodColors = listOf(
+        0L, // Dynamic
+        0xFF00A25B, // Emerald
+        0xFF2196F3, // Dodger Blue
+        0xFFE91E63, // Pink
+        0xFFFF9800, // Orange
+        0xFF9C27B0, // Purple
+        0xFF00BCD4, // Cyan
+        0xFFFFEB3B, // Yellow
+        0xFF607D8B, // Blue Gray
+        0xFF009688  // Teal
+    )
 }

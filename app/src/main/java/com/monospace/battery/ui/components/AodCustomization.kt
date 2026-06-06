@@ -43,6 +43,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -352,12 +353,6 @@ fun AodColorSelector(
     selectedColor: Color,
     onColorSelect: (Long) -> Unit
 ) {
-    // 0L represents Dynamic Color
-    val colors = listOf(
-        0L, 0xFF00A25B, 0xFF2196F3, 0xFFE91E63,
-        0xFFFF9800, 0xFF9C27B0, 0xFF00BCD4, 0xFFFFEB3B, 0xFFFFFFFF
-    )
-
     Column(modifier = Modifier.padding(vertical = 12.dp)) {
         Text(
             text = stringResource(R.string.aod_accent_color).uppercase(),
@@ -370,9 +365,10 @@ fun AodColorSelector(
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            itemsIndexed(colors) { _, colorValue ->
+            itemsIndexed(Constants.AodColors) { _, colorValue ->
                 val isDynamic = colorValue == 0L
                 val color = if (isDynamic) MaterialTheme.colorScheme.primary else Color(colorValue)
+                val isSelected = selectedColor == color
 
                 Box(
                     modifier = Modifier
@@ -380,14 +376,16 @@ fun AodColorSelector(
                         .clip(CircleShape)
                         .background(if (isDynamic) Color.Transparent else color)
                         .border(
-                            width = if (selectedColor == color) 2.dp else 1.dp,
-                            color = if (selectedColor == color) color else Color.White.copy(alpha = 0.1f),
+                            width = if (isSelected) 3.dp else 1.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(
+                                alpha = 0.1f
+                            ),
                             shape = CircleShape
                         )
                         .clickable { onColorSelect(colorValue) },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (isDynamic) {
+                    if (isDynamic && !isSelected) {
                         Icon(
                             imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
@@ -421,17 +419,19 @@ fun StyleSelector(
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            val shape = RoundedCornerShape(32.dp)
+
             items(count) { index ->
                 Box(
                     modifier = Modifier
                         .size(80.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(shape)
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
                         .border(
                             width = if (selectedIndex == index) 2.dp else 1.dp,
                             color = if (selectedIndex == index) MaterialTheme.colorScheme.primary
                             else Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = shape
                         )
                         .clickable { onSelect(index) },
                     contentAlignment = Alignment.Center
