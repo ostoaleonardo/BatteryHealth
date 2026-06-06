@@ -80,10 +80,6 @@
     <string name="settings_version">Version %s</string>
     <string name="settings_rate_us">Rate us</string>
 
-    <!-- Premium -->
-    <string name="premium_title">Premium Feature</string>
-    <string name="premium_description">Get the full experience: customizable battery alerts, pro widgets, and in-depth history tracking.</string>
-
     <!-- Alarms -->
     <string name="settings_healthy_charge">Healthy charge alarm</string>
     <string name="settings_healthy_charge_desc">Notify when battery reaches a specific level to extend its lifespan.</string>
@@ -203,7 +199,6 @@
     <string name="alerts_category_charge">Charge Alarms</string>
     <string name="alerts_category_discharge">Discharge Alarms</string>
     <string name="alerts_category_safety">Safety Alarms</string>
-    <string name="alerts_category_monitoring">System Monitoring</string>
     <string name="settings_active_monitoring">Active Monitoring</string>
     <string name="settings_active_monitoring_desc">Enable real-time hardware diagnostics and safety alerts. Disabling this stops all history recording.</string>
     <string name="aod_clock_style">Clock Style</string>

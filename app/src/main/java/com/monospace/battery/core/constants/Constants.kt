@@ -65,6 +65,7 @@ object Constants {
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
     const val EMPTY_VALUE_DASH = "--"
+    const val ZERO_TIME = "00:00"
 
     // Colors
     val ColorGreen = Color(0xFF00A25B)

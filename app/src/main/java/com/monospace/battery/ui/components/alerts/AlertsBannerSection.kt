@@ -23,8 +23,8 @@ fun AlertsBannerSection() {
 
     if (!isPremium) {
         BannerActionCard(
-            title = stringResource(R.string.premium_title),
-            description = stringResource(R.string.premium_description),
+            title = stringResource(R.string.settings_unlock_full),
+            description = stringResource(R.string.widget_purchase_description),
             icon = Icons.Default.Lock,
             onClick = actions.onUnlockClick,
             modifier = Modifier.padding(horizontal = 16.dp)

@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
+import com.monospace.battery.core.constants.Constants
 import java.io.File
 import java.util.Locale
 import kotlin.math.abs
@@ -19,22 +20,22 @@ class BatteryUtils(context: Context) {
     }
 
     fun getChargeTimeRemaining(isCharging: Boolean): String {
-        if (!isCharging || Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return TIME_ZERO
+        if (!isCharging || Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return Constants.ZERO_TIME
 
-        val manager = batteryManager ?: return TIME_ZERO
+        val manager = batteryManager ?: return Constants.ZERO_TIME
 
         val millis = runCatching {
             manager.computeChargeTimeRemaining()
         }.getOrDefault(-1L)
 
-        if (millis <= 0) return TIME_ZERO
+        if (millis <= 0) return Constants.ZERO_TIME
 
         val hours = millis / 3_600_000
         val minutes = (millis / 60_000) % 60
 
         return runCatching {
             String.format(Locale.US, TIME_FORMAT, hours, minutes)
-        }.getOrDefault(TIME_ZERO)
+        }.getOrDefault(Constants.ZERO_TIME)
     }
 
     @SuppressLint("PrivateApi")
@@ -163,7 +164,6 @@ class BatteryUtils(context: Context) {
         private const val TAG = "BatteryUtils"
 
         // Time formats
-        private const val TIME_ZERO = "00:00"
         private const val TIME_FORMAT = "%02d:%02d"
 
         // Reflection constants

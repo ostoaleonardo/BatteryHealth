@@ -42,6 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.drawAodMeter
@@ -53,7 +54,7 @@ import java.util.Date
 fun AodMainContent() {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
-    
+
     val themePrimary = MaterialTheme.colorScheme.primary
     val accentColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
 
@@ -156,7 +157,7 @@ private fun AODMeterSection(
 ) {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
-    
+
     if (state.aodMeterStyle != 5) {
         Box(contentAlignment = Alignment.Center) {
             if (state.aodMeterStyle != 0) {
@@ -191,7 +192,7 @@ private fun AODMeterSection(
 private fun AODMetricsSection(accentColor: Color) {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
-    
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // 1. Charging Speed
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -211,7 +212,7 @@ private fun AODMetricsSection(accentColor: Color) {
         }
 
         // 2. Remaining Time
-        if (batteryState.timeRemaining.isNotEmpty() && batteryState.timeRemaining != "00:00") {
+        if (batteryState.timeRemaining.isNotEmpty() && batteryState.timeRemaining != Constants.ZERO_TIME) {
             Spacer(modifier = Modifier.height(20.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
