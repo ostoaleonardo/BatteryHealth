@@ -26,7 +26,11 @@ fun ChargingSection() {
     val iconTint = LocalIconTint.current
     val onShowDialog = LocalOnShowDialog.current
 
-    val capacityValue = remember(state.capacity, state.capacityRemaining) {
+    val cardCapacity = remember(state.capacityRemaining) {
+        if (state.capacityRemaining > 0) "${state.capacityRemaining} mAh" else null
+    }
+
+    val modalCapacity = remember(state.capacity, state.capacityRemaining) {
         BatteryStrings().getCapacityValue(state.capacity, state.capacityRemaining)
     }
 
@@ -37,7 +41,7 @@ fun ChargingSection() {
         iconRes = R.drawable.bolt
     )
 
-    val capData = capacityValue?.let {
+    val capData = modalCapacity?.let {
         rememberBatteryDialogData(
             R.string.battery_capacity,
             it,
@@ -74,14 +78,18 @@ fun ChargingSection() {
             LargeVerticalInfoCard(
                 title = speedData.title,
                 value = speedWatts,
-                valueIconRes = qualityIcon,
-                valueIconTint = qualityColor,
-                iconRes = R.drawable.rocket,
-                iconTint = iconTint,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                onClick = { onShowDialog(speedData) }
+                valueIconRes = qualityIcon,
+                valueIconTint = qualityColor,
+                onClick = { onShowDialog(speedData) },
+                iconContent = {
+                    ChargingSpeedChart(
+                        speed = state.chargeSpeed,
+                        tint = iconTint
+                    )
+                }
             )
 
             Column(
@@ -98,7 +106,7 @@ fun ChargingSection() {
                 capData?.let {
                     InfoCard(
                         title = it.title,
-                        value = it.value,
+                        value = cardCapacity ?: it.value,
                         iconRes = R.drawable.battery_full,
                         iconTint = iconTint,
                         onClick = { onShowDialog(it) }
@@ -120,7 +128,7 @@ fun ChargingSection() {
             capData?.let {
                 SmallInfoCard(
                     title = it.title,
-                    value = it.value,
+                    value = cardCapacity ?: it.value,
                     iconRes = R.drawable.battery_full,
                     iconTint = iconTint,
                     modifier = Modifier

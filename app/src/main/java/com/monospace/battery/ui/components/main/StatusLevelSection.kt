@@ -78,11 +78,11 @@ fun StatusLevelSection() {
         LargeVerticalInfoCard(
             title = levelData.title,
             value = levelValue,
-            iconRes = levelIcon,
-            iconTint = iconTint,
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight(),
+            iconRes = levelIcon,
+            iconTint = iconTint,
             onClick = { onShowDialog(levelData) }
         )
     }

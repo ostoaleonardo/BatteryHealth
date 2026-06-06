@@ -3,6 +3,7 @@ package com.monospace.battery.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,12 +31,13 @@ import com.monospace.battery.R
 fun LargeVerticalInfoCard(
     title: String,
     value: String,
-    iconRes: Int,
     modifier: Modifier = Modifier,
+    iconRes: Int = 0,
     valueIconRes: Int? = null,
     valueIconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     iconTint: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    iconContent: @Composable (() -> Unit)? = null
 ) {
     Card(
         modifier = modifier
@@ -63,7 +65,7 @@ fun LargeVerticalInfoCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = value,
@@ -81,14 +83,25 @@ fun LargeVerticalInfoCard(
                 }
             }
 
-            Image(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(top = 32.dp)
-                    .size(72.dp),
-                colorFilter = ColorFilter.tint(iconTint)
-            )
+            if (iconContent != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    iconContent()
+                }
+            } else if (iconRes != 0) {
+                Image(
+                    painter = painterResource(iconRes),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(top = 32.dp)
+                        .size(72.dp),
+                    colorFilter = ColorFilter.tint(iconTint)
+                )
+            }
         }
     }
 }
@@ -130,7 +143,7 @@ fun LargeHorizontalInfoCard(
                     .size(64.dp),
                 colorFilter = ColorFilter.tint(iconTint)
             )
-            
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = value,
