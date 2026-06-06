@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.R
-import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.SettingsSection
@@ -30,8 +29,6 @@ fun HistoryScreen(
 ) {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
-    val batteryState = LocalBatteryState.current
-    val isPremium = state.isWidgetsPurchased
 
     val history by viewModel.history.collectAsState()
     val sessions by viewModel.sessions.collectAsState()
@@ -68,12 +65,12 @@ fun HistoryScreen(
 
             // 3. Charger Analysis (Pro feature)
             item {
-                ChargerAnalysisSection(chargerStats, isPremium, actions.onUnlockClick)
+                ChargerAnalysisSection(chargerStats)
             }
 
             // 4. Charging Sessions
             item {
-                ChargeSessionsSection(sessions, isPremium, batteryState.level, actions.onUnlockClick)
+                ChargeSessionsSection(sessions)
             }
 
             // 5. Battery Tips

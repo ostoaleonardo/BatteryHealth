@@ -26,14 +26,13 @@ import com.monospace.battery.R
 @Composable
 fun HealthCard(
     health: Int,
-    modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     val healthColor = getHealthColor(health)
     val healthBgColor = getHealthBgColor(health)
 
     Card(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.extraLarge)
             .clickable { onClick() },

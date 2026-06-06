@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.ChargerStats
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.BannerActionCard
 import com.monospace.battery.ui.components.ClickableTooltip
 import com.monospace.battery.ui.components.SectionTitle
@@ -39,10 +41,13 @@ import com.monospace.battery.ui.theme.Font
 
 @Composable
 fun ChargerAnalysisSection(
-    stats: List<ChargerStats>,
-    isPremium: Boolean,
-    onUpgradeClick: () -> Unit
+    stats: List<ChargerStats>
 ) {
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
+    val isPremium = state.isWidgetsPurchased
+    val onUpgradeClick = actions.onUnlockClick
+
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionTitle(stringResource(R.string.charger_analysis_title))
 

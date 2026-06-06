@@ -1,32 +1,31 @@
 package com.monospace.battery.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.BannerActionCard
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.data.models.SettingsUiActions
+import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.ui.components.alerts.AlertsBannerSection
+import com.monospace.battery.ui.components.alerts.ChargeAlertsSection
+import com.monospace.battery.ui.components.alerts.DischargeAlertsSection
+import com.monospace.battery.ui.components.alerts.SafetyAlertsSection
+import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
 fun AlertsScreen() {
-    val state = LocalSettingsState.current
-    val actions = LocalSettingsActions.current
-    val isPremium = state.isWidgetsPurchased
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -35,97 +34,33 @@ fun AlertsScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(top = 8.dp, bottom = 24.dp),
+                .padding(top = 8.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            if (!isPremium) {
-                BannerActionCard(
-                    title = stringResource(R.string.premium_title),
-                    description = stringResource(R.string.premium_description),
-                    icon = Icons.Default.Lock,
-                    onClick = actions.onUnlockClick,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                )
-            } else if (!state.hasNotificationPermission) {
-                BannerActionCard(
-                    title = stringResource(R.string.permission_notifications_title),
-                    description = stringResource(R.string.permission_notifications_description),
-                    icon = Icons.Default.NotificationsActive,
-                    onClick = actions.onNotificationPermissionRequest,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                )
-            }
+            // Upsell / Permission Banners
+            AlertsBannerSection()
 
             // 1. Charge Alarms
-            SettingsSection(stringResource(R.string.alerts_category_charge)) {
-                switchItem(
-                    title = stringResource(R.string.settings_healthy_charge),
-                    description = stringResource(R.string.settings_healthy_charge_desc),
-                    checked = state.healthyChargeEnabled,
-                    enabled = isPremium,
-                    onCheckedChange = actions.onHealthyChargeChange
-                )
-
-                if (state.healthyChargeEnabled) {
-                    sliderItem(
-                        description = "${state.healthyChargeLevel}%",
-                        value = state.healthyChargeLevel,
-                        enabled = isPremium,
-                        onValueChange = actions.onHealthyChargeLevelChange
-                    )
-                }
-
-                switchItem(
-                    title = stringResource(R.string.settings_slow_charge),
-                    description = stringResource(R.string.settings_slow_charge_desc),
-                    checked = state.slowChargeEnabled,
-                    enabled = isPremium,
-                    onCheckedChange = actions.onSlowChargeChange
-                )
-            }
+            ChargeAlertsSection()
 
             // 2. Discharge Alarms
-            SettingsSection(stringResource(R.string.alerts_category_discharge)) {
-                switchItem(
-                    title = stringResource(R.string.settings_low_battery),
-                    description = stringResource(R.string.settings_low_battery_desc),
-                    checked = state.lowBatteryEnabled,
-                    enabled = isPremium,
-                    onCheckedChange = actions.onLowBatteryChange
-                )
-
-                if (state.lowBatteryEnabled) {
-                    sliderItem(
-                        description = "${state.lowBatteryLevel}%",
-                        value = state.lowBatteryLevel,
-                        enabled = isPremium,
-                        onValueChange = actions.onLowBatteryLevelChange,
-                        range = 0f..50f
-                    )
-                }
-
-                switchItem(
-                    title = stringResource(R.string.settings_fast_discharge),
-                    description = stringResource(R.string.settings_fast_discharge_desc),
-                    checked = state.fastDischargeEnabled,
-                    enabled = isPremium,
-                    onCheckedChange = actions.onFastDischargeChange
-                )
-            }
+            DischargeAlertsSection()
 
             // 3. Safety Alarms
-            SettingsSection(stringResource(R.string.alerts_category_safety)) {
-                switchItem(
-                    title = stringResource(R.string.settings_temp_alert),
-                    description = stringResource(R.string.settings_temp_alert_desc),
-                    checked = state.tempAlertEnabled,
-                    enabled = isPremium,
-                    onCheckedChange = actions.onTempAlertChange
-                )
-            }
+            SafetyAlertsSection()
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun AlertsScreenPreview() {
+    BatteryTheme {
+        CompositionLocalProvider(
+            LocalSettingsState provides SettingsUiState(isWidgetsPurchased = true),
+            LocalSettingsActions provides SettingsUiActions()
+        ) {
+            AlertsScreen()
         }
     }
 }

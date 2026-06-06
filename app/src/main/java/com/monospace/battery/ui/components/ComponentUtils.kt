@@ -1,6 +1,7 @@
 package com.monospace.battery.ui.components
 
 import android.os.BatteryManager
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -26,7 +27,8 @@ fun getHealthDescriptionRes(health: Int) = when (health) {
     else -> R.string.battery_health_description_unknown
 }
 
-fun getChargingStatusRes(isCharging: Boolean) = if (isCharging) R.string.battery_charging else R.string.battery_unplugged
+fun getChargingStatusRes(isCharging: Boolean) =
+    if (isCharging) R.string.battery_charging else R.string.battery_unplugged
 
 fun getChargingSourceRes(source: Int) = when (source) {
     BatteryManager.BATTERY_PLUGGED_AC -> R.string.charging_source_ac
@@ -69,7 +71,17 @@ fun getBatteryIcon(level: Int, isCharging: Boolean) = if (isCharging) {
     }
 }
 
+@Composable
 fun getHealthColor(health: Int): Color = when (health) {
+    BatteryManager.BATTERY_HEALTH_GOOD -> MaterialTheme.colorScheme.primary
+    BatteryManager.BATTERY_HEALTH_OVERHEAT,
+    BatteryManager.BATTERY_HEALTH_DEAD,
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> MaterialTheme.colorScheme.error
+
+    else -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+fun getStaticHealthColor(health: Int): Color = when (health) {
     BatteryManager.BATTERY_HEALTH_GOOD -> Constants.ColorGreen
     BatteryManager.BATTERY_HEALTH_OVERHEAT -> Constants.ColorOrange
     BatteryManager.BATTERY_HEALTH_DEAD -> Constants.ColorRed
@@ -85,7 +97,17 @@ fun getBatteryLevelColor(level: Int): Color = when {
     else -> Constants.ColorRed
 }
 
-fun getHealthBgColor(health: Int): Color = getHealthColor(health).copy(alpha = 0.1f)
+@Composable
+fun getHealthBgColor(health: Int): Color = when (health) {
+    BatteryManager.BATTERY_HEALTH_GOOD -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
+    BatteryManager.BATTERY_HEALTH_OVERHEAT,
+    BatteryManager.BATTERY_HEALTH_DEAD,
+    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> MaterialTheme.colorScheme.errorContainer.copy(
+        alpha = 0.4f
+    )
+
+    else -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+}
 
 @Composable
 fun formatResourceOrDash(value: Int, resId: Int, vararg args: Any): String {
