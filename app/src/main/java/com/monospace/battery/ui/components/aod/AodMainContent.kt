@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -45,11 +46,14 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsState
+import com.monospace.battery.ui.components.MeterDisplay
+import com.monospace.battery.ui.components.MeterStyle
 import com.monospace.battery.ui.components.drawAodMeter
 import com.monospace.battery.ui.theme.Font
 import java.text.SimpleDateFormat
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AodMainContent() {
     val state = LocalSettingsState.current
@@ -62,7 +66,7 @@ fun AodMainContent() {
     val context = LocalContext.current
 
     LaunchedEffect(state.aodMeterStyle) {
-        val delayTime = if (state.aodMeterStyle == 5) 50L else 1000L
+        val delayTime = if (state.aodMeterStyle == MeterStyle.WATER_GLASS.index) 50L else 1000L
         while (true) {
             currentTime = System.currentTimeMillis()
             kotlinx.coroutines.delay(delayTime)
@@ -76,10 +80,10 @@ fun AodMainContent() {
             .clickable { (context as? Activity)?.finish() }
     ) {
         // 1. Water Background
-        if (state.aodMeterStyle == 5) {
+        if (state.aodMeterStyle == MeterStyle.WATER_GLASS.index) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
-                    state.aodMeterStyle,
+                    MeterStyle.WATER_GLASS,
                     batteryState.level,
                     accentColor,
                     currentTime
@@ -97,7 +101,7 @@ fun AodMainContent() {
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            AODMeterSection(currentTime, accentColor)
+            AODMeterSection(accentColor)
 
             if (batteryState.isCharging) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -150,25 +154,25 @@ private fun AODClockSection(currentTime: Long) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AODMeterSection(
-    currentTime: Long,
     accentColor: Color
 ) {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
 
-    if (state.aodMeterStyle != 5) {
+    if (state.aodMeterStyle != MeterStyle.WATER_GLASS.index) {
         Box(contentAlignment = Alignment.Center) {
-            if (state.aodMeterStyle != 0) {
-                Canvas(modifier = Modifier.size(200.dp)) {
-                    drawAodMeter(
-                        state.aodMeterStyle,
-                        batteryState.level,
-                        accentColor,
-                        currentTime
-                    )
-                }
+            if (state.aodMeterStyle != MeterStyle.NONE.index) {
+                MeterDisplay(
+                    styleIndex = state.aodMeterStyle,
+                    level = batteryState.level,
+                    color = accentColor,
+                    modifier = Modifier.size(200.dp),
+                    strokeWidth = 10.dp,
+                    size = 200.dp
+                )
             }
 
             Text(

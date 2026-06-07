@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.monospace.battery.R
-import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.AodStyleSelectors
@@ -15,11 +14,9 @@ import com.monospace.battery.ui.components.SettingsSection
 fun AodSettingsSection() {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
-    val batteryState = LocalBatteryState.current
 
     // 1. Style Selectors (Clock, Speedometer, Color)
     AodStyleSelectors(
-        level = batteryState.level,
         clockStyle = state.aodClockStyle,
         meterStyle = state.aodMeterStyle,
         selectedColor = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),

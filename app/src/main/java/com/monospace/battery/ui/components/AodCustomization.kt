@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.data.models.LocalBatteryState
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -51,7 +53,6 @@ import com.monospace.battery.ui.theme.Font as AppFont
 
 @Composable
 fun AodStyleSelectors(
-    level: Int,
     clockStyle: Int,
     meterStyle: Int,
     selectedColor: Color,
@@ -60,15 +61,6 @@ fun AodStyleSelectors(
     onMeterStyleChange: (Int) -> Unit,
     onColorChange: (Long) -> Unit
 ) {
-    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            currentTime = System.currentTimeMillis()
-            delay(50L) // Redraw for animated styles
-        }
-    }
-
     Column(modifier = Modifier.fillMaxWidth()) {
         // 1. Clock Style Selector
         AodClockStyleSelector(
@@ -79,10 +71,8 @@ fun AodStyleSelectors(
 
         // 2. Meter Style Selector
         AodMeterStyleSelector(
-            level = level,
             selectedIndex = meterStyle,
             selectedColor = selectedColor,
-            currentTime = currentTime,
             onSelect = onMeterStyleChange
         )
 
@@ -115,34 +105,35 @@ fun AodClockStyleSelector(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AodMeterStyleSelector(
-    level: Int,
     selectedIndex: Int,
     selectedColor: Color,
-    currentTime: Long,
     onSelect: (Int) -> Unit
 ) {
     StyleSelector(
         title = stringResource(R.string.aod_meter_style),
-        count = 6, // 0 to 5
+        count = MeterStyle.entries.size,
         selectedIndex = selectedIndex,
         onSelect = onSelect
     ) { index, isSelected ->
         val unselectedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+        val color = if (isSelected) selectedColor else unselectedColor
+
         Box(contentAlignment = Alignment.Center) {
-            Canvas(modifier = Modifier.size(36.dp)) {
-                drawAodMeter(
-                    index,
-                    level,
-                    if (isSelected) selectedColor else unselectedColor,
-                    currentTime
-                )
-            }
-            // Percentage visible for all except water glass (index 5)
-            if (index != 5) {
+            MeterDisplay(
+                styleIndex = index,
+                color = color,
+                modifier = Modifier.size(36.dp),
+                strokeWidth = 3.dp,
+                size = 36.dp
+            )
+
+            // Percentage visible for all except water glass (index 6)
+            if (index != MeterStyle.WATER_GLASS.index) {
                 Text(
-                    text = "$level%",
+                    text = "${LocalBatteryState.current.level}%",
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     fontSize = 9.sp,
                     fontFamily = AppFont.AzeretMonoLight
@@ -168,7 +159,7 @@ fun AodPreviewCard(
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(meterStyle) {
-        val delayTime = if (meterStyle == 5) 50L else 1000L
+        val delayTime = if (meterStyle == MeterStyle.WATER_GLASS.index) 50L else 1000L
         while (true) {
             currentTime = System.currentTimeMillis()
             delay(delayTime)
@@ -193,16 +184,15 @@ fun AodPreviewCard(
                 .background(Color.Black),
             contentAlignment = Alignment.Center
         ) {
-            // 1. Water Background (if style 5)
-            if (meterStyle == 5) {
+            // 1. Water Background (if style 6)
+            if (meterStyle == MeterStyle.WATER_GLASS.index) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawAodMeter(meterStyle, level, color, currentTime)
+                    drawAodMeter(MeterStyle.WATER_GLASS, level, color, currentTime)
                 }
             }
 
             // 2. Content
             AodPreviewContent(
-                currentTime = currentTime,
                 showClock = showClock,
                 showDate = showDate,
                 is24h = is24h,
@@ -210,7 +200,6 @@ fun AodPreviewCard(
                 fontSizeDate = fontSizeDate,
                 clockStyle = clockStyle,
                 meterStyle = meterStyle,
-                level = level,
                 color = color
             )
 
@@ -222,9 +211,9 @@ fun AodPreviewCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AodPreviewContent(
-    currentTime: Long,
     showClock: Boolean,
     showDate: Boolean,
     is24h: Boolean,
@@ -232,10 +221,10 @@ fun AodPreviewContent(
     fontSizeDate: Int,
     clockStyle: Int,
     meterStyle: Int,
-    level: Int,
     color: Color
 ) {
     val locale = LocalLocale.current.platformLocale
+    val currentTime = System.currentTimeMillis() // Static for preview
     val timeFormat = SimpleDateFormat(if (is24h) "HH:mm" else "hh:mm", locale)
     val dateFormat = SimpleDateFormat("EEE, d MMM", locale)
 
@@ -266,13 +255,18 @@ fun AodPreviewContent(
         Spacer(modifier = Modifier.height(20.dp))
 
         // 1. Meter (Percentage only inside)
-        if (meterStyle != 5) {
+        if (meterStyle != MeterStyle.WATER_GLASS.index) {
             Box(contentAlignment = Alignment.Center) {
-                Canvas(modifier = Modifier.size(50.dp)) {
-                    drawAodMeter(meterStyle, level, color, currentTime)
-                }
+                MeterDisplay(
+                    styleIndex = meterStyle,
+                    color = color,
+                    modifier = Modifier.size(50.dp),
+                    strokeWidth = 4.dp,
+                    size = 50.dp
+                )
+
                 Text(
-                    text = "$level%",
+                    text = "${LocalBatteryState.current.level}%",
                     color = Color.White,
                     fontSize = 11.sp,
                     fontFamily = AppFont.getAodFont(clockStyle)
@@ -280,7 +274,7 @@ fun AodPreviewContent(
             }
         } else {
             Text(
-                text = "$level%",
+                text = "${LocalBatteryState.current.level}%",
                 color = Color.White,
                 fontSize = 14.sp,
                 fontFamily = AppFont.getAodFont(clockStyle)
