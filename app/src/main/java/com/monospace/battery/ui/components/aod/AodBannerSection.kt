@@ -1,6 +1,5 @@
 package com.monospace.battery.ui.components.aod
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -22,24 +21,22 @@ fun AodBannerSection() {
     val isPremium = state.isWidgetsPurchased
     val showOverlayBanner = state.alwaysOnDisplayEnabled && !state.hasOverlayPermission
 
-    Column(modifier = Modifier.padding(bottom = 8.dp)) {
-        if (!isPremium) {
-            BannerActionCard(
-                title = stringResource(R.string.settings_unlock_full),
-                description = stringResource(R.string.widget_purchase_description),
-                icon = Icons.Default.Lock,
-                onClick = actions.onUnlockClick,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        } else if (showOverlayBanner) {
-            BannerActionCard(
-                title = stringResource(R.string.permission_overlay_title),
-                description = stringResource(R.string.permission_overlay_desc),
-                icon = Icons.Default.NotificationsActive,
-                onClick = actions.onOverlayPermissionRequest,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
+    if (!isPremium) {
+        BannerActionCard(
+            title = stringResource(R.string.settings_unlock_full),
+            description = stringResource(R.string.widget_purchase_description),
+            icon = Icons.Default.Lock,
+            onClick = actions.onUnlockClick,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+    } else if (showOverlayBanner) {
+        BannerActionCard(
+            title = stringResource(R.string.permission_overlay_title),
+            description = stringResource(R.string.permission_overlay_desc),
+            icon = Icons.Default.NotificationsActive,
+            onClick = actions.onOverlayPermissionRequest,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
     }
 }

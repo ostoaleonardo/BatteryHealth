@@ -46,43 +46,12 @@ import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
+import com.monospace.battery.data.models.LocalSettingsActions
+import com.monospace.battery.data.models.LocalSettingsState
+import com.monospace.battery.ui.theme.Font
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
-import com.monospace.battery.ui.theme.Font as AppFont
-
-@Composable
-fun AodStyleSelectors(
-    clockStyle: Int,
-    meterStyle: Int,
-    selectedColor: Color,
-    is24h: Boolean,
-    onClockStyleChange: (Int) -> Unit,
-    onMeterStyleChange: (Int) -> Unit,
-    onColorChange: (Long) -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        // 1. Clock Style Selector
-        AodClockStyleSelector(
-            selectedIndex = clockStyle,
-            is24h = is24h,
-            onSelect = onClockStyleChange
-        )
-
-        // 2. Meter Style Selector
-        AodMeterStyleSelector(
-            selectedIndex = meterStyle,
-            selectedColor = selectedColor,
-            onSelect = onMeterStyleChange
-        )
-
-        // 3. Color Selector
-        AodColorSelector(
-            selectedColor = selectedColor,
-            onColorSelect = onColorChange
-        )
-    }
-}
 
 @Composable
 fun AodClockStyleSelector(
@@ -90,17 +59,24 @@ fun AodClockStyleSelector(
     is24h: Boolean,
     onSelect: (Int) -> Unit
 ) {
+    val locale = LocalLocale.current.platformLocale
+    val currentTime = Date()
+    val timeFormat = SimpleDateFormat(
+        if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H, locale
+    )
+    val timeString = timeFormat.format(currentTime)
+
     StyleSelector(
         title = stringResource(R.string.aod_clock_style),
-        count = 6,
+        count = Constants.CLOCK_STYLES_COUNT,
         selectedIndex = selectedIndex,
         onSelect = onSelect
     ) { index, isSelected ->
         Text(
-            text = if (is24h) "14:30" else "02:30",
+            text = timeString,
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
-            fontFamily = AppFont.getAodFont(index)
+            fontFamily = Font.getAodFont(index)
         )
     }
 }
@@ -133,10 +109,13 @@ fun AodMeterStyleSelector(
             // Percentage visible for all except water glass (index 6)
             if (index != MeterStyle.WATER_GLASS.index) {
                 Text(
-                    text = "${LocalBatteryState.current.level}%",
+                    text = stringResource(
+                        R.string.battery_percentage,
+                        LocalBatteryState.current.level
+                    ),
                     color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     fontSize = 9.sp,
-                    fontFamily = AppFont.AzeretMonoLight
+                    fontFamily = Font.AzeretMonoLight
                 )
             }
         }
@@ -159,7 +138,12 @@ fun AodPreviewCard(
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(meterStyle) {
-        val delayTime = if (meterStyle == MeterStyle.WATER_GLASS.index) 50L else 1000L
+        val delayTime = if (meterStyle == MeterStyle.WATER_GLASS.index) {
+            Constants.WATER_GLASS_DELAY
+        } else {
+            Constants.PREVIEW_TIME_DELAY
+        }
+
         while (true) {
             currentTime = System.currentTimeMillis()
             delay(delayTime)
@@ -225,8 +209,11 @@ fun AodPreviewContent(
 ) {
     val locale = LocalLocale.current.platformLocale
     val currentTime = System.currentTimeMillis() // Static for preview
-    val timeFormat = SimpleDateFormat(if (is24h) "HH:mm" else "hh:mm", locale)
-    val dateFormat = SimpleDateFormat("EEE, d MMM", locale)
+    val timeFormat = SimpleDateFormat(
+        if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H,
+        locale
+    )
+    val dateFormat = SimpleDateFormat(Constants.DATE_PATTERN, locale)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (showClock) {
@@ -234,7 +221,7 @@ fun AodPreviewContent(
                 text = timeFormat.format(Date(currentTime)),
                 color = Color.White,
                 fontSize = fontSizeClock.sp,
-                fontFamily = AppFont.getAodFont(clockStyle),
+                fontFamily = Font.getAodFont(clockStyle),
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false)
                 )
@@ -245,7 +232,7 @@ fun AodPreviewContent(
                 text = dateFormat.format(Date(currentTime)).uppercase(),
                 color = Color.Gray,
                 fontSize = fontSizeDate.sp,
-                fontFamily = AppFont.AzeretMonoLight,
+                fontFamily = Font.AzeretMonoLight,
                 style = TextStyle(
                     platformStyle = PlatformTextStyle(includeFontPadding = false)
                 )
@@ -266,18 +253,21 @@ fun AodPreviewContent(
                 )
 
                 Text(
-                    text = "${LocalBatteryState.current.level}%",
+                    text = stringResource(
+                        R.string.battery_percentage,
+                        LocalBatteryState.current.level
+                    ),
                     color = Color.White,
                     fontSize = 11.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle)
+                    fontFamily = Font.getAodFont(clockStyle)
                 )
             }
         } else {
             Text(
-                text = "${LocalBatteryState.current.level}%",
+                text = stringResource(R.string.battery_percentage, LocalBatteryState.current.level),
                 color = Color.White,
                 fontSize = 14.sp,
-                fontFamily = AppFont.getAodFont(clockStyle)
+                fontFamily = Font.getAodFont(clockStyle)
             )
         }
 
@@ -286,34 +276,34 @@ fun AodPreviewContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "25W",
+                    text = Constants.DUMMY_WATTAGE,
                     color = color,
                     fontSize = 6.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle),
+                    fontFamily = Font.getAodFont(clockStyle),
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
                 Text(
                     text = stringResource(R.string.aod_charging_speed_label).uppercase(),
                     color = Color.Gray,
                     fontSize = 3.sp,
-                    fontFamily = AppFont.AzeretMonoLight,
+                    fontFamily = Font.AzeretMonoLight,
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "01:20",
+                    text = Constants.DUMMY_TIME_REMAINING,
                     color = Color.White,
                     fontSize = 6.sp,
-                    fontFamily = AppFont.getAodFont(clockStyle),
+                    fontFamily = Font.getAodFont(clockStyle),
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
                 Text(
                     text = stringResource(R.string.aod_time_remaining_label).uppercase(),
                     color = Color.Gray,
                     fontSize = 3.sp,
-                    fontFamily = AppFont.AzeretMonoLight,
+                    fontFamily = Font.AzeretMonoLight,
                     style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
                 )
             }
@@ -353,11 +343,11 @@ fun AodColorSelector(
     selectedColor: Color,
     onColorSelect: (Long) -> Unit
 ) {
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+    Column {
         Text(
             text = stringResource(R.string.aod_accent_color).uppercase(),
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = AppFont.AzeretMonoLight,
+            fontFamily = Font.AzeretMonoLight,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
@@ -404,11 +394,11 @@ fun StyleSelector(
     onSelect: (Int) -> Unit,
     content: @Composable (Int, Boolean) -> Unit
 ) {
-    Column(modifier = Modifier.padding(vertical = 12.dp)) {
+    Column {
         Text(
             text = title.uppercase(),
             style = MaterialTheme.typography.labelSmall,
-            fontFamily = AppFont.AzeretMonoLight,
+            fontFamily = Font.AzeretMonoLight,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
@@ -432,5 +422,75 @@ fun StyleSelector(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun AodSettingsSectionContent() {
+    val state = LocalSettingsState.current
+    val actions = LocalSettingsActions.current
+
+    SettingsSection(stringResource(R.string.aod_look_feel)) {
+        // Clock Settings
+        switchItem(
+            title = stringResource(R.string.aod_show_clock),
+            checked = state.aodShowClock,
+            onCheckedChange = actions.onAodShowClockChange
+        )
+
+        if (state.aodShowClock) {
+            sliderItem(
+                title = stringResource(R.string.aod_font_size_clock),
+                description = stringResource(
+                    R.string.battery_percentage,
+                    ((state.aodFontSizeClock - Constants.CLOCK_SIZE_MIN.toInt()) * 100 / (Constants.CLOCK_SIZE_MAX - Constants.CLOCK_SIZE_MIN).toInt())
+                ),
+                value = state.aodFontSizeClock,
+                onValueChange = actions.onAodFontSizeClockChange,
+                range = Constants.CLOCK_SIZE_MIN..Constants.CLOCK_SIZE_MAX
+            )
+
+            switchItem(
+                title = stringResource(R.string.aod_24h_format),
+                checked = state.aod24hFormat,
+                onCheckedChange = actions.onAod24hFormatChange
+            )
+        }
+
+        // Date Settings
+        switchItem(
+            title = stringResource(R.string.aod_show_date),
+            checked = state.aodShowDate,
+            onCheckedChange = actions.onAodShowDateChange
+        )
+
+        if (state.aodShowDate) {
+            sliderItem(
+                title = stringResource(R.string.aod_font_size_date),
+                description = stringResource(
+                    R.string.battery_percentage,
+                    ((state.aodFontSizeDate - Constants.DATE_SIZE_MIN.toInt()) * 100 / (Constants.DATE_SIZE_MAX - Constants.DATE_SIZE_MIN).toInt())
+                ),
+                value = state.aodFontSizeDate,
+                onValueChange = actions.onAodFontSizeDateChange,
+                range = Constants.DATE_SIZE_MIN..Constants.DATE_SIZE_MAX
+            )
+        }
+
+        // Advanced Options
+        switchItem(
+            title = stringResource(R.string.aod_show_shortcuts),
+            description = stringResource(R.string.aod_show_shortcuts_desc),
+            checked = state.aodShowShortcuts,
+            onCheckedChange = actions.onAodShowShortcutsChange
+        )
+
+        sliderItem(
+            title = stringResource(R.string.aod_dim_amount),
+            description = stringResource(R.string.battery_percentage, state.aodDimAmount),
+            value = state.aodDimAmount,
+            onValueChange = actions.onAodDimAmountChange,
+            range = 0f..Constants.DIM_MAX
+        )
     }
 }

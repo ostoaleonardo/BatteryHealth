@@ -55,6 +55,13 @@ object Constants {
     const val OFF = "off"
     const val ON = "on"
     const val TIP_ANIMATION_LABEL = "tip_animation"
+    const val EMPTY_VALUE_DASH = "--"
+    const val ZERO_TIME = "00:00"
+
+    // Time & Date Patterns
+    const val TIME_PATTERN_24H = "HH:mm"
+    const val TIME_PATTERN_12H = "hh:mm"
+    const val DATE_PATTERN = "EEE, d MMM"
 
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"
@@ -65,8 +72,21 @@ object Constants {
     const val PLAY_STORE_MARKET_URL = "market://details?id="
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
-    const val EMPTY_VALUE_DASH = "--"
-    const val ZERO_TIME = "00:00"
+    // AOD Style Constants
+    const val CLOCK_STYLES_COUNT = 6
+    const val WATER_GLASS_DELAY = 50L
+    const val PREVIEW_TIME_DELAY = 1000L
+
+    // AOD Range Constants
+    const val CLOCK_SIZE_MIN = 40f
+    const val CLOCK_SIZE_MAX = 120f
+    const val DATE_SIZE_MIN = 10f
+    const val DATE_SIZE_MAX = 30f
+    const val DIM_MAX = 80f
+
+    // AOD Preview Constants
+    const val DUMMY_WATTAGE = "25W"
+    const val DUMMY_TIME_REMAINING = "01:20"
 
     // Colors
     val ColorGreen = Color(0xFF00A25B)

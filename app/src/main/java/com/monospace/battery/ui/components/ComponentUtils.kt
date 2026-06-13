@@ -129,6 +129,11 @@ fun getBatteryLevelColor(level: Int): Color = when {
 }
 
 @Composable
+fun getAodColor(colorValue: Long): Color {
+    return if (colorValue == 0L) MaterialTheme.colorScheme.primary else Color(colorValue)
+}
+
+@Composable
 fun formatResourceOrDash(value: Int, resId: Int, vararg args: Any): String {
     return if (value > 0) {
         stringResource(resId, *args)
