@@ -180,7 +180,8 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         onUpdateClick = { AppUtils.openPlayStore(context) },
-                        onRateClick = { AppUtils.openPlayStore(context) }
+                        onRateClick = { AppUtils.openPlayStore(context) },
+                        onDeleteHistoryClick = settingsViewModel::clearAllData
                     )
                 }
 

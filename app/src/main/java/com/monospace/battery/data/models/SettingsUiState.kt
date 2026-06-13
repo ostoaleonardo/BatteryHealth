@@ -56,7 +56,8 @@ data class SettingsUiActions(
     val onUnlockClick: () -> Unit = {},
     val onNotificationPermissionRequest: () -> Unit = {},
     val onUpdateClick: () -> Unit = {},
-    val onRateClick: () -> Unit = {}
+    val onRateClick: () -> Unit = {},
+    val onDeleteHistoryClick: () -> Unit = {}
 )
 
 val LocalSettingsState = staticCompositionLocalOf { SettingsUiState() }

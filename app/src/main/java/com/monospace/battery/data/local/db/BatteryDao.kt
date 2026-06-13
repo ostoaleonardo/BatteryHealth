@@ -47,4 +47,13 @@ interface BatteryDao {
 
     @Query("SELECT timestamp FROM battery_history WHERE level = 100 ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLastFullChargeTime(): Long?
+
+    @Query("DELETE FROM battery_history")
+    suspend fun deleteAllHistory()
+
+    @Query("DELETE FROM charge_sessions")
+    suspend fun deleteAllSessions()
+
+    @Query("DELETE FROM screen_events")
+    suspend fun deleteAllScreenEvents()
 }

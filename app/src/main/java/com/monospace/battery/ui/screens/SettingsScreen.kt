@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,11 +14,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.data.models.BatteryState
+import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.ui.components.settings.AboutSection
+import com.monospace.battery.ui.components.settings.DataManagementSection
 import com.monospace.battery.ui.components.settings.SettingsBannerSection
 import com.monospace.battery.ui.theme.BatteryTheme
 
@@ -36,21 +41,24 @@ fun SettingsScreen() {
         ) {
             SettingsBannerSection()
 
+            DataManagementSection()
+
             AboutSection()
         }
     }
 }
 
-@Preview(showBackground = true, locale = "es")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SettingsScreenPreview() {
     BatteryTheme {
         CompositionLocalProvider(
             LocalSettingsState provides SettingsUiState(
                 isWidgetsPurchased = false,
-                versionName = "1.1.2"
+                versionName = Constants.DEFAULT_VERSION_NAME
             ),
-            LocalSettingsActions provides SettingsUiActions()
+            LocalSettingsActions provides SettingsUiActions(),
+            LocalBatteryState provides BatteryState()
         ) {
             SettingsScreen()
         }

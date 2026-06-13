@@ -1,10 +1,10 @@
 package com.monospace.battery.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -35,25 +35,27 @@ inline fun SettingsSection(
 ) {
     val scope = SettingsSectionScope()
     scope.content()
+
     val items = scope.getItems()
+    if (items.isEmpty()) return
 
     Column {
         if (title != null) {
             SectionTitle(title)
         }
 
-        items.forEachIndexed { index, item ->
-            val position = when {
-                items.size == 1 -> SettingsItemPosition.SINGLE
-                index == 0 -> SettingsItemPosition.TOP
-                index == items.size - 1 -> SettingsItemPosition.BOTTOM
-                else -> SettingsItemPosition.MIDDLE
-            }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items.forEachIndexed { index, item ->
+                val position = when {
+                    items.size == 1 -> SettingsItemPosition.SINGLE
+                    index == 0 -> SettingsItemPosition.TOP
+                    index == items.size - 1 -> SettingsItemPosition.BOTTOM
+                    else -> SettingsItemPosition.MIDDLE
+                }
 
-            item(position)
-
-            if (index < items.size - 1) {
-                Spacer(modifier = Modifier.height(2.dp))
+                item(position)
             }
         }
     }
@@ -66,10 +68,11 @@ class SettingsSectionScope {
         title: String,
         description: String? = null,
         enabled: Boolean = true,
+        iconRes: Int = R.drawable.open_in_new,
         onClick: () -> Unit
     ) {
         items.add { position ->
-            SettingsItem(title, description, position, enabled, onClick)
+            SettingsItem(title, description, position, enabled, iconRes, onClick)
         }
     }
 
@@ -189,6 +192,7 @@ fun SettingsItem(
     description: String? = null,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
     enabled: Boolean = true,
+    iconRes: Int = R.drawable.open_in_new,
     onClick: () -> Unit
 ) {
     SettingsBaseItem(
@@ -199,7 +203,7 @@ fun SettingsItem(
         onClick = onClick
     ) {
         Icon(
-            painter = painterResource(id = R.drawable.open_in_new),
+            painter = painterResource(id = iconRes),
             contentDescription = null,
             modifier = Modifier.size(24.dp)
         )

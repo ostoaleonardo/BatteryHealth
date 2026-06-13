@@ -68,10 +68,6 @@
     <string name="settings_version">Versión %s</string>
     <string name="settings_rate_us">Calificanos</string>
 
-    <!-- Premium -->
-    <string name="premium_title">Función Premium</string>
-    <string name="premium_description">Obtén la experiencia completa: alertas personalizables, widgets pro y seguimiento detallado del historial.</string>
-
     <!-- Alarms -->
     <string name="settings_healthy_charge">Alarma de carga saludable</string>
     <string name="settings_healthy_charge_desc">Avisar cuando la batería llegue a un nivel específico para prolongar su vida útil.</string>
@@ -191,7 +187,6 @@
     <string name="alerts_category_charge">Alertas de carga</string>
     <string name="alerts_category_discharge">Alertas de descarga</string>
     <string name="alerts_category_safety">Alertas de seguridad</string>
-    <string name="alerts_category_monitoring">Monitoreo del Sistema</string>
     <string name="settings_active_monitoring">Monitoreo Activo</string>
     <string name="settings_active_monitoring_desc">Activa diagnósticos de hardware y alertas de seguridad en tiempo real. Desactivar esto detiene el registro del historial.</string>
     <string name="aod_clock_style">Estilo de Reloj</string>
@@ -199,4 +194,14 @@
     <string name="aod_accent_color">Color de Acento</string>
     <string name="permission_overlay_title">Permiso de Superposición Requerido</string>
     <string name="permission_overlay_desc">Always-On Display necesita permiso para mostrarse sobre la pantalla de bloqueo.</string>
+
+    <!-- Gestión de Datos -->
+    <string name="settings_data_management">Gestión de Datos</string>
+    <string name="settings_delete_history">Borrar historial de batería</string>
+    <string name="settings_delete_history_desc">Elimina permanentemente todo el historial registrado, sesiones de carga y analíticas.</string>
+    <string name="settings_delete_confirm_title">¿Borrar todos los datos?</string>
+    <string name="settings_delete_confirm_message">Esta acción no se puede deshacer. Todo tu historial de batería y analíticas se borrarán permanentemente.</string>
+    <string name="settings_delete_success">Datos borrados con éxito</string>
+    <string name="action_delete">Borrar</string>
+    <string name="action_cancel">Cancelar</string>
 </resources>

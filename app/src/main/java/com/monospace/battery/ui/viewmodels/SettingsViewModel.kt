@@ -4,12 +4,17 @@ import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.local.PreferenceManager
+import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.SettingsUiState
+import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = PreferenceManager(application)
+    private val db = BatteryDatabase.getDatabase(application)
+    private val dao = db.batteryDao()
 
     private val _uiState = mutableStateOf(loadInitialState())
     val uiState: State<SettingsUiState> = _uiState
@@ -226,6 +231,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun toggleAodShowShortcuts(show: Boolean) {
         updatePref(Constants.KEY_AOD_SHOW_SHORTCUTS, show)
         _uiState.value = _uiState.value.copy(aodShowShortcuts = show)
+    }
+
+    fun clearAllData() {
+        viewModelScope.launch {
+            dao.deleteAllHistory()
+            dao.deleteAllSessions()
+            dao.deleteAllScreenEvents()
+        }
     }
 
     private fun updatePref(key: String, value: Any) {

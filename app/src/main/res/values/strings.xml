@@ -206,4 +206,14 @@
     <string name="aod_accent_color">Accent Color</string>
     <string name="permission_overlay_title">Overlay Permission Required</string>
     <string name="permission_overlay_desc">Always-On Display needs permission to show over the lock screen.</string>
+
+    <!-- Data Management -->
+    <string name="settings_data_management">Data Management</string>
+    <string name="settings_delete_history">Delete battery history</string>
+    <string name="settings_delete_history_desc">Permanently remove all recorded history, charge sessions, and analytics.</string>
+    <string name="settings_delete_confirm_title">Clear all data?</string>
+    <string name="settings_delete_confirm_message">This action cannot be undone. All your battery history and analytics will be permanently deleted.</string>
+    <string name="settings_delete_success">Data deleted successfully</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_cancel">Cancel</string>
 </resources>
