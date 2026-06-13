@@ -26,92 +26,123 @@ import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.BannerActionCard
-import com.monospace.battery.ui.components.SectionTitle
+import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.Font
 
 @Composable
 fun ChargeSessionsSection(
     sessions: List<ChargeSession>
 ) {
-    val state = LocalSettingsState.current
-    val actions = LocalSettingsActions.current
-    val batteryState = LocalBatteryState.current
-    
-    val isPremium = state.isWidgetsPurchased
-    val currentLevel = batteryState.level
-    val onUpgradeClick = actions.onUnlockClick
+    val isPremium = LocalSettingsState.current.isWidgetsPurchased
 
     var limit by remember { mutableIntStateOf(5) }
+    val displayedSessions = if (isPremium) sessions.take(limit) else sessions.take(3)
 
-    val displayedSessions = when {
-        !isPremium -> sessions.take(3)
-        else -> sessions.take(limit)
-    }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(stringResource(R.string.history_sessions_title))
-
-        if (sessions.isEmpty()) {
-            Text(
-                text = stringResource(R.string.history_no_sessions),
-                modifier = Modifier.padding(24.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                fontFamily = Font.AzeretMonoLight
-            )
-        } else {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    SettingsSection(stringResource(R.string.history_sessions_title)) {
+        customItem {
+            if (sessions.isEmpty()) {
+                EmptySessionsView()
+            } else {
+                SessionsListCard(
+                    sessions = displayedSessions,
+                    totalCount = sessions.size,
+                    limit = limit,
+                    onShowMoreClick = { limit += 5 }
                 )
-            ) {
-                Column {
-                    displayedSessions.forEachIndexed { index, session ->
-                        ChargeSessionItem(
-                            session = session,
-                            currentLevel = currentLevel,
-                            showDivider = index < displayedSessions.size - 1
-                        )
-                    }
-
-                    if (!isPremium && sessions.size > 3) {
-                        BannerActionCard(
-                            title = stringResource(R.string.history_unlock_full),
-                            description = stringResource(R.string.history_unlock_full_desc),
-                            icon = Icons.Default.Lock,
-                            onClick = onUpgradeClick,
-                            shape = RoundedCornerShape(
-                                bottomStart = 28.dp,
-                                bottomEnd = 28.dp
-                            )
-                        )
-                    } else if (isPremium && sessions.size > limit) {
-                        val nextBatch = minOf(5, sessions.size - limit)
-
-                        Button(
-                            onClick = { limit += 5 },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp, bottom = 16.dp)
-                                .padding(horizontal = 16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Text(
-                                text = stringResource(R.string.history_show_more, nextBatch).uppercase(),
-                                fontFamily = Font.AzeretMonoLight,
-                                style = MaterialTheme.typography.labelLarge
-                            )
-                        }
-                    }
-                }
             }
         }
+    }
+}
+
+@Composable
+private fun EmptySessionsView() {
+    Text(
+        text = stringResource(R.string.history_no_sessions),
+        modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodyMedium,
+        fontFamily = Font.AzeretMonoLight
+    )
+}
+
+@Composable
+private fun SessionsListCard(
+    sessions: List<ChargeSession>,
+    totalCount: Int,
+    limit: Int,
+    onShowMoreClick: () -> Unit
+) {
+    val isPremium = LocalSettingsState.current.isWidgetsPurchased
+    val currentLevel = LocalBatteryState.current.level
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column {
+            sessions.forEachIndexed { index, session ->
+                ChargeSessionItem(
+                    session = session,
+                    currentLevel = currentLevel,
+                    showDivider = index < sessions.size - 1
+                )
+            }
+
+            if (!isPremium && totalCount > 3) {
+                PremiumUpgradeBanner()
+            } else if (isPremium && totalCount > limit) {
+                ShowMoreButton(
+                    remainingCount = totalCount - limit,
+                    onClick = onShowMoreClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PremiumUpgradeBanner() {
+    val onUpgradeClick = LocalSettingsActions.current.onUnlockClick
+
+    BannerActionCard(
+        title = stringResource(R.string.history_unlock_full),
+        description = stringResource(R.string.history_unlock_full_desc),
+        icon = Icons.Default.Lock,
+        onClick = onUpgradeClick,
+        shape = RoundedCornerShape(
+            bottomStart = 28.dp,
+            bottomEnd = 28.dp
+        )
+    )
+}
+
+@Composable
+private fun ShowMoreButton(
+    remainingCount: Int,
+    onClick: () -> Unit
+) {
+    val nextBatch = minOf(5, remainingCount)
+
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 16.dp)
+            .padding(horizontal = 16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+            contentColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Text(
+            text = stringResource(R.string.history_show_more, nextBatch).uppercase(),
+            fontFamily = Font.AzeretMonoLight,
+            style = MaterialTheme.typography.labelLarge
+        )
     }
 }

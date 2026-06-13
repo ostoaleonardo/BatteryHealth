@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,8 +33,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.BatteryTip
-import com.monospace.battery.ui.components.SectionTitle
+import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.Font
 
 @Composable
@@ -43,36 +43,31 @@ fun BatteryTipsSection(
     tip: BatteryTip,
     onNextTip: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SectionTitle(stringResource(R.string.tips_title))
-
+    SettingsSection(
+        title = stringResource(R.string.tips_title),
+        trailingContent = {
             IconButton(
                 onClick = onNextTip,
                 modifier = Modifier.size(32.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = null,
                     modifier = Modifier.size(16.dp),
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = stringResource(R.string.action_refresh),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
-
-        AnimatedContent(
-            targetState = tip,
-            transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
-            label = "tip_animation",
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) { currentTip ->
-            TipCard(currentTip)
+    ) {
+        customItem { _ ->
+            AnimatedContent(
+                targetState = tip,
+                transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },
+                label = Constants.TIP_ANIMATION_LABEL,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) { currentTip ->
+                TipCard(currentTip)
+            }
         }
     }
 }

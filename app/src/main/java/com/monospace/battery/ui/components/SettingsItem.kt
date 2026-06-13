@@ -31,6 +31,7 @@ enum class SettingsItemPosition {
 @Composable
 inline fun SettingsSection(
     title: String? = null,
+    noinline trailingContent: (@Composable () -> Unit)? = null,
     content: SettingsSectionScope.() -> Unit
 ) {
     val scope = SettingsSectionScope()
@@ -41,7 +42,10 @@ inline fun SettingsSection(
 
     Column {
         if (title != null) {
-            SectionTitle(title)
+            SectionTitle(
+                title = title,
+                trailingContent = trailingContent
+            )
         }
 
         Column(
@@ -107,6 +111,12 @@ class SettingsSectionScope {
                 range = range
             )
         }
+    }
+
+    fun customItem(
+        content: @Composable (SettingsItemPosition) -> Unit
+    ) {
+        items.add(content)
     }
 
     fun getItems() = items

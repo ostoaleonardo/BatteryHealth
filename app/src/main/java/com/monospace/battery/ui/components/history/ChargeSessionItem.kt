@@ -43,8 +43,11 @@ fun ChargeSessionItem(
     val sourceIcon = batteryStrings.getChargingSourceIcon(session.chargeSource)
 
     val timeFormat = SimpleDateFormat("HH:mm", locale)
+    val dateFormat = SimpleDateFormat("d MMM", locale)
+
+    val dateStr = dateFormat.format(Date(session.startTime))
     val startStr = timeFormat.format(Date(session.startTime))
-    val endStr = session.endTime?.let { timeFormat.format(Date(it)) } 
+    val endStr = session.endTime?.let { timeFormat.format(Date(it)) }
         ?: stringResource(R.string.history_currently_charging)
 
     val endLevel = session.endLevel ?: currentLevel
@@ -84,7 +87,7 @@ fun ChargeSessionItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "$startStr — $endStr",
+                    text = "$dateStr, $startStr — $endStr",
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = Font.AzeretMonoLight,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

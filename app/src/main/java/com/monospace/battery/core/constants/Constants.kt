@@ -54,6 +54,7 @@ object Constants {
     // General
     const val OFF = "off"
     const val ON = "on"
+    const val TIP_ANIMATION_LABEL = "tip_animation"
 
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"

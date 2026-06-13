@@ -11,16 +11,13 @@ import com.monospace.battery.ui.components.SettingsSection
 fun ActiveMonitoringSection() {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
-    val shouldShow = !state.anyAlertEnabled
 
-    if (shouldShow) {
-        SettingsSection {
-            switchItem(
-                title = stringResource(R.string.settings_active_monitoring),
-                description = stringResource(R.string.settings_active_monitoring_desc),
-                checked = state.activeMonitoringEnabled,
-                onCheckedChange = actions.onActiveMonitoringChange
-            )
-        }
+    SettingsSection {
+        switchItem(
+            title = stringResource(R.string.settings_active_monitoring),
+            description = stringResource(R.string.settings_active_monitoring_desc),
+            checked = state.activeMonitoringEnabled,
+            onCheckedChange = actions.onActiveMonitoringChange
+        )
     }
 }

@@ -36,63 +36,66 @@ import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.BannerActionCard
 import com.monospace.battery.ui.components.ClickableTooltip
-import com.monospace.battery.ui.components.SectionTitle
+import com.monospace.battery.ui.components.SettingsSection
 import com.monospace.battery.ui.theme.Font
 
 @Composable
 fun ChargerAnalysisSection(
     stats: List<ChargerStats>
 ) {
-    val state = LocalSettingsState.current
-    val actions = LocalSettingsActions.current
-    val isPremium = state.isWidgetsPurchased
-    val onUpgradeClick = actions.onUnlockClick
+    val isPremium = LocalSettingsState.current.isWidgetsPurchased
+    val displayedStats = if (isPremium) stats else stats.take(1)
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionTitle(stringResource(R.string.charger_analysis_title))
-
-        if (stats.isEmpty()) {
-            Text(
-                text = stringResource(R.string.charger_analysis_no_data),
-                modifier = Modifier.padding(24.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyMedium,
-                fontFamily = Font.AzeretMonoLight
-            )
-        } else {
-            val displayedStats = if (isPremium) stats else stats.take(1)
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    SettingsSection(stringResource(R.string.charger_analysis_title)) {
+        customItem { _ ->
+            if (stats.isEmpty()) {
+                EmptyChargerStatsView()
+            } else {
+                ChargerStatsListCard(
+                    displayedStats = displayedStats,
+                    isPremium = isPremium
                 )
-            ) {
-                Column {
-                    displayedStats.forEachIndexed { index, stat ->
-                        ChargerStatItem(
-                            stat = stat,
-                            isLocked = !isPremium,
-                            showDivider = index < displayedStats.size - 1
-                        )
-                    }
+            }
+        }
+    }
+}
 
-                    if (!isPremium) {
-                        BannerActionCard(
-                            title = stringResource(R.string.history_unlock_full),
-                            description = stringResource(R.string.charger_analysis_upsell_desc),
-                            icon = Icons.Default.Lock,
-                            onClick = onUpgradeClick,
-                            shape = RoundedCornerShape(
-                                bottomStart = 28.dp,
-                                bottomEnd = 28.dp
-                            )
-                        )
-                    }
-                }
+@Composable
+private fun EmptyChargerStatsView() {
+    Text(
+        text = stringResource(R.string.charger_analysis_no_data),
+        modifier = Modifier.padding(vertical = 16.dp, horizontal = 24.dp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        style = MaterialTheme.typography.bodyMedium,
+        fontFamily = Font.AzeretMonoLight
+    )
+}
+
+@Composable
+private fun ChargerStatsListCard(
+    displayedStats: List<ChargerStats>,
+    isPremium: Boolean
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+        )
+    ) {
+        Column {
+            displayedStats.forEachIndexed { index, stat ->
+                ChargerStatItem(
+                    stat = stat,
+                    isLocked = !isPremium,
+                    showDivider = index < displayedStats.size - 1
+                )
+            }
+
+            if (!isPremium) {
+                PremiumChargerUpgradeBanner()
             }
         }
     }
@@ -110,7 +113,7 @@ private fun ChargerStatItem(
     val sourceIcon = batteryStrings.getChargingSourceIcon(stat.source)
 
     Column {
-        // Header Row with subtle background
+        // Header Row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,6 +195,22 @@ private fun ChargerStatItem(
             )
         }
     }
+}
+
+@Composable
+private fun PremiumChargerUpgradeBanner() {
+    val onUpgradeClick = LocalSettingsActions.current.onUnlockClick
+
+    BannerActionCard(
+        title = stringResource(R.string.history_unlock_full),
+        description = stringResource(R.string.charger_analysis_upsell_desc),
+        icon = Icons.Default.Lock,
+        onClick = onUpgradeClick,
+        shape = RoundedCornerShape(
+            bottomStart = 28.dp,
+            bottomEnd = 28.dp
+        )
+    )
 }
 
 @Composable

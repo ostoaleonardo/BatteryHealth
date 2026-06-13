@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.monospace.battery.data.local.BatteryTipsProvider
+import com.monospace.battery.data.mocks.MockDataProvider
 import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.BatteryTip
@@ -43,7 +43,7 @@ fun HistoryScreen(
     val chargerStats by viewModel.chargerStats.collectAsState()
     val currentTip by viewModel.currentTip.collectAsState()
 
-    HistoryContent(
+    HistoryScreen(
         history = history,
         sessions = sessions,
         chargerStats = chargerStats,
@@ -53,13 +53,15 @@ fun HistoryScreen(
 }
 
 @Composable
-fun HistoryContent(
+private fun HistoryScreen(
     history: List<BatteryHistoryEntry>,
     sessions: List<ChargeSession>,
     chargerStats: List<ChargerStats>,
     currentTip: BatteryTip,
     onNextTip: () -> Unit
 ) {
+    val settingsState = LocalSettingsState.current
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -70,8 +72,10 @@ fun HistoryContent(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // 1. Active Monitoring Switch
-            item {
-                ActiveMonitoringSection()
+            if (!settingsState.anyAlertEnabled) {
+                item {
+                    ActiveMonitoringSection()
+                }
             }
 
             // 2. Consumption Chart
@@ -91,7 +95,10 @@ fun HistoryContent(
 
             // 5. Battery Tips
             item {
-                BatteryTipsSection(currentTip, onNextTip)
+                BatteryTipsSection(
+                    tip = currentTip,
+                    onNextTip = onNextTip
+                )
             }
         }
     }
@@ -100,19 +107,17 @@ fun HistoryContent(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun HistoryScreenPreview() {
-    val initialTip = BatteryTipsProvider.getInitialTip().second
-
     BatteryTheme {
         CompositionLocalProvider(
-            LocalSettingsState provides SettingsUiState(),
+            LocalSettingsState provides SettingsUiState(isWidgetsPurchased = true),
             LocalSettingsActions provides SettingsUiActions(),
-            LocalBatteryState provides BatteryState()
+            LocalBatteryState provides BatteryState(level = 45)
         ) {
-            HistoryContent(
-                history = emptyList(),
-                sessions = emptyList(),
-                chargerStats = emptyList(),
-                currentTip = initialTip,
+            HistoryScreen(
+                history = MockDataProvider.dummyHistory,
+                sessions = MockDataProvider.dummySessions,
+                chargerStats = MockDataProvider.dummyChargerStats,
+                currentTip = MockDataProvider.dummyTip,
                 onNextTip = {}
             )
         }
