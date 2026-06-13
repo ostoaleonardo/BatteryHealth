@@ -26,8 +26,8 @@ fun ChargingSection() {
     val iconTint = LocalIconTint.current
     val onShowDialog = LocalOnShowDialog.current
 
-    val cardCapacity = remember(state.capacityRemaining) {
-        if (state.capacityRemaining > 0) "${state.capacityRemaining} mAh" else null
+    val cardCapacity = remember(state.capacity) {
+        if (state.capacity > 0) "${state.capacity} mAh" else null
     }
 
     val modalCapacity = remember(state.capacity, state.capacityRemaining) {
