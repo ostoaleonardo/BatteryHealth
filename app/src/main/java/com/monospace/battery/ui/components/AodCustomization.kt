@@ -230,7 +230,9 @@ fun AodPreviewContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        if (showClock || showDate) {
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
         // 1. Meter (Percentage only inside)
         Box(contentAlignment = Alignment.Center) {
@@ -253,8 +255,10 @@ fun AodPreviewContent(
         }
 
         // 2. Metrics (Always shown in preview for context)
-        Spacer(modifier = Modifier.height(16.dp))
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.padding(top = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             MetricItem(
                 value = Constants.DUMMY_WATTAGE,
                 labelRes = R.string.aod_charging_speed_label,

@@ -110,7 +110,9 @@ fun AodMainContent() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            if (state.aodShowClock || state.aodShowDate) {
+                Spacer(modifier = Modifier.height(64.dp))
+            }
 
             Box(contentAlignment = Alignment.Center) {
                 if (!isWaterGlass && state.aodMeterStyle != MeterStyle.NONE.index) {
@@ -133,8 +135,10 @@ fun AodMainContent() {
             }
 
             if (batteryState.isCharging) {
-                Spacer(modifier = Modifier.height(32.dp))
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier.padding(top = 48.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     MetricItem(
                         value = stringResource(
                             R.string.charge_speed_watts,
