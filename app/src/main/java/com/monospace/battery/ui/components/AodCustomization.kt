@@ -39,8 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
@@ -76,7 +74,7 @@ fun AodClockStyleSelector(
             text = timeString,
             color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
-            fontFamily = Font.getAodFont(index)
+            fontFamily = Font.getFont(index)
         )
     }
 }
@@ -171,7 +169,12 @@ fun AodPreviewCard(
             // 1. Water Background (if style 6)
             if (meterStyle == MeterStyle.WATER_GLASS.index) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawAodMeter(MeterStyle.WATER_GLASS, level, color, currentTime)
+                    drawAodMeter(
+                        style = MeterStyle.WATER_GLASS,
+                        level = level,
+                        color = color,
+                        timeMillis = currentTime
+                    )
                 }
             }
 
@@ -207,43 +210,32 @@ fun AodPreviewContent(
     meterStyle: Int,
     color: Color
 ) {
-    val locale = LocalLocale.current.platformLocale
-    val currentTime = System.currentTimeMillis() // Static for preview
-    val timeFormat = SimpleDateFormat(
-        if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H,
-        locale
-    )
-    val dateFormat = SimpleDateFormat(Constants.DATE_PATTERN, locale)
+    val currentTime = System.currentTimeMillis()
+    val isWaterGlass = meterStyle == MeterStyle.WATER_GLASS.index
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (showClock) {
-            Text(
-                text = timeFormat.format(Date(currentTime)),
-                color = Color.White,
+            ClockDisplay(
+                currentTime = currentTime,
+                styleIndex = clockStyle,
                 fontSize = fontSizeClock.sp,
-                fontFamily = Font.getAodFont(clockStyle),
-                style = TextStyle(
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
+                is24h = is24h,
+                color = Color.White
             )
         }
         if (showDate) {
-            Text(
-                text = dateFormat.format(Date(currentTime)).uppercase(),
-                color = Color.Gray,
+            DateDisplay(
+                currentTime = currentTime,
                 fontSize = fontSizeDate.sp,
-                fontFamily = Font.AzeretMonoLight,
-                style = TextStyle(
-                    platformStyle = PlatformTextStyle(includeFontPadding = false)
-                )
+                color = if (isWaterGlass) Color.White else Color.Gray
             )
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
         // 1. Meter (Percentage only inside)
-        if (meterStyle != MeterStyle.WATER_GLASS.index) {
-            Box(contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center) {
+            if (!isWaterGlass && meterStyle != MeterStyle.NONE.index) {
                 MeterDisplay(
                     styleIndex = meterStyle,
                     color = color,
@@ -251,62 +243,38 @@ fun AodPreviewContent(
                     strokeWidth = 4.dp,
                     size = 50.dp
                 )
-
-                Text(
-                    text = stringResource(
-                        R.string.battery_percentage,
-                        LocalBatteryState.current.level
-                    ),
-                    color = Color.White,
-                    fontSize = 11.sp,
-                    fontFamily = Font.getAodFont(clockStyle)
-                )
             }
-        } else {
-            Text(
-                text = stringResource(R.string.battery_percentage, LocalBatteryState.current.level),
-                color = Color.White,
-                fontSize = 14.sp,
-                fontFamily = Font.getAodFont(clockStyle)
+
+            PercentageDisplay(
+                level = LocalBatteryState.current.level,
+                fontSize = if (isWaterGlass) 14.sp else 11.sp,
+                styleIndex = clockStyle,
+                color = Color.White
             )
         }
 
         // 2. Metrics (Always shown in preview for context)
         Spacer(modifier = Modifier.height(16.dp))
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = Constants.DUMMY_WATTAGE,
-                    color = color,
-                    fontSize = 6.sp,
-                    fontFamily = Font.getAodFont(clockStyle),
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-                Text(
-                    text = stringResource(R.string.aod_charging_speed_label).uppercase(),
-                    color = Color.Gray,
-                    fontSize = 3.sp,
-                    fontFamily = Font.AzeretMonoLight,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-            }
+            MetricItem(
+                value = Constants.DUMMY_WATTAGE,
+                labelRes = R.string.aod_charging_speed_label,
+                valueColor = if (isWaterGlass) Color.White else color,
+                labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                styleIndex = clockStyle,
+                valueFontSize = 6.sp,
+                labelFontSize = 3.sp
+            )
             Spacer(modifier = Modifier.height(8.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = Constants.DUMMY_TIME_REMAINING,
-                    color = Color.White,
-                    fontSize = 6.sp,
-                    fontFamily = Font.getAodFont(clockStyle),
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-                Text(
-                    text = stringResource(R.string.aod_time_remaining_label).uppercase(),
-                    color = Color.Gray,
-                    fontSize = 3.sp,
-                    fontFamily = Font.AzeretMonoLight,
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-            }
+            MetricItem(
+                value = Constants.DUMMY_TIME_REMAINING,
+                labelRes = R.string.aod_time_remaining_label,
+                valueColor = Color.White,
+                labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                styleIndex = clockStyle,
+                valueFontSize = 6.sp,
+                labelFontSize = 3.sp
+            )
         }
     }
 }

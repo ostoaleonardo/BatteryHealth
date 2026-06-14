@@ -1,17 +1,28 @@
 package com.monospace.battery.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -19,10 +30,22 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
+import com.monospace.battery.ui.theme.Font
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -36,6 +59,117 @@ enum class MeterStyle(val index: Int) {
 
     companion object {
         fun fromIndex(index: Int): MeterStyle = entries.find { it.index == index } ?: NONE
+    }
+}
+
+@Composable
+fun ClockDisplay(
+    currentTime: Long,
+    styleIndex: Int,
+    fontSize: TextUnit,
+    is24h: Boolean,
+    color: Color = Color.White
+) {
+    val timeFormat = SimpleDateFormat(
+        if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H,
+        LocalLocale.current.platformLocale
+    )
+
+    Text(
+        text = timeFormat.format(Date(currentTime)),
+        color = color,
+        fontSize = fontSize,
+        fontFamily = Font.getFont(styleIndex),
+        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+    )
+}
+
+@Composable
+fun DateDisplay(
+    currentTime: Long,
+    fontSize: TextUnit,
+    color: Color = Color.Gray
+) {
+    val dateFormat = SimpleDateFormat(Constants.DATE_PATTERN, LocalLocale.current.platformLocale)
+
+    Text(
+        text = dateFormat.format(Date(currentTime)).uppercase(),
+        color = color,
+        fontSize = fontSize,
+        fontFamily = Font.AzeretMonoLight,
+        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+    )
+}
+
+@Composable
+fun PercentageDisplay(
+    level: Int,
+    fontSize: TextUnit,
+    styleIndex: Int,
+    color: Color = Color.White
+) {
+    Text(
+        text = stringResource(R.string.battery_percentage, level),
+        color = color,
+        fontSize = fontSize,
+        fontFamily = Font.getFont(styleIndex),
+        style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+    )
+}
+
+@Composable
+fun MetricItem(
+    value: String,
+    labelRes: Int,
+    valueColor: Color,
+    labelColor: Color = Color.Gray,
+    styleIndex: Int,
+    valueFontSize: TextUnit = 20.sp,
+    labelFontSize: TextUnit = 10.sp
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        Text(
+            text = value,
+            color = valueColor,
+            fontSize = valueFontSize,
+            fontFamily = Font.getFont(styleIndex),
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        )
+        Text(
+            text = stringResource(labelRes).uppercase(),
+            color = labelColor,
+            fontSize = labelFontSize,
+            fontFamily = Font.AzeretMonoLight,
+            style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
+        )
+    }
+}
+
+@Composable
+fun ShortcutIcon(
+    iconRes: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: Dp = 56.dp,
+    iconSize: Dp = 24.dp
+) {
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(CircleShape)
+            .background(Color.White.copy(alpha = 0.1f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(iconSize)
+        )
     }
 }
 
@@ -58,7 +192,7 @@ fun MeterDisplay(
         LaunchedEffect(Unit) {
             while (true) {
                 currentTime = System.currentTimeMillis()
-                delay(50L)
+                delay(Constants.WATER_GLASS_DELAY)
             }
         }
     }

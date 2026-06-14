@@ -18,11 +18,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,44 +29,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLocale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsState
+import com.monospace.battery.ui.components.ClockDisplay
+import com.monospace.battery.ui.components.DateDisplay
 import com.monospace.battery.ui.components.MeterDisplay
 import com.monospace.battery.ui.components.MeterStyle
+import com.monospace.battery.ui.components.MetricItem
+import com.monospace.battery.ui.components.PercentageDisplay
+import com.monospace.battery.ui.components.ShortcutIcon
 import com.monospace.battery.ui.components.drawAodMeter
-import com.monospace.battery.ui.theme.Font
-import java.text.SimpleDateFormat
-import java.util.Date
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AodMainContent() {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
-
     val themePrimary = MaterialTheme.colorScheme.primary
+
     val accentColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
+    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
 
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
 
     LaunchedEffect(state.aodMeterStyle) {
-        val delayTime = if (state.aodMeterStyle == MeterStyle.WATER_GLASS.index) 50L else 1000L
+        val delayTime = if (isWaterGlass) Constants.WATER_GLASS_DELAY
+        else Constants.PREVIEW_TIME_DELAY
+
         while (true) {
             currentTime = System.currentTimeMillis()
-            kotlinx.coroutines.delay(delayTime)
+            delay(delayTime)
         }
     }
 
@@ -77,163 +74,90 @@ fun AodMainContent() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable { (context as? Activity)?.finish() }
+            .clickable { (context as? Activity)?.finish() },
     ) {
-        // 1. Water Background
-        if (state.aodMeterStyle == MeterStyle.WATER_GLASS.index) {
+        if (isWaterGlass) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
-                    MeterStyle.WATER_GLASS,
-                    batteryState.level,
-                    accentColor,
-                    currentTime
+                    timeMillis = currentTime,
+                    style = MeterStyle.WATER_GLASS,
+                    level = batteryState.level,
+                    color = accentColor
                 )
             }
         }
 
-        // 2. Main Content
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            AODClockSection(currentTime)
+            if (state.aodShowClock) {
+                ClockDisplay(
+                    currentTime = currentTime,
+                    styleIndex = state.aodClockStyle,
+                    fontSize = state.aodFontSizeClock.sp,
+                    is24h = state.aod24hFormat
+                )
+            }
+
+            if (state.aodShowDate) {
+                DateDisplay(
+                    currentTime = currentTime,
+                    fontSize = state.aodFontSizeDate.sp,
+                    color = if (isWaterGlass) Color.White else Color.Gray
+                )
+            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            AODMeterSection(accentColor)
+            Box(contentAlignment = Alignment.Center) {
+                if (!isWaterGlass && state.aodMeterStyle != MeterStyle.NONE.index) {
+                    MeterDisplay(
+                        styleIndex = state.aodMeterStyle,
+                        level = batteryState.level,
+                        color = accentColor,
+                        modifier = Modifier.size(200.dp),
+                        strokeWidth = 10.dp,
+                        size = 200.dp
+                    )
+                }
+
+                PercentageDisplay(
+                    level = batteryState.level,
+                    fontSize = if (isWaterGlass) 54.sp else 44.sp,
+                    styleIndex = state.aodClockStyle,
+                    color = Color.White
+                )
+            }
 
             if (batteryState.isCharging) {
                 Spacer(modifier = Modifier.height(32.dp))
-                AODMetricsSection(accentColor)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    MetricItem(
+                        value = "${batteryState.chargeSpeed}W",
+                        labelRes = R.string.aod_charging_speed_label,
+                        valueColor = if (isWaterGlass) Color.White else accentColor,
+                        labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                        styleIndex = state.aodClockStyle
+                    )
+
+                    if (batteryState.timeRemaining.isNotEmpty() && batteryState.timeRemaining != Constants.ZERO_TIME) {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        MetricItem(
+                            value = batteryState.timeRemaining,
+                            labelRes = R.string.aod_time_remaining_label,
+                            valueColor = Color.White,
+                            labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                            styleIndex = state.aodClockStyle
+                        )
+                    }
+                }
             }
         }
 
-        // 3. Shortcuts Row
-        if (state.aodShowShortcuts) {
-            AODShortcutsSection()
-        }
-
-        // 4. Dim Overlay
-        if (state.aodDimAmount > 0) {
-            AODDimOverlay(state.aodDimAmount)
-        }
-    }
-}
-
-@Composable
-private fun AODClockSection(currentTime: Long) {
-    val state = LocalSettingsState.current
-    val dateFormat = SimpleDateFormat("EEEE, d MMMM", LocalLocale.current.platformLocale)
-    val timeFormat = SimpleDateFormat(
-        if (state.aod24hFormat) "HH:mm" else "hh:mm", LocalLocale.current.platformLocale
-    )
-
-    if (state.aodShowClock) {
-        Text(
-            text = timeFormat.format(Date(currentTime)),
-            color = Color.White,
-            fontSize = state.aodFontSizeClock.sp,
-            fontFamily = Font.getAodFont(state.aodClockStyle),
-            style = TextStyle(
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-    }
-
-    if (state.aodShowDate) {
-        Text(
-            text = dateFormat.format(Date(currentTime)).uppercase(),
-            color = Color.Gray,
-            fontSize = state.aodFontSizeDate.sp,
-            fontFamily = Font.AzeretMonoLight,
-            style = TextStyle(
-                platformStyle = PlatformTextStyle(includeFontPadding = false)
-            )
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AODMeterSection(
-    accentColor: Color
-) {
-    val state = LocalSettingsState.current
-    val batteryState = LocalBatteryState.current
-
-    if (state.aodMeterStyle != MeterStyle.WATER_GLASS.index) {
-        Box(contentAlignment = Alignment.Center) {
-            if (state.aodMeterStyle != MeterStyle.NONE.index) {
-                MeterDisplay(
-                    styleIndex = state.aodMeterStyle,
-                    level = batteryState.level,
-                    color = accentColor,
-                    modifier = Modifier.size(200.dp),
-                    strokeWidth = 10.dp,
-                    size = 200.dp
-                )
-            }
-
-            Text(
-                text = "${batteryState.level}%",
-                color = Color.White,
-                fontSize = 44.sp,
-                fontFamily = Font.getAodFont(state.aodClockStyle)
-            )
-        }
-    } else {
-        Text(
-            text = "${batteryState.level}%",
-            color = Color.White,
-            fontSize = 54.sp,
-            fontFamily = Font.getAodFont(state.aodClockStyle)
-        )
-    }
-}
-
-@Composable
-private fun AODMetricsSection(accentColor: Color) {
-    val state = LocalSettingsState.current
-    val batteryState = LocalBatteryState.current
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // 1. Charging Speed
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "${batteryState.chargeSpeed}W",
-                color = accentColor,
-                fontSize = 20.sp,
-                fontFamily = Font.getAodFont(state.aodClockStyle),
-                style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-            )
-            Text(
-                text = stringResource(R.string.aod_charging_speed_label).uppercase(),
-                color = Color.Gray,
-                fontSize = 10.sp,
-                fontFamily = Font.AzeretMonoLight
-            )
-        }
-
-        // 2. Remaining Time
-        if (batteryState.timeRemaining.isNotEmpty() && batteryState.timeRemaining != Constants.ZERO_TIME) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = batteryState.timeRemaining,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontFamily = Font.getAodFont(state.aodClockStyle),
-                    style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))
-                )
-                Text(
-                    text = stringResource(R.string.aod_time_remaining_label).uppercase(),
-                    color = Color.Gray,
-                    fontSize = 10.sp,
-                    fontFamily = Font.AzeretMonoLight
-                )
-            }
-        }
+        if (state.aodShowShortcuts) AODShortcutsSection()
+        if (state.aodDimAmount > 0) AODDimOverlay(state.aodDimAmount)
     }
 }
 
@@ -253,53 +177,30 @@ private fun AODShortcutsSection() {
             val context = LocalContext.current
             var isFlashlightOn by remember { mutableStateOf(false) }
 
-            // Flashlight
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .clickable {
-                        runCatching {
-                            val cameraManager =
-                                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-                            val cameraId = cameraManager.cameraIdList[0]
-                            isFlashlightOn = !isFlashlightOn
-                            cameraManager.setTorchMode(cameraId, isFlashlightOn)
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(if (isFlashlightOn) R.drawable.flashlight_on else R.drawable.flashlight_off),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+            ShortcutIcon(
+                iconRes = if (isFlashlightOn) R.drawable.flashlight_on else R.drawable.flashlight_off,
+                onClick = {
+                    runCatching {
+                        val cameraManager =
+                            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                        val cameraId = cameraManager.cameraIdList[0]
+                        isFlashlightOn = !isFlashlightOn
+                        cameraManager.setTorchMode(cameraId, isFlashlightOn)
+                    }
+                }
+            )
 
-            // Camera
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.1f))
-                    .clickable {
-                        runCatching {
-                            val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)
-                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            context.startActivity(intent)
+            ShortcutIcon(
+                iconRes = R.drawable.photo_camera,
+                onClick = {
+                    runCatching {
+                        val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA).apply {
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.photo_camera),
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                        context.startActivity(intent)
+                    }
+                }
+            )
         }
     }
 }
