@@ -60,8 +60,6 @@ private fun HistoryScreen(
     currentTip: BatteryTip,
     onNextTip: () -> Unit
 ) {
-    val settingsState = LocalSettingsState.current
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -72,10 +70,8 @@ private fun HistoryScreen(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // 1. Active Monitoring Switch
-            if (!settingsState.anyAlertEnabled) {
-                item {
-                    ActiveMonitoringSection()
-                }
+            item {
+                ActiveMonitoringSection()
             }
 
             // 2. Consumption Chart

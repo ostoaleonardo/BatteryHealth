@@ -1,7 +1,13 @@
 package com.monospace.battery.data.local
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.monospace.battery.core.constants.Constants
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.onStart
 
 class PreferenceManager(private val context: Context) {
 
@@ -37,5 +43,29 @@ class PreferenceManager(private val context: Context) {
 
     fun remove(file: String, key: String) {
         getPrefs(file).edit { remove(key) }
+    }
+
+    // Convenience methods for Alerts file
+    fun getAlert(key: String, defaultValue: Boolean) =
+        get(Constants.PREFS_ALERTS, key, defaultValue)
+
+    fun getAlert(key: String, defaultValue: Int) =
+        get(Constants.PREFS_ALERTS, key, defaultValue)
+
+    fun observeAlert(key: String, defaultValue: Boolean) =
+        observe(Constants.PREFS_ALERTS, key, defaultValue)
+
+    fun observe(file: String, key: String, defaultValue: Boolean): Flow<Boolean> = callbackFlow {
+        val prefs = getPrefs(file)
+        val listener = SharedPreferences.OnSharedPreferenceChangeListener { p, k ->
+            if (k == key) {
+                trySend(p.getBoolean(k, defaultValue))
+            }
+        }
+
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }.onStart {
+        emit(get(file, key, defaultValue))
     }
 }
