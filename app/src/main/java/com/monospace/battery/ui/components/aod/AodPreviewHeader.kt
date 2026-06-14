@@ -55,14 +55,8 @@ fun AodPreviewHeader() {
         AodPreviewCard(
             level = batteryState.level,
             color = previewColor,
-            clockStyle = state.aodClockStyle,
             meterStyle = state.aodMeterStyle,
-            showDate = state.aodShowDate,
-            showClock = state.aodShowClock,
-            showShortcuts = state.aodShowShortcuts,
-            is24h = state.aod24hFormat,
-            fontSizeClock = (state.aodFontSizeClock * 0.3f).toInt(),
-            fontSizeDate = (state.aodFontSizeDate * 0.4f).toInt()
+            showShortcuts = state.aodShowShortcuts
         )
 
         // Activation Controls Row (Only for Premium)
@@ -83,11 +77,10 @@ fun AodPreviewHeader() {
                         SegmentOption(Constants.OFF, R.string.aod_disabled),
                         SegmentOption(Constants.ON, R.string.aod_enabled)
                     ),
-                    selected = if (isAodEnabled) Constants.ON else Constants.OFF,
-                    onSelected = { id ->
-                        actions.onAlwaysOnDisplayChange(id == Constants.ON)
-                    }
-                )
+                    selected = if (isAodEnabled) Constants.ON else Constants.OFF
+                ) { id ->
+                    actions.onAlwaysOnDisplayChange(id == Constants.ON)
+                }
 
                 Spacer(modifier = Modifier.width(12.dp))
 

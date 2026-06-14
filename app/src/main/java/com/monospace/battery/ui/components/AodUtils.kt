@@ -6,6 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
+import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.theme.Font
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
@@ -59,6 +63,134 @@ enum class MeterStyle(val index: Int) {
 
     companion object {
         fun fromIndex(index: Int): MeterStyle = entries.find { it.index == index } ?: NONE
+    }
+}
+
+data class AodDimensions(
+    val clockFontSize: TextUnit,
+    val dateFontSize: TextUnit,
+    val percentageFontSize: TextUnit,
+    val meterSize: Dp,
+    val meterStrokeWidth: Dp,
+    val topSpacerHeight: Dp,
+    val metricsTopPadding: Dp,
+    val metricsInternalSpacing: Dp,
+    val metricValueSize: TextUnit,
+    val metricLabelSize: TextUnit
+) {
+    companion object {
+        val Default = AodDimensions(
+            clockFontSize = 64.sp, // Will be overridden by settings in real AOD
+            dateFontSize = 20.sp,  // Will be overridden by settings in real AOD
+            percentageFontSize = 44.sp,
+            meterSize = 200.dp,
+            meterStrokeWidth = 10.dp,
+            topSpacerHeight = 80.dp,
+            metricsTopPadding = 48.dp,
+            metricsInternalSpacing = 20.dp,
+            metricValueSize = 20.sp,
+            metricLabelSize = 10.sp
+        )
+
+        val Preview = AodDimensions(
+            clockFontSize = 24.sp,
+            dateFontSize = 6.sp,
+            percentageFontSize = 11.sp,
+            meterSize = 50.dp,
+            meterStrokeWidth = 4.dp,
+            topSpacerHeight = 20.dp,
+            metricsTopPadding = 16.dp,
+            metricsInternalSpacing = 8.dp,
+            metricValueSize = 6.sp,
+            metricLabelSize = 3.sp
+        )
+    }
+}
+
+@Composable
+fun AodLayoutContent(
+    modifier: Modifier = Modifier,
+    currentTime: Long,
+    dimensions: AodDimensions,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center
+) {
+    val state = LocalSettingsState.current
+    val battery = LocalBatteryState.current
+    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = verticalArrangement
+    ) {
+        if (state.aodShowClock) {
+            ClockDisplay(
+                currentTime = currentTime,
+                styleIndex = state.aodClockStyle,
+                fontSize = if (dimensions == AodDimensions.Default) state.aodFontSizeClock.sp else dimensions.clockFontSize,
+                is24h = state.aod24hFormat
+            )
+        }
+        if (state.aodShowDate) {
+            DateDisplay(
+                currentTime = currentTime,
+                fontSize = if (dimensions == AodDimensions.Default) state.aodFontSizeDate.sp else dimensions.dateFontSize,
+                color = if (isWaterGlass) Color.White else Color.Gray
+            )
+        }
+
+        if (state.aodShowClock || state.aodShowDate) {
+            Spacer(modifier = Modifier.height(dimensions.topSpacerHeight))
+        }
+
+        Box(contentAlignment = Alignment.Center) {
+            if (!isWaterGlass && state.aodMeterStyle != MeterStyle.NONE.index) {
+                MeterDisplay(
+                    styleIndex = state.aodMeterStyle,
+                    level = battery.level,
+                    color = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),
+                    modifier = Modifier.size(dimensions.meterSize),
+                    strokeWidth = dimensions.meterStrokeWidth,
+                    size = dimensions.meterSize
+                )
+            }
+
+            PercentageDisplay(
+                level = battery.level,
+                fontSize = if (isWaterGlass && dimensions == AodDimensions.Default) 54.sp else dimensions.percentageFontSize,
+                styleIndex = state.aodClockStyle
+            )
+        }
+
+        if (battery.isCharging) {
+            Column(
+                modifier = Modifier.padding(top = dimensions.metricsTopPadding),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                MetricItem(
+                    value = stringResource(R.string.charge_speed_watts, battery.chargeSpeed),
+                    labelRes = R.string.aod_charging_speed_label,
+                    valueColor = if (isWaterGlass) Color.White else if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),
+                    labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                    styleIndex = state.aodClockStyle,
+                    valueFontSize = dimensions.metricValueSize,
+                    labelFontSize = dimensions.metricLabelSize
+                )
+
+                if (battery.timeRemaining.isNotEmpty() && battery.timeRemaining != Constants.ZERO_TIME) {
+                    Spacer(modifier = Modifier.height(dimensions.metricsInternalSpacing))
+                    MetricItem(
+                        value = battery.timeRemaining,
+                        labelRes = R.string.aod_time_remaining_label,
+                        valueColor = Color.White,
+                        labelColor = if (isWaterGlass) Color.White else Color.Gray,
+                        styleIndex = state.aodClockStyle,
+                        valueFontSize = dimensions.metricValueSize,
+                        labelFontSize = dimensions.metricLabelSize
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -223,18 +355,17 @@ fun DrawScope.drawAodMeter(
 
     when (style) {
         MeterStyle.NONE -> { /* Percentage only */ }
-        MeterStyle.SOLID_ROUND -> drawSolidArc(level, color, strokeWidth, rounded = true)
-        MeterStyle.DOTTED_ROUND -> drawDottedArc(level, color, strokeWidth, rounded = true)
-        MeterStyle.MATERIAL_CIRCULAR -> { /* Composable */ }
-        MeterStyle.WAVY -> { /* Composable */ }
+        MeterStyle.SOLID_ROUND -> drawSolidArc(level, color, strokeWidth)
+        MeterStyle.DOTTED_ROUND -> drawDottedArc(level, color, strokeWidth)
         MeterStyle.WATER_GLASS -> drawWaterGlass(level, color, timeMillis)
+        else -> {}
     }
 }
 
-private fun DrawScope.drawSolidArc(level: Int, color: Color, strokeWidth: Float, rounded: Boolean) {
+private fun DrawScope.drawSolidArc(level: Int, color: Color, strokeWidth: Float) {
     val start = 140f
     val sweep = 260f
-    val cap = if (rounded) StrokeCap.Round else StrokeCap.Butt
+    val cap = StrokeCap.Round
 
     // Background track
     drawArc(
@@ -258,13 +389,12 @@ private fun DrawScope.drawSolidArc(level: Int, color: Color, strokeWidth: Float,
 private fun DrawScope.drawDottedArc(
     level: Int,
     color: Color,
-    strokeWidth: Float,
-    rounded: Boolean
+    strokeWidth: Float
 ) {
     val startAngle = 140f
     val sweepAngle = 260f
     val dotsCount = 20
-    val cap = if (rounded) StrokeCap.Round else StrokeCap.Butt
+    val cap = StrokeCap.Round
 
     val baseRadius = size.width / 2f - strokeWidth
     val innerRadius = baseRadius - strokeWidth * 1.2f

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
@@ -124,14 +125,8 @@ fun AodMeterStyleSelector(
 fun AodPreviewCard(
     level: Int,
     color: Color,
-    clockStyle: Int,
     meterStyle: Int,
-    showDate: Boolean,
-    showClock: Boolean = true,
-    showShortcuts: Boolean = false,
-    is24h: Boolean,
-    fontSizeClock: Int = 24,
-    fontSizeDate: Int = 6
+    showShortcuts: Boolean = false
 ) {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
@@ -179,105 +174,25 @@ fun AodPreviewCard(
             }
 
             // 2. Content
-            AodPreviewContent(
-                showClock = showClock,
-                showDate = showDate,
-                is24h = is24h,
-                fontSizeClock = fontSizeClock,
-                fontSizeDate = fontSizeDate,
-                clockStyle = clockStyle,
-                meterStyle = meterStyle,
-                color = color
+            val mockBatteryState = BatteryState(
+                level = level,
+                isCharging = true,
+                chargeSpeed = 25.0,
+                timeRemaining = Constants.DUMMY_TIME_REMAINING
             )
+
+            CompositionLocalProvider(LocalBatteryState provides mockBatteryState) {
+                AodLayoutContent(
+                    currentTime = currentTime,
+                    dimensions = AodDimensions.Preview,
+                    verticalArrangement = Arrangement.Top
+                )
+            }
 
             // 4. Shortcuts Preview
             if (showShortcuts) {
                 AodPreviewShortcuts()
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AodPreviewContent(
-    showClock: Boolean,
-    showDate: Boolean,
-    is24h: Boolean,
-    fontSizeClock: Int,
-    fontSizeDate: Int,
-    clockStyle: Int,
-    meterStyle: Int,
-    color: Color
-) {
-    val currentTime = System.currentTimeMillis()
-    val isWaterGlass = meterStyle == MeterStyle.WATER_GLASS.index
-
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        if (showClock) {
-            ClockDisplay(
-                currentTime = currentTime,
-                styleIndex = clockStyle,
-                fontSize = fontSizeClock.sp,
-                is24h = is24h
-            )
-        }
-        if (showDate) {
-            DateDisplay(
-                currentTime = currentTime,
-                fontSize = fontSizeDate.sp,
-                color = if (isWaterGlass) Color.White else Color.Gray
-            )
-        }
-
-        if (showClock || showDate) {
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        // 1. Meter (Percentage only inside)
-        Box(contentAlignment = Alignment.Center) {
-            if (!isWaterGlass && meterStyle != MeterStyle.NONE.index) {
-                MeterDisplay(
-                    styleIndex = meterStyle,
-                    color = color,
-                    modifier = Modifier.size(50.dp),
-                    strokeWidth = 4.dp,
-                    size = 50.dp
-                )
-            }
-
-            PercentageDisplay(
-                level = LocalBatteryState.current.level,
-                fontSize = if (isWaterGlass) 14.sp else 11.sp,
-                styleIndex = clockStyle,
-                color = Color.White
-            )
-        }
-
-        // 2. Metrics (Always shown in preview for context)
-        Column(
-            modifier = Modifier.padding(top = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            MetricItem(
-                value = Constants.DUMMY_WATTAGE,
-                labelRes = R.string.aod_charging_speed_label,
-                valueColor = if (isWaterGlass) Color.White else color,
-                labelColor = if (isWaterGlass) Color.White else Color.Gray,
-                styleIndex = clockStyle,
-                valueFontSize = 6.sp,
-                labelFontSize = 3.sp
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            MetricItem(
-                value = Constants.DUMMY_TIME_REMAINING,
-                labelRes = R.string.aod_time_remaining_label,
-                valueColor = Color.White,
-                labelColor = if (isWaterGlass) Color.White else Color.Gray,
-                styleIndex = clockStyle,
-                valueFontSize = 6.sp,
-                labelFontSize = 3.sp
-            )
         }
     }
 }
