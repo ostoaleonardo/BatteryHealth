@@ -67,8 +67,7 @@ fun ClockDisplay(
     currentTime: Long,
     styleIndex: Int,
     fontSize: TextUnit,
-    is24h: Boolean,
-    color: Color = Color.White
+    is24h: Boolean
 ) {
     val timeFormat = SimpleDateFormat(
         if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H,
@@ -77,7 +76,7 @@ fun ClockDisplay(
 
     Text(
         text = timeFormat.format(Date(currentTime)),
-        color = color,
+        color = Color.White,
         fontSize = fontSize,
         fontFamily = Font.getFont(styleIndex),
         style = TextStyle(platformStyle = PlatformTextStyle(includeFontPadding = false))

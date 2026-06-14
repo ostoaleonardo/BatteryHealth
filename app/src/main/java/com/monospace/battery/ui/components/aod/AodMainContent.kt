@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
@@ -135,7 +136,10 @@ fun AodMainContent() {
                 Spacer(modifier = Modifier.height(32.dp))
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     MetricItem(
-                        value = "${batteryState.chargeSpeed}W",
+                        value = stringResource(
+                            R.string.charge_speed_watts,
+                            batteryState.chargeSpeed
+                        ),
                         labelRes = R.string.aod_charging_speed_label,
                         valueColor = if (isWaterGlass) Color.White else accentColor,
                         labelColor = if (isWaterGlass) Color.White else Color.Gray,

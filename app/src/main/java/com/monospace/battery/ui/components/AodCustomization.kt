@@ -219,8 +219,7 @@ fun AodPreviewContent(
                 currentTime = currentTime,
                 styleIndex = clockStyle,
                 fontSize = fontSizeClock.sp,
-                is24h = is24h,
-                color = Color.White
+                is24h = is24h
             )
         }
         if (showDate) {

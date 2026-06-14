@@ -24,6 +24,8 @@
 
     <!-- Battery parameters -->
     <string name="battery_percentage" translatable="false">%d%%</string>
+    <string name="battery_gain_format" translatable="false">+%1$s</string>
+    <string name="battery_range_format" translatable="false">%1$s → %2$s</string>
     <string name="temperature_celsius" translatable="false">%d °C</string>
     <string name="voltage_mv" translatable="false">%d mV</string>
     <string name="current_ma" translatable="false">%d mA</string>
@@ -135,8 +137,10 @@
     <string name="history_sessions_title">Recent Charge Sessions</string>
     <string name="history_no_sessions">No sessions recorded yet</string>
     <string name="history_charge_duration_title">Charge for %s</string>
+    <string name="history_session_date_format" translatable="false">%1$s, </string>
     <string name="history_currently_charging">Charging&#8230;</string>
     <string name="history_show_more">Show more (%d+)</string>
+    <string name="history_session_time_format" translatable="false">%1$s%2$s — %3$s</string>
     <string name="history_unlock_full">View full history</string>
     <string name="history_unlock_full_desc">Upgrade to the Full Version to access your complete charging history and advanced analytics.</string>
 

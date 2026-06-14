@@ -52,6 +52,7 @@ object Constants {
     const val ROUTE_SETTINGS = "settings"
 
     // General
+    const val EMPTY_STRING = ""
     const val OFF = "off"
     const val ON = "on"
     const val TIP_ANIMATION_LABEL = "tip_animation"
@@ -62,6 +63,7 @@ object Constants {
     const val TIME_PATTERN_24H = "HH:mm"
     const val TIME_PATTERN_12H = "hh:mm"
     const val DATE_PATTERN = "EEE, d MMM"
+    const val DATE_PATTERN_SHORT = "d MMM"
 
     // Preference Keys - Widgets
     const val KEY_WIDGETS_PURCHASE_TOKEN = "purchase_token"

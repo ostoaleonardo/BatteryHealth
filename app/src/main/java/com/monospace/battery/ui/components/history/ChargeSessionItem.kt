@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.components.history
 
+import android.text.format.DateUtils
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.ui.theme.Font
@@ -42,12 +44,18 @@ fun ChargeSessionItem(
     val sourceName = stringResource(batteryStrings.getChargingSource(session.chargeSource))
     val sourceIcon = batteryStrings.getChargingSourceIcon(session.chargeSource)
 
-    val timeFormat = SimpleDateFormat("HH:mm", locale)
-    val dateFormat = SimpleDateFormat("d MMM", locale)
+    val timeFormat = SimpleDateFormat(Constants.TIME_PATTERN_24H, locale)
+    val dateFormat = SimpleDateFormat(Constants.DATE_PATTERN_SHORT, locale)
 
-    val dateStr = dateFormat.format(Date(session.startTime))
-    val startStr = timeFormat.format(Date(session.startTime))
-    val endStr = session.endTime?.let { timeFormat.format(Date(it)) }
+    val isToday = DateUtils.isToday(session.startTime)
+    val displayDate = if (isToday) Constants.EMPTY_STRING
+    else stringResource(
+        R.string.history_session_date_format,
+        dateFormat.format(Date(session.startTime))
+    )
+
+    val startTime = timeFormat.format(Date(session.startTime))
+    val endTimeFormatted = session.endTime?.let { timeFormat.format(Date(it)) }
         ?: stringResource(R.string.history_currently_charging)
 
     val endLevel = session.endLevel ?: currentLevel
@@ -87,7 +95,12 @@ fun ChargeSessionItem(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "$dateStr, $startStr — $endStr",
+                    text = stringResource(
+                        R.string.history_session_time_format,
+                        displayDate,
+                        startTime,
+                        endTimeFormatted
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     fontFamily = Font.AzeretMonoLight,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -97,14 +110,21 @@ fun ChargeSessionItem(
             // Level Gain
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "+$gain%",
+                    text = stringResource(
+                        R.string.battery_gain_format,
+                        stringResource(R.string.battery_percentage, gain)
+                    ),
                     fontFamily = Font.AzeretMonoLight,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "${session.startLevel}% → $endLevel%",
+                    text = stringResource(
+                        R.string.battery_range_format,
+                        stringResource(R.string.battery_percentage, session.startLevel),
+                        stringResource(R.string.battery_percentage, endLevel)
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     fontFamily = Font.AzeretMonoLight,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
