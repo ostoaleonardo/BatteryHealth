@@ -9,13 +9,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -123,6 +122,7 @@ fun AodMeterStyleSelector(
 
 @Composable
 fun AodPreviewCard(
+    modifier: Modifier = Modifier,
     level: Int,
     color: Color,
     meterStyle: Int,
@@ -144,16 +144,13 @@ fun AodPreviewCard(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(280.dp)
-            .padding(horizontal = 16.dp),
+        modifier = modifier.padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .width(130.dp)
                 .fillMaxHeight()
+                .aspectRatio(9f / 20f)
                 .clip(RoundedCornerShape(24.dp))
                 .border(2.dp, Color.DarkGray, RoundedCornerShape(24.dp))
                 .padding(4.dp)

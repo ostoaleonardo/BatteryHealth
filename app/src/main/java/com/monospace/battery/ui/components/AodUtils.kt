@@ -430,9 +430,7 @@ fun DrawScope.drawAodMeter(
     val strokeWidth = size.width * 0.05f
 
     when (style) {
-        MeterStyle.NONE -> { /* Percentage only */
-        }
-
+        MeterStyle.NONE -> { /* Percentage only */ }
         MeterStyle.SOLID_ROUND -> drawSolidArc(level, color, strokeWidth)
         MeterStyle.DOTTED_ROUND -> drawDottedArc(level, color, strokeWidth)
         MeterStyle.WATER_GLASS -> drawWaterGlass(level, color, timeMillis)
