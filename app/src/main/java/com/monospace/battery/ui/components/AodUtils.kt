@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -80,8 +81,8 @@ data class AodDimensions(
 ) {
     companion object {
         val Default = AodDimensions(
-            clockFontSize = 64.sp, // Will be overridden by settings in real AOD
-            dateFontSize = 20.sp,  // Will be overridden by settings in real AOD
+            clockFontSize = 64.sp,
+            dateFontSize = 20.sp,
             percentageFontSize = 44.sp,
             meterSize = 200.dp,
             meterStrokeWidth = 10.dp,
@@ -112,17 +113,68 @@ fun AodLayoutContent(
     modifier: Modifier = Modifier,
     currentTime: Long,
     dimensions: AodDimensions,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Center
+    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    isLandscape: Boolean = false
+) {
+    if (isLandscape) {
+        AodHorizontalLayout(modifier, currentTime, dimensions)
+    } else {
+        AodVerticalLayout(modifier, currentTime, dimensions, verticalArrangement)
+    }
+}
+
+@Composable
+private fun AodVerticalLayout(
+    modifier: Modifier,
+    currentTime: Long,
+    dimensions: AodDimensions,
+    verticalArrangement: Arrangement.Vertical
 ) {
     val state = LocalSettingsState.current
-    val battery = LocalBatteryState.current
-    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
+    val showClockOrDate = state.aodShowClock || state.aodShowDate
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = verticalArrangement
     ) {
+        AodClockDateSection(currentTime, dimensions)
+
+        if (showClockOrDate) {
+            Spacer(modifier = Modifier.height(dimensions.topSpacerHeight))
+        }
+
+        AodMeterPercentageSection(dimensions)
+        AodChargingMetricsSection(dimensions, isHorizontal = false)
+    }
+}
+
+@Composable
+private fun AodHorizontalLayout(
+    modifier: Modifier,
+    currentTime: Long,
+    dimensions: AodDimensions
+) {
+    Row(
+        modifier = modifier.padding(horizontal = 32.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AodClockDateSection(currentTime, dimensions)
+
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            AodMeterPercentageSection(dimensions)
+            AodChargingMetricsSection(dimensions, isHorizontal = true)
+        }
+    }
+}
+
+@Composable
+private fun AodClockDateSection(currentTime: Long, dimensions: AodDimensions) {
+    val state = LocalSettingsState.current
+    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (state.aodShowClock) {
             ClockDisplay(
                 currentTime = currentTime,
@@ -138,59 +190,83 @@ fun AodLayoutContent(
                 color = if (isWaterGlass) Color.White else Color.Gray
             )
         }
+    }
+}
 
-        if (state.aodShowClock || state.aodShowDate) {
-            Spacer(modifier = Modifier.height(dimensions.topSpacerHeight))
-        }
+@Composable
+private fun AodMeterPercentageSection(dimensions: AodDimensions) {
+    val state = LocalSettingsState.current
+    val battery = LocalBatteryState.current
+    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
 
-        Box(contentAlignment = Alignment.Center) {
-            if (!isWaterGlass && state.aodMeterStyle != MeterStyle.NONE.index) {
-                MeterDisplay(
-                    styleIndex = state.aodMeterStyle,
-                    level = battery.level,
-                    color = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),
-                    modifier = Modifier.size(dimensions.meterSize),
-                    strokeWidth = dimensions.meterStrokeWidth,
-                    size = dimensions.meterSize
-                )
-            }
-
-            PercentageDisplay(
+    Box(contentAlignment = Alignment.Center) {
+        if (!isWaterGlass && state.aodMeterStyle != MeterStyle.NONE.index) {
+            MeterDisplay(
+                styleIndex = state.aodMeterStyle,
                 level = battery.level,
-                fontSize = if (isWaterGlass && dimensions == AodDimensions.Default) 54.sp else dimensions.percentageFontSize,
-                styleIndex = state.aodClockStyle
+                color = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),
+                modifier = Modifier.size(dimensions.meterSize),
+                strokeWidth = dimensions.meterStrokeWidth,
+                size = dimensions.meterSize
             )
         }
 
-        if (battery.isCharging) {
-            Column(
-                modifier = Modifier.padding(top = dimensions.metricsTopPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                MetricItem(
-                    value = stringResource(R.string.charge_speed_watts, battery.chargeSpeed),
-                    labelRes = R.string.aod_charging_speed_label,
-                    valueColor = if (isWaterGlass) Color.White else if (state.aodColor == 0L) MaterialTheme.colorScheme.primary else Color(state.aodColor),
-                    labelColor = if (isWaterGlass) Color.White else Color.Gray,
-                    styleIndex = state.aodClockStyle,
-                    valueFontSize = dimensions.metricValueSize,
-                    labelFontSize = dimensions.metricLabelSize
-                )
+        PercentageDisplay(
+            level = battery.level,
+            fontSize = if (isWaterGlass && dimensions == AodDimensions.Default) 54.sp else dimensions.percentageFontSize,
+            styleIndex = state.aodClockStyle
+        )
+    }
+}
 
-                if (battery.timeRemaining.isNotEmpty() && battery.timeRemaining != Constants.ZERO_TIME) {
-                    Spacer(modifier = Modifier.height(dimensions.metricsInternalSpacing))
-                    MetricItem(
-                        value = battery.timeRemaining,
-                        labelRes = R.string.aod_time_remaining_label,
-                        valueColor = Color.White,
-                        labelColor = if (isWaterGlass) Color.White else Color.Gray,
-                        styleIndex = state.aodClockStyle,
-                        valueFontSize = dimensions.metricValueSize,
-                        labelFontSize = dimensions.metricLabelSize
-                    )
-                }
-            }
+@Composable
+private fun AodChargingMetricsSection(dimensions: AodDimensions, isHorizontal: Boolean) {
+    val state = LocalSettingsState.current
+    val battery = LocalBatteryState.current
+    if (!battery.isCharging) return
+
+    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
+    val accentColor = if (state.aodColor == 0L) MaterialTheme.colorScheme.primary
+    else Color(state.aodColor)
+    val contentColor = if (isWaterGlass) Color.White else accentColor
+    val labelColor = if (isWaterGlass) Color.White else Color.Gray
+
+    val content = @Composable {
+        MetricItem(
+            value = stringResource(R.string.charge_speed_watts, battery.chargeSpeed),
+            labelRes = R.string.aod_charging_speed_label,
+            valueColor = contentColor,
+            labelColor = labelColor,
+            styleIndex = state.aodClockStyle,
+            valueFontSize = dimensions.metricValueSize,
+            labelFontSize = dimensions.metricLabelSize
+        )
+
+        if (battery.timeRemaining.isNotEmpty() && battery.timeRemaining != Constants.ZERO_TIME) {
+            if (!isHorizontal) Spacer(modifier = Modifier.height(dimensions.metricsInternalSpacing))
+
+            MetricItem(
+                value = battery.timeRemaining,
+                labelRes = R.string.aod_time_remaining_label,
+                valueColor = Color.White,
+                labelColor = labelColor,
+                styleIndex = state.aodClockStyle,
+                valueFontSize = dimensions.metricValueSize,
+                labelFontSize = dimensions.metricLabelSize
+            )
         }
+    }
+
+    if (isHorizontal) {
+        Row(
+            modifier = Modifier.padding(top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
+        ) { content() }
+    } else {
+        Column(
+            modifier = Modifier.padding(top = dimensions.metricsTopPadding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) { content() }
     }
 }
 
@@ -354,7 +430,9 @@ fun DrawScope.drawAodMeter(
     val strokeWidth = size.width * 0.05f
 
     when (style) {
-        MeterStyle.NONE -> { /* Percentage only */ }
+        MeterStyle.NONE -> { /* Percentage only */
+        }
+
         MeterStyle.SOLID_ROUND -> drawSolidArc(level, color, strokeWidth)
         MeterStyle.DOTTED_ROUND -> drawDottedArc(level, color, strokeWidth)
         MeterStyle.WATER_GLASS -> drawWaterGlass(level, color, timeMillis)

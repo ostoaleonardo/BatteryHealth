@@ -3,6 +3,7 @@ package com.monospace.battery.ui.components.aod
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.hardware.camera2.CameraManager
 import android.provider.MediaStore
 import androidx.compose.foundation.Canvas
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
@@ -45,6 +47,7 @@ fun AodMainContent() {
     val state = LocalSettingsState.current
     val batteryState = LocalBatteryState.current
     val themePrimary = MaterialTheme.colorScheme.primary
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     val accentColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
     val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
@@ -83,7 +86,8 @@ fun AodMainContent() {
             modifier = Modifier.fillMaxSize(),
             currentTime = currentTime,
             dimensions = AodDimensions.Default,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            isLandscape = isLandscape
         )
 
         if (state.aodShowShortcuts) AODShortcutsSection()

@@ -185,7 +185,8 @@ fun AodPreviewCard(
                 AodLayoutContent(
                     currentTime = currentTime,
                     dimensions = AodDimensions.Preview,
-                    verticalArrangement = Arrangement.Top
+                    verticalArrangement = Arrangement.Top,
+                    isLandscape = false
                 )
             }
 
