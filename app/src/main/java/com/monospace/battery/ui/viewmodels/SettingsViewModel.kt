@@ -235,9 +235,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun clearAllData() {
         viewModelScope.launch {
-            dao.deleteAllHistory()
-            dao.deleteAllSessions()
-            dao.deleteAllScreenEvents()
+            dao.clearAllData()
         }
     }
 

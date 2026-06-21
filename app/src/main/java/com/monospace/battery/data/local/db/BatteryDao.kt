@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.ChargeSession
@@ -47,6 +48,13 @@ interface BatteryDao {
 
     @Query("SELECT timestamp FROM battery_history WHERE level = 100 ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLastFullChargeTime(): Long?
+
+    @Transaction
+    suspend fun clearAllData() {
+        deleteAllHistory()
+        deleteAllSessions()
+        deleteAllScreenEvents()
+    }
 
     @Query("DELETE FROM battery_history")
     suspend fun deleteAllHistory()

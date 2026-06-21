@@ -10,10 +10,12 @@ import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.BatteryTip
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ChargerStats
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.sqrt
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
@@ -49,71 +51,80 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         }
 
         viewModelScope.launch {
-            dao.getLastSessions(50).collect {
-                _sessions.value = it
-                calculateChargerStats(it)
-            }
-        }
-    }
+            dao.getLastSessions(50).collect { sessionList ->
+                _sessions.value = sessionList
 
-    private suspend fun calculateChargerStats(sessions: List<ChargeSession>) {
-        runCatching {
-            if (sessions.isEmpty()) return@runCatching emptyList()
-
-            val currentBatteryLevel = _history.value.lastOrNull()?.level
-
-            sessions.groupBy { it.chargeSource }.map { (source, sessionList) ->
-                var totalRate = 0f
-                val rates = mutableListOf<Float>()
-                var totalTemp = 0f
-                var tempCount = 0
-
-                for (session in sessionList) {
-                    val endTime = session.endTime ?: System.currentTimeMillis()
-                    val endLevel = session.endLevel ?: currentBatteryLevel ?: session.startLevel
-
-                    val durationMins = (endTime - session.startTime) / 60000f
-                    val gain = (endLevel - session.startLevel).coerceAtLeast(0)
-
-                    if (durationMins > 0.5f) { // Need at least 30s of data
-                        val rate = gain / durationMins
-                        totalRate += rate
-                        rates.add(rate)
-                    }
-
-                    // Get average temperature during this session
-                    val history = dao.getHistoryInRange(session.startTime, endTime)
-
-                    if (history.isNotEmpty()) {
-                        totalTemp += history.map { it.temperature }.average().toFloat()
-                        tempCount++
-                    }
+                if (sessionList.isNotEmpty()) {
+                    calculateChargerStats(sessionList)
                 }
-
-                val avgRate = if (rates.isNotEmpty()) totalRate / rates.size else 0f
-                val avgTemp = if (tempCount > 0) totalTemp / tempCount else 0f
-
-                // Stability calculation: 1 - (stdDev / avgRate)
-                val stability = if (rates.size >= 2 && avgRate > 0) {
-                    val variance = rates.map { (it - avgRate) * (it - avgRate) }.average().toFloat()
-                    val stdDev = sqrt(variance.toDouble()).toFloat()
-                    (1f - (stdDev / avgRate)).coerceIn(0f, 1f)
-                } else 1f
-
-                ChargerStats(
-                    source = source,
-                    sessionCount = sessionList.size,
-                    averageRate = avgRate,
-                    averageTemp = avgTemp / 10f, // Convert to °C
-                    stability = stability
-                )
             }
-        }.onSuccess { stats ->
-            _chargerStats.value = stats
-        }.onFailure { e ->
-            Log.e(TAG, "Error calculating charger stats", e)
         }
     }
+
+    private suspend fun calculateChargerStats(sessionList: List<ChargeSession>) =
+        withContext(Dispatchers.Default) {
+            runCatching {
+                // 1. Get total time range for a single DB query
+                val minTime = sessionList.minOf { it.startTime }
+                val maxTime = sessionList.maxOf { it.endTime ?: System.currentTimeMillis() }
+
+                // 2. Fetch all relevant history at once
+                val fullHistory = dao.getHistoryInRange(minTime, maxTime)
+                val currentBatteryLevel = _history.value.lastOrNull()?.level
+
+                // 3. Process groups in memory
+                val stats = sessionList.groupBy { it.chargeSource }.map { (source, sessions) ->
+                    val rates = mutableListOf<Float>()
+                    var totalTemp = 0f
+                    var tempCount = 0
+
+                    for (session in sessions) {
+                        val endTime = session.endTime ?: System.currentTimeMillis()
+                        val durationMins = (endTime - session.startTime) / 60000f
+
+                        if (durationMins > 0.5f) {
+                            val endLevel =
+                                session.endLevel ?: currentBatteryLevel ?: session.startLevel
+                            rates.add((endLevel - session.startLevel).coerceAtLeast(0) / durationMins)
+                        }
+
+                        // Filter history for this specific session from the full list
+                        val sessionHistory = fullHistory.filter {
+                            it.timestamp in session.startTime..endTime
+                        }
+
+                        if (sessionHistory.isNotEmpty()) {
+                            totalTemp += sessionHistory.map { it.temperature }.average().toFloat()
+                            tempCount++
+                        }
+                    }
+
+                    val avgRate = if (rates.isNotEmpty()) rates.average().toFloat() else 0f
+                    val avgTemp = if (tempCount > 0) totalTemp / tempCount else 0f
+
+                    val stability = if (rates.size >= 2 && avgRate > 0) {
+                        val variance = rates.map {
+                            (it - avgRate) * (it - avgRate)
+                        }.average().toFloat()
+
+                        val stdDev = sqrt(variance.toDouble()).toFloat()
+
+                        (1f - (stdDev / avgRate)).coerceIn(0f, 1f)
+                    } else 1f
+
+                    ChargerStats(
+                        source = source,
+                        sessionCount = sessions.size,
+                        averageRate = avgRate,
+                        averageTemp = avgTemp / 10f,
+                        stability = stability
+                    )
+                }
+                _chargerStats.value = stats
+            }.onFailure { e ->
+                Log.e(TAG, "Error calculating charger stats", e)
+            }
+        }
 
     companion object {
         private const val TAG = "HistoryViewModel"

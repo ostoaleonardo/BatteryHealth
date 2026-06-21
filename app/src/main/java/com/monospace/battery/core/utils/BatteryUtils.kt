@@ -38,8 +38,12 @@ class BatteryUtils(context: Context) {
         }.getOrDefault(Constants.ZERO_TIME)
     }
 
+    private var cachedCapacity: Int = -1
+
     @SuppressLint("PrivateApi")
     fun getBatteryCapacity(): Int {
+        if (cachedCapacity > 0) return cachedCapacity
+
         // 1. PowerProfile
         val profileCapacity = runCatching {
             val powerProfileClass = Class.forName(POWER_PROFILE_CLASS)
@@ -63,7 +67,10 @@ class BatteryUtils(context: Context) {
             Log.w(TAG, "PowerProfile capacity lookup failed: ${it.message}")
         }.getOrDefault(-1)
 
-        if (profileCapacity > 0) return profileCapacity
+        if (profileCapacity > 0) {
+            cachedCapacity = profileCapacity
+            return profileCapacity
+        }
 
         // 2. System files
         val filePaths = listOf(
