@@ -37,10 +37,10 @@ import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.purchase.PurchaseManager
 import com.monospace.battery.service.alerts.BatteryAlertService
-import com.monospace.battery.ui.components.AppNavHost
-import com.monospace.battery.ui.components.BottomNavigation
-import com.monospace.battery.ui.components.Screen
-import com.monospace.battery.ui.components.TopAppBar
+import com.monospace.battery.ui.components.navigation.AppNavHost
+import com.monospace.battery.ui.components.navigation.BottomNavigation
+import com.monospace.battery.ui.components.navigation.Screen
+import com.monospace.battery.ui.components.navigation.TopAppBar
 import com.monospace.battery.ui.theme.BatteryTheme
 import com.monospace.battery.ui.viewmodels.MainViewModel
 import com.monospace.battery.ui.viewmodels.SettingsViewModel

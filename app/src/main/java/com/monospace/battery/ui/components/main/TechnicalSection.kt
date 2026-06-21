@@ -12,8 +12,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.SmallInfoCard
-import com.monospace.battery.ui.components.formatResourceOrDash
+import com.monospace.battery.ui.components.common.card.SmallCard
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.formatResourceOrDash
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun TechnicalSection() {
@@ -37,7 +40,7 @@ fun TechnicalSection() {
             R.drawable.battery_10
         )
 
-        SmallInfoCard(
+        SmallCard(
             title = typeData.title,
             value = typeValue,
             iconRes = R.drawable.battery_10,
@@ -60,7 +63,7 @@ fun TechnicalSection() {
             R.drawable.thermometer
         )
 
-        SmallInfoCard(
+        SmallCard(
             title = tempData.title,
             value = tempValue,
             iconRes = R.drawable.thermometer,
@@ -79,7 +82,7 @@ fun TechnicalSection() {
             R.drawable.bolt
         )
 
-        SmallInfoCard(
+        SmallCard(
             title = voltageData.title,
             value = voltageValue,
             iconRes = R.drawable.bolt,

@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.utils
 
 import android.os.BatteryManager
 import androidx.compose.foundation.background

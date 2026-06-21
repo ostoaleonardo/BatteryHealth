@@ -16,9 +16,12 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.InfoCard
-import com.monospace.battery.ui.components.LargeVerticalInfoCard
-import com.monospace.battery.ui.components.SmallInfoCard
+import com.monospace.battery.ui.components.common.card.LargeVerticalCard
+import com.monospace.battery.ui.components.common.card.RegularCard
+import com.monospace.battery.ui.components.common.card.SmallCard
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun ChargingSection() {
@@ -75,7 +78,7 @@ fun ChargingSection() {
                 iconRes = R.drawable.rocket
             )
 
-            LargeVerticalInfoCard(
+            LargeVerticalCard(
                 title = speedData.title,
                 value = speedWatts,
                 modifier = Modifier
@@ -96,7 +99,7 @@ fun ChargingSection() {
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                InfoCard(
+                RegularCard(
                     title = currentData.title,
                     value = currentData.value,
                     iconRes = R.drawable.bolt,
@@ -104,7 +107,7 @@ fun ChargingSection() {
                     onClick = { onShowDialog(currentData) }
                 )
                 capData?.let {
-                    InfoCard(
+                    RegularCard(
                         title = it.title,
                         value = cardCapacity ?: it.value,
                         iconRes = R.drawable.battery_full,
@@ -114,7 +117,7 @@ fun ChargingSection() {
                 }
             }
         } else {
-            SmallInfoCard(
+            SmallCard(
                 title = currentData.title,
                 value = currentData.value,
                 iconRes = R.drawable.bolt,
@@ -126,7 +129,7 @@ fun ChargingSection() {
             )
 
             capData?.let {
-                SmallInfoCard(
+                SmallCard(
                     title = it.title,
                     value = cardCapacity ?: it.value,
                     iconRes = R.drawable.battery_full,

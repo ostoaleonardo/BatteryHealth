@@ -3,10 +3,12 @@ package com.monospace.battery.ui.components.main
 import androidx.compose.runtime.Composable
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.HealthCard
-import com.monospace.battery.ui.components.getHealthDescriptionRes
-import com.monospace.battery.ui.components.getHealthIcon
-import com.monospace.battery.ui.components.getHealthStatusRes
+import com.monospace.battery.ui.utils.LocalHealthColor
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.getHealthDescriptionRes
+import com.monospace.battery.ui.utils.getHealthIcon
+import com.monospace.battery.ui.utils.getHealthStatusRes
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun HealthSection() {

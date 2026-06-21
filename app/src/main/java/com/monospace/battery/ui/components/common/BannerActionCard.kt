@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.common
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

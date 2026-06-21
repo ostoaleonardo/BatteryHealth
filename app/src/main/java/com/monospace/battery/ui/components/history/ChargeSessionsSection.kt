@@ -25,8 +25,8 @@ import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.BannerActionCard
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.BannerActionCard
+import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
 
 @Composable
@@ -38,7 +38,7 @@ fun ChargeSessionsSection(
     var limit by remember { mutableIntStateOf(5) }
     val displayedSessions = if (isPremium) sessions.take(limit) else sessions.take(3)
 
-    SettingsSection(stringResource(R.string.history_sessions_title)) {
+    Section(stringResource(R.string.history_sessions_title)) {
         customItem {
             if (sessions.isEmpty()) {
                 EmptySessionsView()

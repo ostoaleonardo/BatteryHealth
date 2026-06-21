@@ -30,9 +30,8 @@ import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.AodPreviewCard
-import com.monospace.battery.ui.components.SegmentOption
-import com.monospace.battery.ui.components.SegmentedControl
+import com.monospace.battery.ui.components.common.segmented.SegmentOption
+import com.monospace.battery.ui.components.common.segmented.SegmentedControl
 import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
 
 @Composable

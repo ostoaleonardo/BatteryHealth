@@ -34,11 +34,11 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.AodDimensions
-import com.monospace.battery.ui.components.AodLayoutContent
-import com.monospace.battery.ui.components.MeterStyle
-import com.monospace.battery.ui.components.ShortcutIcon
-import com.monospace.battery.ui.components.drawAodMeter
+import com.monospace.battery.ui.utils.AodDimensions
+import com.monospace.battery.ui.utils.AodLayoutContent
+import com.monospace.battery.ui.utils.MeterStyle
+import com.monospace.battery.ui.utils.ShortcutIcon
+import com.monospace.battery.ui.utils.drawAodMeter
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)

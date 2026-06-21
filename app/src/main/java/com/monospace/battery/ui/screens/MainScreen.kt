@@ -20,19 +20,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.BatteryDialog
-import com.monospace.battery.ui.components.getHealthColor
+import com.monospace.battery.ui.components.common.Dialog
 import com.monospace.battery.ui.components.main.ChargingSection
 import com.monospace.battery.ui.components.main.CyclesSection
-import com.monospace.battery.ui.components.main.DialogData
 import com.monospace.battery.ui.components.main.HealthSection
-import com.monospace.battery.ui.components.main.LocalHealthColor
-import com.monospace.battery.ui.components.main.LocalIconTint
-import com.monospace.battery.ui.components.main.LocalOnShowDialog
 import com.monospace.battery.ui.components.main.StatusLevelSection
 import com.monospace.battery.ui.components.main.TechnicalSection
 import com.monospace.battery.ui.components.main.TimeRemainingSection
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.utils.DialogData
+import com.monospace.battery.ui.utils.LocalHealthColor
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.getHealthColor
 
 @Composable
 fun MainScreen() {
@@ -48,7 +48,7 @@ fun MainScreen() {
     val activeDialogData = remember { mutableStateOf<DialogData?>(null) }
 
     activeDialogData.value?.let { data ->
-        BatteryDialog(
+        Dialog(
             onDismissRequest = { activeDialogData.value = null },
             title = data.title,
             value = data.value,

@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components.main
+package com.monospace.battery.ui.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

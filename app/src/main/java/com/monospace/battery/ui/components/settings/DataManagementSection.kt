@@ -12,7 +12,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.section.Section
 
 @Composable
 fun DataManagementSection() {
@@ -32,7 +32,7 @@ fun DataManagementSection() {
         )
     }
 
-    SettingsSection(stringResource(R.string.settings_data_management)) {
+    Section(stringResource(R.string.settings_data_management)) {
         item(
             title = stringResource(R.string.settings_delete_history),
             description = stringResource(R.string.settings_delete_history_desc),

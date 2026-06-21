@@ -11,7 +11,7 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.size
-import com.monospace.battery.ui.components.getBatteryLevelColor
+import com.monospace.battery.ui.utils.getBatteryLevelColor
 
 private val ColorInactive = Color(0x40E0E0E0)
 

@@ -23,14 +23,14 @@ import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
-import com.monospace.battery.ui.components.AodClockStyleSelector
-import com.monospace.battery.ui.components.AodColorSelector
-import com.monospace.battery.ui.components.AodMeterStyleSelector
-import com.monospace.battery.ui.components.AodSettingsSectionContent
 import com.monospace.battery.ui.components.aod.AodBannerSection
+import com.monospace.battery.ui.components.aod.AodClockStyleSelector
+import com.monospace.battery.ui.components.aod.AodColorSelector
+import com.monospace.battery.ui.components.aod.AodMeterStyleSelector
 import com.monospace.battery.ui.components.aod.AodPreviewHeader
-import com.monospace.battery.ui.components.getAodColor
+import com.monospace.battery.ui.components.aod.AodSettingsSectionContent
 import com.monospace.battery.ui.theme.BatteryTheme
+import com.monospace.battery.ui.utils.getAodColor
 
 @Composable
 fun AodScreen() {

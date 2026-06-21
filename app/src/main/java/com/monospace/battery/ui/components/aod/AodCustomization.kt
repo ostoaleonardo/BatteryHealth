@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.aod
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -46,7 +46,14 @@ import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
+import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
+import com.monospace.battery.ui.utils.AodDimensions
+import com.monospace.battery.ui.utils.AodLayoutContent
+import com.monospace.battery.ui.utils.MeterDisplay
+import com.monospace.battery.ui.utils.MeterStyle
+import com.monospace.battery.ui.utils.drawAodMeter
+import com.monospace.battery.ui.utils.selectionStyle
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -314,7 +321,7 @@ fun AodSettingsSectionContent() {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
 
-    SettingsSection(stringResource(R.string.aod_look_feel)) {
+    Section(stringResource(R.string.aod_look_feel)) {
         // Clock Settings
         switchItem(
             title = stringResource(R.string.aod_show_clock),

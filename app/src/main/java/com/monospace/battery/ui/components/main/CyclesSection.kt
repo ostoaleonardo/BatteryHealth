@@ -4,7 +4,10 @@ import android.os.Build
 import androidx.compose.runtime.Composable
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.LargeHorizontalInfoCard
+import com.monospace.battery.ui.components.common.card.LargeHorizontalCard
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun CyclesSection() {
@@ -19,7 +22,7 @@ fun CyclesSection() {
             iconRes = R.drawable.power
         )
 
-        LargeHorizontalInfoCard(
+        LargeHorizontalCard(
             title = cyclesData.title,
             value = cyclesData.value,
             iconRes = R.drawable.power,

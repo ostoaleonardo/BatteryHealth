@@ -1,6 +1,5 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.common
 
-import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,14 +22,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.monospace.battery.R
-import com.monospace.battery.ui.theme.BatteryTheme
 
 @Composable
-fun BatteryDialog(
+fun Dialog(
     onDismissRequest: () -> Unit,
     title: String,
     value: String,
@@ -101,35 +98,5 @@ fun BatteryDialog(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true, name = "Light Mode")
-@Composable
-fun BatteryDialogLightPreview() {
-    BatteryTheme {
-        BatteryDialog(
-            onDismissRequest = {},
-            title = "Battery Health",
-            value = "Good",
-            description = "The battery is in optimal condition and functioning correctly within its normal parameters.",
-            iconRes = R.drawable.bolt,
-            iconTint = MaterialTheme.colorScheme.primary
-        )
-    }
-}
-
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark Mode")
-@Composable
-fun BatteryDialogDarkPreview() {
-    BatteryTheme {
-        BatteryDialog(
-            onDismissRequest = {},
-            title = "Temperature",
-            value = "32.0°C",
-            description = "The battery temperature is normal. Excessive heat can reduce the lifespan of chemical components.",
-            iconRes = R.drawable.thermometer,
-            iconTint = Color(0xFF4CAF50)
-        )
     }
 }

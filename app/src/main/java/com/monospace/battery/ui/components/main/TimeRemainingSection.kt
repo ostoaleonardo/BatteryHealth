@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.LargeHorizontalInfoCard
+import com.monospace.battery.ui.components.common.card.LargeHorizontalCard
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun TimeRemainingSection() {
@@ -19,7 +22,7 @@ fun TimeRemainingSection() {
             iconRes = R.drawable.schedule
         )
 
-        LargeHorizontalInfoCard(
+        LargeHorizontalCard(
             title = timeData.title,
             value = state.timeRemaining,
             iconRes = R.drawable.schedule,

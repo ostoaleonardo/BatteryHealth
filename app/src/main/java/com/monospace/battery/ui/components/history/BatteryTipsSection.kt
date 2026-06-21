@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.BatteryTip
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
 
 @Composable
@@ -43,7 +43,7 @@ fun BatteryTipsSection(
     tip: BatteryTip,
     onNextTip: () -> Unit
 ) {
-    SettingsSection(
+    Section(
         title = stringResource(R.string.tips_title),
         trailingContent = {
             IconButton(

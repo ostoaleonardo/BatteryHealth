@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.common.section
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

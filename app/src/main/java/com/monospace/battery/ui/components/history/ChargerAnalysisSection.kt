@@ -34,9 +34,9 @@ import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.models.ChargerStats
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.BannerActionCard
-import com.monospace.battery.ui.components.ClickableTooltip
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.BannerActionCard
+import com.monospace.battery.ui.components.common.ClickableTooltip
+import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
 
 @Composable
@@ -46,7 +46,7 @@ fun ChargerAnalysisSection(
     val isPremium = LocalSettingsState.current.isWidgetsPurchased
     val displayedStats = if (isPremium) stats else stats.take(1)
 
-    SettingsSection(stringResource(R.string.charger_analysis_title)) {
+    Section(stringResource(R.string.charger_analysis_title)) {
         customItem { _ ->
             if (stats.isEmpty()) {
                 EmptyChargerStatsView()

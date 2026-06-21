@@ -5,14 +5,14 @@ import androidx.compose.ui.res.stringResource
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.section.Section
 
 @Composable
 fun AboutSection() {
     val state = LocalSettingsState.current
     val actions = LocalSettingsActions.current
 
-    SettingsSection(stringResource(R.string.settings_about_app)) {
+    Section(stringResource(R.string.settings_about_app)) {
         val updateTitle = stringResource(R.string.settings_software_update)
         val updateDesc = stringResource(R.string.settings_version, state.versionName)
         val rateTitle = stringResource(R.string.settings_rate_us)

@@ -35,8 +35,8 @@ import com.monospace.battery.core.utils.BatteryMockUtils
 import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
-import com.monospace.battery.ui.components.getHealthIcon
-import com.monospace.battery.ui.components.getStaticHealthColor
+import com.monospace.battery.ui.utils.getHealthIcon
+import com.monospace.battery.ui.utils.getStaticHealthColor
 import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetStatusIndicator

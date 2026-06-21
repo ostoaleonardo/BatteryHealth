@@ -5,7 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.SettingsSection
+import com.monospace.battery.ui.components.common.section.Section
 
 @Composable
 fun DischargeAlertsSection() {
@@ -13,7 +13,7 @@ fun DischargeAlertsSection() {
     val actions = LocalSettingsActions.current
     val isPremium = state.isWidgetsPurchased
 
-    SettingsSection(stringResource(R.string.alerts_category_discharge)) {
+    Section(stringResource(R.string.alerts_category_discharge)) {
         switchItem(
             title = stringResource(R.string.settings_low_battery),
             description = stringResource(R.string.settings_low_battery_desc),

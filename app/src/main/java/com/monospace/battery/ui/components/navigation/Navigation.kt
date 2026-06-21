@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons

@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.common.section
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +29,7 @@ enum class SettingsItemPosition {
 }
 
 @Composable
-inline fun SettingsSection(
+inline fun Section(
     title: String? = null,
     noinline trailingContent: (@Composable () -> Unit)? = null,
     content: SettingsSectionScope.() -> Unit

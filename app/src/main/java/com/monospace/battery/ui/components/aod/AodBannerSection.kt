@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.BannerActionCard
+import com.monospace.battery.ui.components.common.BannerActionCard
 
 @Composable
 fun AodBannerSection() {

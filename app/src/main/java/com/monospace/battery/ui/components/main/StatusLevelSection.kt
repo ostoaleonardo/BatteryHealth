@@ -13,11 +13,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
 import com.monospace.battery.data.models.LocalBatteryState
-import com.monospace.battery.ui.components.InfoCard
-import com.monospace.battery.ui.components.LargeVerticalInfoCard
-import com.monospace.battery.ui.components.getBatteryIcon
-import com.monospace.battery.ui.components.getChargingSourceRes
-import com.monospace.battery.ui.components.getChargingStatusRes
+import com.monospace.battery.ui.components.common.card.LargeVerticalCard
+import com.monospace.battery.ui.components.common.card.RegularCard
+import com.monospace.battery.ui.utils.LocalIconTint
+import com.monospace.battery.ui.utils.LocalOnShowDialog
+import com.monospace.battery.ui.utils.getBatteryIcon
+import com.monospace.battery.ui.utils.getChargingSourceRes
+import com.monospace.battery.ui.utils.getChargingStatusRes
+import com.monospace.battery.ui.utils.rememberBatteryDialogData
 
 @Composable
 fun StatusLevelSection() {
@@ -42,7 +45,7 @@ fun StatusLevelSection() {
                 iconRes = R.drawable.bolt
             )
 
-            InfoCard(
+            RegularCard(
                 title = statusData.title,
                 value = statusData.value,
                 iconRes = R.drawable.bolt,
@@ -57,7 +60,7 @@ fun StatusLevelSection() {
                 iconRes = R.drawable.cable
             )
 
-            InfoCard(
+            RegularCard(
                 title = sourceData.title,
                 value = sourceData.value,
                 iconRes = R.drawable.cable,
@@ -75,7 +78,7 @@ fun StatusLevelSection() {
             iconRes = levelIcon
         )
 
-        LargeVerticalInfoCard(
+        LargeVerticalCard(
             title = levelData.title,
             value = levelValue,
             modifier = Modifier

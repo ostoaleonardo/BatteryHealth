@@ -1,4 +1,4 @@
-package com.monospace.battery.ui.components
+package com.monospace.battery.ui.components.main
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
+import com.monospace.battery.ui.utils.getHealthIcon
+import com.monospace.battery.ui.utils.getHealthStatusRes
 
 @Composable
 fun HealthCard(
