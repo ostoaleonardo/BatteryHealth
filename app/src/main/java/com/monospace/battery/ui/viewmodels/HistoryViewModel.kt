@@ -56,6 +56,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
                 if (sessionList.isNotEmpty()) {
                     calculateChargerStats(sessionList)
+                } else {
+                    _chargerStats.value = emptyList()
                 }
             }
         }
