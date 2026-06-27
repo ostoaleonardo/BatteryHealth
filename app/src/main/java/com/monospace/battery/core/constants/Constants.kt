@@ -75,7 +75,7 @@ object Constants {
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
     // AOD Style Constants
-    const val CLOCK_STYLES_COUNT = 6
+    const val CLOCK_STYLES_COUNT = 5
     const val WATER_GLASS_DELAY = 50L
     const val PREVIEW_TIME_DELAY = 1000L
 

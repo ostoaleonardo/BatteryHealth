@@ -57,6 +57,7 @@ import com.monospace.battery.ui.utils.selectionStyle
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun AodClockStyleSelector(
@@ -146,7 +147,7 @@ fun AodPreviewCard(
 
         while (true) {
             currentTime = System.currentTimeMillis()
-            delay(delayTime)
+            delay(delayTime.milliseconds)
         }
     }
 

@@ -53,6 +53,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class MeterStyle(val index: Int) {
     NONE(0),
@@ -367,7 +368,7 @@ fun ShortcutIcon(
         modifier = modifier
             .size(size)
             .clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.1f))
+            .background(Color.White.copy(alpha = 0.02f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -399,7 +400,7 @@ fun MeterDisplay(
         LaunchedEffect(Unit) {
             while (true) {
                 currentTime = System.currentTimeMillis()
-                delay(Constants.WATER_GLASS_DELAY)
+                delay(Constants.WATER_GLASS_DELAY.milliseconds)
             }
         }
     }

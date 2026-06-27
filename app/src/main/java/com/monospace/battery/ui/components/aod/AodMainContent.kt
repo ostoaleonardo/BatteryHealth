@@ -40,6 +40,7 @@ import com.monospace.battery.ui.utils.MeterStyle
 import com.monospace.battery.ui.utils.ShortcutIcon
 import com.monospace.battery.ui.utils.drawAodMeter
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +62,7 @@ fun AodMainContent() {
 
         while (true) {
             currentTime = System.currentTimeMillis()
-            delay(delayTime)
+            delay(delayTime.milliseconds)
         }
     }
 
