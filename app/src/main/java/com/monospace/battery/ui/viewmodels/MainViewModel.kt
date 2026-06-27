@@ -50,8 +50,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
-        super.onCleared()
-
         runCatching {
             getApplication<Application>().unregisterReceiver(batteryReceiver)
         }

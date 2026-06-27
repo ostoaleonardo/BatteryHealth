@@ -32,12 +32,11 @@ enum class SettingsItemPosition {
 inline fun Section(
     title: String? = null,
     noinline trailingContent: (@Composable () -> Unit)? = null,
-    content: SettingsSectionScope.() -> Unit
+    content: SectionScope.() -> Unit
 ) {
-    val scope = SettingsSectionScope()
-    scope.content()
-
+    val scope = SectionScope().apply(content)
     val items = scope.getItems()
+
     if (items.isEmpty()) return
 
     Column {
@@ -51,7 +50,7 @@ inline fun Section(
         Column(
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            items.forEachIndexed { index, item ->
+            items.forEachIndexed { index, composableItem ->
                 val position = when {
                     items.size == 1 -> SettingsItemPosition.SINGLE
                     index == 0 -> SettingsItemPosition.TOP
@@ -59,13 +58,13 @@ inline fun Section(
                     else -> SettingsItemPosition.MIDDLE
                 }
 
-                item(position)
+                composableItem(position)
             }
         }
     }
 }
 
-class SettingsSectionScope {
+class SectionScope {
     private val items = mutableListOf<@Composable (SettingsItemPosition) -> Unit>()
 
     fun item(
@@ -76,7 +75,7 @@ class SettingsSectionScope {
         onClick: () -> Unit
     ) {
         items.add { position ->
-            SettingsItem(title, description, position, enabled, iconRes, onClick)
+            Item(title, description, position, enabled, iconRes, onClick)
         }
     }
 
@@ -88,7 +87,7 @@ class SettingsSectionScope {
         onCheckedChange: (Boolean) -> Unit
     ) {
         items.add { position ->
-            SettingsSwitchItem(title, description, checked, position, enabled, onCheckedChange)
+            SwitchItem(title, description, checked, position, enabled, onCheckedChange)
         }
     }
 
@@ -101,7 +100,7 @@ class SettingsSectionScope {
         range: ClosedFloatingPointRange<Float> = 0f..100f
     ) {
         items.add { position ->
-            SettingsSliderItem(
+            SliderItem(
                 title = title,
                 description = description,
                 value = value,
@@ -123,7 +122,7 @@ class SettingsSectionScope {
 }
 
 @Composable
-fun SettingsBaseItem(
+fun BaseItem(
     title: String? = null,
     description: String? = null,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
@@ -158,13 +157,13 @@ fun SettingsBaseItem(
                 modifier = containerModifier,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SettingsItemText(title, description, Modifier.weight(1f))
+                ItemText(title, description, Modifier.weight(1f))
                 Spacer(modifier = Modifier.width(16.dp))
                 content()
             }
         } else {
             Column(modifier = containerModifier) {
-                SettingsItemText(title, description)
+                ItemText(title, description)
                 content()
             }
         }
@@ -172,7 +171,7 @@ fun SettingsBaseItem(
 }
 
 @Composable
-private fun SettingsItemText(
+private fun ItemText(
     title: String?,
     description: String?,
     modifier: Modifier = Modifier
@@ -197,7 +196,7 @@ private fun SettingsItemText(
 }
 
 @Composable
-fun SettingsItem(
+fun Item(
     title: String,
     description: String? = null,
     position: SettingsItemPosition = SettingsItemPosition.SINGLE,
@@ -205,7 +204,7 @@ fun SettingsItem(
     iconRes: Int = R.drawable.open_in_new,
     onClick: () -> Unit
 ) {
-    SettingsBaseItem(
+    BaseItem(
         title = title,
         description = description,
         position = position,
@@ -221,7 +220,7 @@ fun SettingsItem(
 }
 
 @Composable
-fun SettingsSwitchItem(
+fun SwitchItem(
     title: String,
     description: String? = null,
     checked: Boolean,
@@ -229,7 +228,7 @@ fun SettingsSwitchItem(
     enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    SettingsBaseItem(
+    BaseItem(
         title = title,
         description = description,
         position = position,
@@ -245,7 +244,7 @@ fun SettingsSwitchItem(
 }
 
 @Composable
-fun SettingsSliderItem(
+fun SliderItem(
     title: String? = null,
     description: String,
     value: Int,
@@ -254,7 +253,7 @@ fun SettingsSliderItem(
     enabled: Boolean = true,
     range: ClosedFloatingPointRange<Float> = 0f..100f
 ) {
-    SettingsBaseItem(
+    BaseItem(
         title = title,
         description = description,
         position = position,

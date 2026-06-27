@@ -87,7 +87,6 @@ object Constants {
     const val DIM_MAX = 80f
 
     // AOD Preview Constants
-    const val DUMMY_WATTAGE = "25W"
     const val DUMMY_TIME_REMAINING = "01:20"
 
     // Colors
