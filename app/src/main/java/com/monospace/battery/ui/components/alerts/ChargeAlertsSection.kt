@@ -27,7 +27,8 @@ fun ChargeAlertsSection() {
                 description = "${state.healthyChargeLevel}%",
                 value = state.healthyChargeLevel,
                 enabled = isPremium,
-                onValueChange = actions.onHealthyChargeLevelChange
+                onValueChange = actions.onHealthyChargeLevelChange,
+                range = 50f..100f
             )
         }
 
