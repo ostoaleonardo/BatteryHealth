@@ -26,7 +26,7 @@
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Continuous real-time monitoring of battery hardware sensors (temperature, voltage, and charge level) to detect critical overheating conditions, identify faulty charging hardware, and calculate cumulative battery wear cycles for device safety and health diagnostics." />
+                android:value="Monitoring battery hardware sensors (temperature, voltage, level) to provide real-time safety alerts for overheating and health diagnostics." />
         </service>
 
         <receiver
