@@ -245,13 +245,6 @@ class BatteryAlertService : Service() {
         val pendingIntent =
             PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
 
-        val stopIntent = Intent(this, BatteryAlertService::class.java).apply {
-            action = ACTION_STOP_SERVICE
-        }
-
-        val stopPendingIntent =
-            PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_IMMUTABLE)
-
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.notification_service_running))
@@ -259,11 +252,6 @@ class BatteryAlertService : Service() {
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(
-                R.drawable.bolt,
-                getString(R.string.notification_action_stop),
-                stopPendingIntent
-            )
             .build()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
