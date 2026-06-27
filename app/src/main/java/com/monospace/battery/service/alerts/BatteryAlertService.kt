@@ -20,6 +20,7 @@ import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.local.db.BatteryDatabase
+import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ScreenEvent
 import com.monospace.battery.notifications.NotificationHelper
 import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
@@ -27,6 +28,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class BatteryAlertService : Service() {
 
@@ -37,6 +40,7 @@ class BatteryAlertService : Service() {
     private lateinit var alertHandler: BatteryAlertHandler
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val sessionMutex = Mutex()
 
     private var lastLevel = -1
     private var lastStatus = -1
@@ -189,17 +193,19 @@ class BatteryAlertService : Service() {
     private fun handleSessionToggle(isEnabled: Boolean) {
         scope.launch {
             runCatching {
-                val activeSession = db.batteryDao().getActiveSession()
-                val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                        status == BatteryManager.BATTERY_STATUS_FULL
-                val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
-                val source = intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+                if (isEnabled) {
+                    val activeSession = db.batteryDao().getActiveSession()
+                    val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                    val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                    val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                            status == BatteryManager.BATTERY_STATUS_FULL
+                    val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                    val source = intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
 
-                if (isEnabled && isCharging && activeSession == null) {
-                    startNewSession(if (level != -1) level else 0, source)
-                } else if (!isEnabled && activeSession != null) {
+                    if (isCharging && activeSession == null) {
+                        startNewSession(if (level != -1) level else 0, source)
+                    }
+                } else {
                     closeActiveSession()
                 }
             }
@@ -208,32 +214,29 @@ class BatteryAlertService : Service() {
 
     private fun startNewSession(level: Int, source: Int) {
         scope.launch {
-            db.batteryDao().insertChargeSession(
-                com.monospace.battery.data.models.ChargeSession(
-                    startTime = System.currentTimeMillis(),
-                    startLevel = level,
-                    chargeSource = source
-                )
-            )
+            sessionMutex.withLock {
+                val activeSession = db.batteryDao().getActiveSession()
+
+                if (activeSession == null) {
+                    db.batteryDao().insertChargeSession(
+                        ChargeSession(
+                            startTime = System.currentTimeMillis(),
+                            startLevel = level,
+                            chargeSource = source
+                        )
+                    )
+                }
+            }
         }
     }
 
     private fun closeActiveSession() {
         scope.launch {
             runCatching {
-                val activeSession = db.batteryDao().getActiveSession()
-                if (activeSession != null) {
+                sessionMutex.withLock {
                     val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                    val level =
-                        intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, activeSession.startLevel)
-                            ?: activeSession.startLevel
-
-                    db.batteryDao().updateChargeSession(
-                        activeSession.copy(
-                            endTime = System.currentTimeMillis(),
-                            endLevel = level
-                        )
-                    )
+                    val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+                    db.batteryDao().closeAllActiveSessions(System.currentTimeMillis(), level)
                 }
             }
         }

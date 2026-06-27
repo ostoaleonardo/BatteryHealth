@@ -39,6 +39,23 @@ interface BatteryDao {
     @Query("SELECT * FROM charge_sessions WHERE endTime IS NULL ORDER BY startTime DESC LIMIT 1")
     suspend fun getActiveSession(): ChargeSession?
 
+    @Query("SELECT * FROM charge_sessions WHERE endTime IS NULL")
+    suspend fun getAllActiveSessions(): List<ChargeSession>
+
+    @Transaction
+    suspend fun closeAllActiveSessions(endTime: Long, endLevel: Int) {
+        val activeSessions = getAllActiveSessions()
+
+        activeSessions.forEach { session ->
+            updateChargeSession(
+                session.copy(
+                    endTime = endTime,
+                    endLevel = endLevel
+                )
+            )
+        }
+    }
+
     // Screen Events (SOT)
     @Insert
     suspend fun insertScreenEvent(event: ScreenEvent)
