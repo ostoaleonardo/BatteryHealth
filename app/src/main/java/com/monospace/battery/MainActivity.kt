@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -25,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -44,13 +46,10 @@ import com.monospace.battery.ui.components.navigation.TopAppBar
 import com.monospace.battery.ui.theme.BatteryTheme
 import com.monospace.battery.ui.viewmodels.MainViewModel
 import com.monospace.battery.ui.viewmodels.SettingsViewModel
-import com.monospace.battery.widgets.charging.BatteryLevelWidget
+import com.monospace.battery.widgets.WidgetsUpdater
 import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
-import com.monospace.battery.widgets.charging.ChargingInfoWidget
 import com.monospace.battery.widgets.charging.ChargingInfoWidgetReceiver
-import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
-import com.monospace.battery.widgets.health.HealthStatusWidget
 import com.monospace.battery.widgets.health.HealthStatusWidgetReceiver
 import kotlinx.coroutines.launch
 
@@ -106,6 +105,9 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
 
                 val purchaseManager = remember { PurchaseManager(context, PurchaseManager.WIDGETS) }
+                DisposableEffect(purchaseManager) {
+                    onDispose { purchaseManager.close() }
+                }
                 val isPurchased by purchaseManager.isPurchased.collectAsState()
                 val settingsState by settingsViewModel.uiState
                 val batteryState by mainViewModel.batteryState
@@ -261,11 +263,16 @@ class MainActivity : ComponentActivity() {
         val shouldRun = state.anyAlertEnabled || state.activeMonitoringEnabled
         val intent = Intent(this, BatteryAlertService::class.java)
 
-        if (shouldRun) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent)
-            else startService(intent)
-        } else {
-            stopService(intent)
+        runCatching {
+            if (shouldRun) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent)
+                else startService(intent)
+            } else {
+                stopService(intent)
+            }
+        }.onFailure {
+            Log.w("MainActivity", "Could not update monitoring service", it)
+            runCatching { FirebaseCrashlytics.getInstance().recordException(it) }
         }
     }
 
@@ -288,12 +295,7 @@ class MainActivity : ComponentActivity() {
 
     private fun updateAllWidgets() {
         lifecycleScope.launch {
-            runCatching {
-                ChargingInfoWidget().updateAll(applicationContext)
-                ChargeCyclesWidget().updateAll(applicationContext)
-                HealthStatusWidget().updateAll(applicationContext)
-                BatteryLevelWidget().updateAll(applicationContext)
-            }
+            WidgetsUpdater.updateAll(applicationContext)
         }
     }
 }

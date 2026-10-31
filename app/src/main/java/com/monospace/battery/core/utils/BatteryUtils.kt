@@ -115,7 +115,7 @@ class BatteryUtils(context: Context) {
         val absoluteCurrent = abs(currentRaw)
 
         // Scale heuristic: Handle mA vs μA
-        val currentInAmps = if (absoluteCurrent < 20000) {
+        val currentInAmps = if (absoluteCurrent < CURRENT_MA_THRESHOLD) {
             absoluteCurrent / 1000.0
         } else {
             absoluteCurrent / 1_000_000.0
@@ -142,7 +142,7 @@ class BatteryUtils(context: Context) {
         if (currentNow == Long.MIN_VALUE) return 0
 
         // Handle scaling (mA vs μA)
-        return if (abs(currentNow) > 100_000) {
+        return if (abs(currentNow) >= CURRENT_MA_THRESHOLD) {
             (currentNow / 1000).toInt()
         } else {
             currentNow.toInt()
@@ -169,6 +169,8 @@ class BatteryUtils(context: Context) {
 
     companion object {
         private const val TAG = "BatteryUtils"
+
+        private const val CURRENT_MA_THRESHOLD = 20_000L
 
         // Time formats
         private const val TIME_FORMAT = "%02d:%02d"

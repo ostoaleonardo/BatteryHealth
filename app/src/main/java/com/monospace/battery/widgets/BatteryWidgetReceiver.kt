@@ -5,7 +5,8 @@ import android.content.Intent
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
@@ -24,11 +25,15 @@ abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
         if (updateActions.contains(intent.action)) {
             val manager = GlanceAppWidgetManager(context)
 
-            MainScope().launch {
-                manager.getGlanceIds(glanceAppWidget::class.java)
-                    .forEach {
-                        glanceAppWidget.update(context, it)
-                    }
+            val pending = goAsync()
+
+            CoroutineScope(Dispatchers.Default).launch {
+                try {
+                    manager.getGlanceIds(glanceAppWidget::class.java)
+                        .forEach { glanceAppWidget.update(context, it) }
+                } finally {
+                    pending.finish()
+                }
             }
         }
     }

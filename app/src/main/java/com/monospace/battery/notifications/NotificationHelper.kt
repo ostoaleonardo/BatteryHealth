@@ -2,11 +2,14 @@ package com.monospace.battery.notifications
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
+import android.app.PendingIntent
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 
@@ -18,16 +21,7 @@ class NotificationHelper(private val context: Context) {
         createNotificationChannel()
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = context.getString(R.string.notification_channel_name)
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(Constants.NOTIFICATION_CHANNEL_ID, name, importance)
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
+    private fun createNotificationChannel() = createChannels(context)
 
     fun showHealthyChargeNotification() {
         showNotification(
@@ -76,6 +70,16 @@ class NotificationHelper(private val context: Context) {
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+            .setContentIntent(
+                PendingIntent.getActivity(
+                    context,
+                    id,
+                    Intent(context, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                    PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            )
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(context)
@@ -84,6 +88,30 @@ class NotificationHelper(private val context: Context) {
             runCatching {
                 notificationManager.notify(id, builder.build())
             }
+        }
+    }
+
+    companion object {
+        fun createChannels(context: Context) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
+            val manager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    Constants.NOTIFICATION_CHANNEL_ID,
+                    context.getString(R.string.notification_channel_name),
+                    NotificationManager.IMPORTANCE_HIGH
+                )
+            )
+            manager.createNotificationChannel(
+                NotificationChannel(
+                    Constants.SERVICE_CHANNEL_ID,
+                    context.getString(R.string.notification_service_channel_name),
+                    NotificationManager.IMPORTANCE_LOW
+                )
+            )
         }
     }
 }

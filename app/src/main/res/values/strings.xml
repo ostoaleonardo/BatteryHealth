@@ -106,6 +106,7 @@
     <string name="notification_fast_discharge_message">Your battery is draining faster than usual. Check for background apps.</string>
     <string name="notification_slow_charge_title">Slow Charging Detected!</string>
     <string name="notification_slow_charge_message">Charging speed is lower than expected. Check your cable or charger.</string>
+    <string name="notification_service_channel_name">Battery monitoring service</string>
     <string name="notification_service_running">Monitoring battery alerts in background</string>
 
     <!-- Permissions -->

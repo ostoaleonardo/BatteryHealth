@@ -58,7 +58,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="android.intent.action.ACTION_BATTERY_CHANGED" />
             </intent-filter>
 
             <meta-data
@@ -83,13 +82,12 @@
         <receiver
             android:name=".service.alerts.BatteryAlertReceiver"
             android:enabled="true"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
-                <action android:name="android.intent.action.SCREEN_OFF" />
             </intent-filter>
         </receiver>
 

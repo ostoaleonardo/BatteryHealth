@@ -1,6 +1,7 @@
 package com.monospace.battery.purchase
 
 import android.app.Activity
+import android.content.pm.ApplicationInfo
 import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -32,6 +34,13 @@ class PurchaseManager(
     private val context: Context,
     private val productId: String
 ) {
+    private val isDebuggable =
+        context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+
+    private fun debug(message: String) {
+        if (isDebuggable) Log.d(TAG, message)
+    }
+
     private val scope = MainScope()
     private var productDetails: ProductDetails? = null
     private var billingClient: BillingClient
@@ -68,7 +77,7 @@ class PurchaseManager(
                 }
 
                 BillingClient.BillingResponseCode.USER_CANCELED -> {
-                    Log.d(TAG, "User cancelled the purchase flow")
+                    debug("User cancelled the purchase flow")
                 }
 
                 else -> {
@@ -92,14 +101,13 @@ class PurchaseManager(
     }
 
     private fun handlePurchase(purchase: Purchase, silent: Boolean = false) {
-        Log.d(TAG, "Handling purchase: State=${purchase.purchaseState}")
-        Log.d(TAG, "Handling purchase: Token=${purchase.purchaseToken.takeLast(5)}")
-        Log.d(TAG, "Handling purchase: Products=${purchase.products}")
+        debug("Handling purchase: State=${purchase.purchaseState}")
+        debug("Handling purchase: Products=${purchase.products}")
 
         if (purchase.purchaseState != Purchase.PurchaseState.PURCHASED
             || !purchase.products.contains(productId)
         ) {
-            Log.d(TAG, "Purchase ignored: State is not PURCHASED or ID mismatch")
+            debug("Purchase ignored: State is not PURCHASED or ID mismatch")
             return
         }
 
@@ -110,7 +118,7 @@ class PurchaseManager(
         _isPurchased.value = true
 
         if (!purchase.isAcknowledged) {
-            Log.d(TAG, "Acknowledging new purchase...")
+            debug("Acknowledging new purchase...")
 
             val params = AcknowledgePurchaseParams.newBuilder()
                 .setPurchaseToken(purchase.purchaseToken)
@@ -122,7 +130,7 @@ class PurchaseManager(
                 }
 
                 if (result.responseCode == BILLING_RESPONSE_OK) {
-                    Log.d(TAG, "Purchase acknowledged successfully")
+                    debug("Purchase acknowledged successfully")
 
                     if (!silent) _purchaseEvents.emit(PurchaseEvent.Success)
                 } else {
@@ -131,7 +139,7 @@ class PurchaseManager(
                 }
             }
         } else {
-            Log.d(TAG, "Purchase already acknowledged")
+            debug("Purchase already acknowledged")
 
             if (!silent && !wasPurchasedLocally) {
                 scope.launch { _purchaseEvents.emit(PurchaseEvent.Success) }
@@ -152,7 +160,7 @@ class PurchaseManager(
     }
 
     private fun startBillingConnection() {
-        Log.d(TAG, "Starting billing connection...")
+        debug("Starting billing connection...")
 
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -160,7 +168,7 @@ class PurchaseManager(
                 val debugMessage = billingResult.debugMessage
 
                 if (responseCode == BILLING_RESPONSE_OK) {
-                    Log.d(TAG, "Billing Connection Successful")
+                    debug("Billing Connection Successful")
 
                     scope.launch {
                         getPurchases(silent = true)
@@ -199,7 +207,7 @@ class PurchaseManager(
 
         if (result.billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
             productDetails = result.productDetailsList?.find { it.productId == productId }
-            Log.d(TAG, "ProductDetails loaded: ${productDetails?.name ?: "Null"}")
+            debug("ProductDetails loaded: ${productDetails?.name ?: "Null"}")
             return productDetails
         } else {
             Log.e(TAG, "queryProductDetails Error: ${result.billingResult.responseCode}")
@@ -225,7 +233,7 @@ class PurchaseManager(
                         it.products.contains(productId) && it.purchaseState == Purchase.PurchaseState.PURCHASED
                     }
 
-                    Log.d(TAG, "Syncing purchases: found active product=$hasProduct")
+                    debug("Syncing purchases: found active product=$hasProduct")
 
                     if (hasProduct) {
                         purchaseList.filter {
@@ -235,7 +243,7 @@ class PurchaseManager(
                         }
                     } else {
                         if (WidgetsUtils.isWidgetsPurchased(context)) {
-                            Log.d(TAG, "Revoking access: No active purchase found in Google Play")
+                            debug("Revoking access: No active purchase found in Google Play")
                             WidgetsUtils.setWidgetsPurchased(context, false)
                         }
 
@@ -258,11 +266,16 @@ class PurchaseManager(
         }
     }
 
+    fun close() {
+        scope.cancel()
+        if (billingClient.isReady) billingClient.endConnection()
+    }
+
     fun launchBuyBillingFlow(activity: Activity) {
         scope.launch {
             val details = productDetails ?: processProducts()
             details?.let {
-                Log.d(TAG, "Launching billing flow for: ${it.productId}")
+                debug("Launching billing flow for: ${it.productId}")
                 val flowParams = BillingFlowParams.newBuilder()
                     .setProductDetailsParamsList(
                         listOf(

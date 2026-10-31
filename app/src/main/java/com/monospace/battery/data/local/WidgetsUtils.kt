@@ -11,9 +11,7 @@ object WidgetsUtils {
         val prefs = PreferenceManager(context)
         val token = prefs.get(Constants.PREFS_WIDGETS, Constants.KEY_WIDGETS_PURCHASE_TOKEN, "")
 
-        if (token.isEmpty()) return false
-
-        return runCatching {
+        return token.isNotEmpty() && runCatching {
             val expectedToken = Base64.encodeToString(
                 context.packageName.toByteArray(),
                 Base64.NO_WRAP

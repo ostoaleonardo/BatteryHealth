@@ -6,6 +6,8 @@ object Constants {
 
     // Notification Channels
     const val NOTIFICATION_CHANNEL_ID = "battery_alerts_channel"
+    const val SERVICE_CHANNEL_ID = "battery_service_channel"
+    const val HISTORY_RETENTION_DAYS = 90
 
     // Notification IDs
     const val NOTIFICATION_HEALTHY_CHARGE_ID = 1001

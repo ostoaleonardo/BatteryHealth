@@ -8,9 +8,14 @@ import android.content.IntentFilter
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.data.models.BatteryState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val batteryUtils = BatteryUtils(application)
@@ -29,6 +34,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         updateBatteryState(stickyIntent)
     }
 
+    private var sensorJob: Job? = null
+
     private fun updateBatteryState(intent: Intent?) {
         val info = BatteryInfo(intent)
 
@@ -40,13 +47,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             chargeCycles = info.chargeCycles,
             technology = info.technology,
             temperature = info.temperature,
-            voltage = info.voltage,
-            capacity = batteryUtils.getBatteryCapacity(),
-            capacityRemaining = batteryUtils.getCapacityRemaining(),
-            currentNow = batteryUtils.getCurrentNow(),
-            timeRemaining = batteryUtils.getChargeTimeRemaining(info.isCharging),
-            chargeSpeed = batteryUtils.getChargeSpeed(info.voltage, info.isCharging)
+            voltage = info.voltage
         )
+
+        sensorJob?.cancel()
+        sensorJob = viewModelScope.launch(Dispatchers.IO) {
+            val capacity = batteryUtils.getBatteryCapacity()
+            val capacityRemaining = batteryUtils.getCapacityRemaining()
+            val currentNow = batteryUtils.getCurrentNow()
+            val timeRemaining = batteryUtils.getChargeTimeRemaining(info.isCharging)
+            val chargeSpeed = batteryUtils.getChargeSpeed(info.voltage, info.isCharging)
+
+            withContext(Dispatchers.Main) {
+                _batteryState.value = _batteryState.value.copy(
+                    capacity = capacity,
+                    capacityRemaining = capacityRemaining,
+                    currentNow = currentNow,
+                    timeRemaining = timeRemaining,
+                    chargeSpeed = chargeSpeed
+                )
+            }
+        }
     }
 
     override fun onCleared() {

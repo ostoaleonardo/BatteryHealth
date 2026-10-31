@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.WidgetsUtils
@@ -15,7 +16,7 @@ import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
 class BatteryAlertReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_LOCKED_BOOT_COMPLETED -> {
+            Intent.ACTION_BOOT_COMPLETED, QUICKBOOT_POWERON -> {
                 startAlertService(context)
             }
 
@@ -41,10 +42,15 @@ class BatteryAlertReceiver : BroadcastReceiver() {
         if (monitoringKeys.any { prefs.get(Constants.PREFS_ALERTS, it, false) }) {
             val serviceIntent = Intent(context, BatteryAlertService::class.java)
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
-            } else {
-                context.startService(serviceIntent)
+            runCatching {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent)
+                } else {
+                    context.startService(serviceIntent)
+                }
+            }.onFailure {
+                Log.w(TAG, "Could not start alert service", it)
+                runCatching { FirebaseCrashlytics.getInstance().recordException(it) }
             }
         }
     }
@@ -66,7 +72,8 @@ class BatteryAlertReceiver : BroadcastReceiver() {
                         addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     }
 
-                    context.startActivity(aodIntent)
+                    runCatching { context.startActivity(aodIntent) }
+                        .onFailure { Log.w(TAG, "AOD launch blocked", it) }
                 }
             }
         }
@@ -74,5 +81,6 @@ class BatteryAlertReceiver : BroadcastReceiver() {
 
     companion object {
         private const val TAG = "BatteryReceiver"
+        private const val QUICKBOOT_POWERON = "android.intent.action.QUICKBOOT_POWERON"
     }
 }
