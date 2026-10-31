@@ -24,7 +24,6 @@ import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.ui.components.aod.AodBannerSection
-import com.monospace.battery.ui.components.aod.AodClockStyleSelector
 import com.monospace.battery.ui.components.aod.AodColorSelector
 import com.monospace.battery.ui.components.aod.AodMeterStyleSelector
 import com.monospace.battery.ui.components.aod.AodPreviewHeader
@@ -87,17 +86,6 @@ private fun LandscapeLayout() {
 }
 
 private fun LazyListScope.aodSettingsItems() {
-    item {
-        val state = LocalSettingsState.current
-        val actions = LocalSettingsActions.current
-
-        AodClockStyleSelector(
-            selectedIndex = state.aodClockStyle,
-            is24h = state.aod24hFormat,
-            onSelect = actions.onAodClockStyleChange
-        )
-    }
-
     item {
         val state = LocalSettingsState.current
         val actions = LocalSettingsActions.current

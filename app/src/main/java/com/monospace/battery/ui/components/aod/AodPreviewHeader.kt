@@ -21,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -48,16 +47,10 @@ fun AodPreviewHeader() {
             .background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val themePrimary = MaterialTheme.colorScheme.primary
-        val previewColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
-
         // Smartphone Preview (Always visible)
         AodPreviewCard(
             modifier = Modifier.fillMaxWidth().height(280.dp),
-            level = batteryState.level,
-            color = previewColor,
-            meterStyle = state.aodMeterStyle,
-            showShortcuts = state.aodShowShortcuts
+            level = batteryState.level
         )
 
         // Activation Controls Row (Only for Premium)

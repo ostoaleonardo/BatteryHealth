@@ -153,7 +153,6 @@ class MainActivity : ComponentActivity() {
                             ensureNotificationPermission(it)
                             updateMonitoringService()
                         },
-                        onAodClockStyleChange = settingsViewModel::setAodClockStyle,
                         onAodMeterStyleChange = settingsViewModel::setAodMeterStyle,
                         onAodColorChange = settingsViewModel::setAodColor,
                         onAodShowDateChange = settingsViewModel::toggleAodShowDate,

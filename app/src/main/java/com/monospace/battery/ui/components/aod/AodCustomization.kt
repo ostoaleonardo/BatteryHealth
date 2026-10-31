@@ -1,18 +1,16 @@
 package com.monospace.battery.ui.components.aod
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -21,23 +19,21 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
@@ -48,46 +44,11 @@ import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
-import com.monospace.battery.ui.utils.AodDimensions
-import com.monospace.battery.ui.utils.AodLayoutContent
 import com.monospace.battery.ui.utils.MeterDisplay
 import com.monospace.battery.ui.utils.MeterStyle
-import com.monospace.battery.ui.utils.drawAodMeter
 import com.monospace.battery.ui.utils.selectionStyle
-import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
 import java.util.Date
-import kotlin.time.Duration.Companion.milliseconds
 
-@Composable
-fun AodClockStyleSelector(
-    selectedIndex: Int,
-    is24h: Boolean,
-    onSelect: (Int) -> Unit
-) {
-    val locale = LocalLocale.current.platformLocale
-    val currentTime = Date()
-    val timeFormat = SimpleDateFormat(
-        if (is24h) Constants.TIME_PATTERN_24H else Constants.TIME_PATTERN_12H, locale
-    )
-    val timeString = timeFormat.format(currentTime)
-
-    StyleSelector(
-        title = stringResource(R.string.aod_clock_style),
-        count = Constants.CLOCK_STYLES_COUNT,
-        selectedIndex = selectedIndex,
-        onSelect = onSelect
-    ) { index, isSelected ->
-        Text(
-            text = timeString,
-            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-            fontFamily = Font.getFont(index)
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AodMeterStyleSelector(
     selectedIndex: Int,
@@ -131,25 +92,13 @@ fun AodMeterStyleSelector(
 @Composable
 fun AodPreviewCard(
     modifier: Modifier = Modifier,
-    level: Int,
-    color: Color,
-    meterStyle: Int,
-    showShortcuts: Boolean = false
+    level: Int
 ) {
-    var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-
-    LaunchedEffect(meterStyle) {
-        val delayTime = if (meterStyle == MeterStyle.WATER_GLASS.index) {
-            Constants.WATER_GLASS_DELAY
-        } else {
-            Constants.PREVIEW_TIME_DELAY
-        }
-
-        while (true) {
-            currentTime = System.currentTimeMillis()
-            delay(delayTime.milliseconds)
-        }
-    }
+    val density = LocalDensity.current
+    val window = LocalWindowInfo.current.containerSize
+    val screenWidthDp = minOf(window.width, window.height) / density.density
+    val screenHeightDp = maxOf(window.width, window.height) / density.density
+    val shape = RoundedCornerShape(24.dp)
 
     Box(
         modifier = modifier.padding(horizontal = 16.dp),
@@ -158,74 +107,34 @@ fun AodPreviewCard(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .aspectRatio(9f / 20f)
-                .clip(RoundedCornerShape(24.dp))
-                .border(2.dp, Color.DarkGray, RoundedCornerShape(24.dp))
+                .aspectRatio(screenWidthDp / screenHeightDp)
+                .clip(shape)
+                .border(2.dp, Color.DarkGray, shape)
                 .padding(4.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(Color.Black),
-            contentAlignment = Alignment.Center
+                .background(Color.Black)
         ) {
-            // 1. Water Background (if style 6)
-            if (meterStyle == MeterStyle.WATER_GLASS.index) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    drawAodMeter(
-                        style = MeterStyle.WATER_GLASS,
-                        level = level,
-                        color = color,
-                        timeMillis = currentTime
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val scale = maxWidth.value / screenWidthDp
+                val previewDensity = Density(density.density * scale, density.fontScale)
+                val mockBatteryState = BatteryState(
+                    level = level,
+                    isCharging = true,
+                    chargeSpeed = 25.0,
+                    timeRemaining = Constants.DUMMY_TIME_REMAINING
+                )
+
+                CompositionLocalProvider(
+                    LocalDensity provides previewDensity,
+                    LocalBatteryState provides mockBatteryState
+                ) {
+                    AodScene(
+                        currentTime = rememberAodTime(LocalSettingsState.current.aodMeterStyle),
+                        isLandscape = false,
+                        interactive = false
                     )
                 }
             }
-
-            // 2. Content
-            val mockBatteryState = BatteryState(
-                level = level,
-                isCharging = true,
-                chargeSpeed = 25.0,
-                timeRemaining = Constants.DUMMY_TIME_REMAINING
-            )
-
-            CompositionLocalProvider(LocalBatteryState provides mockBatteryState) {
-                AodLayoutContent(
-                    currentTime = currentTime,
-                    dimensions = AodDimensions.Preview,
-                    verticalArrangement = Arrangement.Top,
-                    isLandscape = false
-                )
-            }
-
-            // 4. Shortcuts Preview
-            if (showShortcuts) {
-                AodPreviewShortcuts()
-            }
-        }
-    }
-}
-
-@Composable
-fun AodPreviewShortcuts() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 8.dp)
-            .padding(horizontal = 8.dp),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
-            )
-            Box(
-                modifier = Modifier
-                    .size(16.dp)
-                    .background(Color.White.copy(alpha = 0.1f), CircleShape)
-            )
         }
     }
 }

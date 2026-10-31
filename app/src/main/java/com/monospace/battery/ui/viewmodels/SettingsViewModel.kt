@@ -70,11 +70,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 Constants.KEY_ACTIVE_MONITORING,
                 false
             ),
-            aodClockStyle = prefs.get(
-                Constants.PREFS_ALERTS,
-                Constants.KEY_AOD_CLOCK_STYLE,
-                0
-            ),
             aodMeterStyle = prefs.get(
                 Constants.PREFS_ALERTS,
                 Constants.KEY_AOD_METER_STYLE,
@@ -186,11 +181,6 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun toggleActiveMonitoring(enabled: Boolean) {
         updatePref(Constants.KEY_ACTIVE_MONITORING, enabled)
         _uiState.value = _uiState.value.copy(activeMonitoringEnabled = enabled)
-    }
-
-    fun setAodClockStyle(style: Int) {
-        updatePref(Constants.KEY_AOD_CLOCK_STYLE, style)
-        _uiState.value = _uiState.value.copy(aodClockStyle = style)
     }
 
     fun setAodMeterStyle(style: Int) {

@@ -34,7 +34,6 @@ object Constants {
     const val KEY_SLOW_CHARGE_ENABLED = "slow_charge_enabled"
     const val KEY_AOD_ENABLED = "aod_enabled"
     const val EXTRA_AOD_TEST = "extra_aod_test"
-    const val KEY_AOD_CLOCK_STYLE = "aod_clock_style"
     const val KEY_AOD_METER_STYLE = "aod_meter_style"
     const val KEY_AOD_COLOR = "aod_color"
     const val KEY_AOD_SHOW_DATE = "aod_show_date"
@@ -78,7 +77,6 @@ object Constants {
     const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
     // AOD Style Constants
-    const val CLOCK_STYLES_COUNT = 5
     const val WATER_GLASS_DELAY = 50L
     const val PREVIEW_TIME_DELAY = 1000L
 

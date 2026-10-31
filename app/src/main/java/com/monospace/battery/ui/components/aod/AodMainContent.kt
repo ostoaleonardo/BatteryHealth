@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,31 +33,23 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.utils.AodDimensions
 import com.monospace.battery.ui.utils.AodLayoutContent
 import com.monospace.battery.ui.utils.MeterStyle
 import com.monospace.battery.ui.utils.ShortcutIcon
 import com.monospace.battery.ui.utils.drawAodMeter
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AodMainContent() {
-    val state = LocalSettingsState.current
-    val batteryState = LocalBatteryState.current
-    val themePrimary = MaterialTheme.colorScheme.primary
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-
-    val accentColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
-    val isWaterGlass = state.aodMeterStyle == MeterStyle.WATER_GLASS.index
-
+fun rememberAodTime(meterStyle: Int): Long {
     var currentTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    val context = LocalContext.current
 
-    LaunchedEffect(state.aodMeterStyle) {
-        val delayTime = if (isWaterGlass) Constants.WATER_GLASS_DELAY
-        else Constants.PREVIEW_TIME_DELAY
+    LaunchedEffect(meterStyle) {
+        val delayTime = if (meterStyle == MeterStyle.WATER_GLASS.index) {
+            Constants.WATER_GLASS_DELAY
+        } else {
+            Constants.PREVIEW_TIME_DELAY
+        }
 
         while (true) {
             currentTime = System.currentTimeMillis()
@@ -66,13 +57,45 @@ fun AodMainContent() {
         }
     }
 
+    return currentTime
+}
+
+@Composable
+fun AodMainContent() {
+    val state = LocalSettingsState.current
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val context = LocalContext.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable { (context as? Activity)?.finish() }
+    ) {
+        AodScene(
+            currentTime = rememberAodTime(state.aodMeterStyle),
+            isLandscape = isLandscape,
+            interactive = true
+        )
+    }
+}
+
+@Composable
+fun AodScene(
+    currentTime: Long,
+    isLandscape: Boolean,
+    interactive: Boolean
+) {
+    val state = LocalSettingsState.current
+    val batteryState = LocalBatteryState.current
+    val themePrimary = MaterialTheme.colorScheme.primary
+    val accentColor = if (state.aodColor == 0L) themePrimary else Color(state.aodColor)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .clickable { (context as? Activity)?.finish() },
     ) {
-        if (isWaterGlass) {
+        if (state.aodMeterStyle == MeterStyle.WATER_GLASS.index) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 drawAodMeter(
                     timeMillis = currentTime,
@@ -86,18 +109,17 @@ fun AodMainContent() {
         AodLayoutContent(
             modifier = Modifier.fillMaxSize(),
             currentTime = currentTime,
-            dimensions = AodDimensions.Default,
             verticalArrangement = Arrangement.Center,
             isLandscape = isLandscape
         )
 
-        if (state.aodShowShortcuts) AODShortcutsSection()
+        if (state.aodShowShortcuts) AodShortcuts(interactive)
         if (state.aodDimAmount > 0) AODDimOverlay(state.aodDimAmount)
     }
 }
 
 @Composable
-private fun AODShortcutsSection() {
+private fun AodShortcuts(interactive: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -114,6 +136,7 @@ private fun AODShortcutsSection() {
 
             ShortcutIcon(
                 iconRes = if (isFlashlightOn) R.drawable.flashlight_on else R.drawable.flashlight_off,
+                enabled = interactive,
                 onClick = {
                     runCatching {
                         val cameraManager =
@@ -127,6 +150,7 @@ private fun AODShortcutsSection() {
 
             ShortcutIcon(
                 iconRes = R.drawable.photo_camera,
+                enabled = interactive,
                 onClick = {
                     runCatching {
                         val intent = Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA).apply {
@@ -141,7 +165,7 @@ private fun AODShortcutsSection() {
 }
 
 @Composable
-private fun AODDimOverlay(dimAmount: Int) {
+fun AODDimOverlay(dimAmount: Int) {
     Box(
         modifier = Modifier
             .fillMaxSize()

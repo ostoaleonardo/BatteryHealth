@@ -189,7 +189,6 @@
     <string name="alerts_category_safety">Alertas de seguridad</string>
     <string name="settings_active_monitoring">Monitoreo Activo</string>
     <string name="settings_active_monitoring_desc">Activa diagnósticos de hardware y alertas de seguridad en tiempo real. Desactivar esto detiene el registro del historial.</string>
-    <string name="aod_clock_style">Estilo de Reloj</string>
     <string name="aod_meter_style">Estilo de Medidor</string>
     <string name="aod_accent_color">Color de Acento</string>
     <string name="permission_overlay_title">Permiso de Superposición Requerido</string>
