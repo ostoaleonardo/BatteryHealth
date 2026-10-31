@@ -59,7 +59,7 @@ fun BatteryTipsSection(
             }
         }
     ) {
-        customItem { _ ->
+        customItem {
             AnimatedContent(
                 targetState = tip,
                 transitionSpec = { fadeIn(tween(300)) togetherWith fadeOut(tween(300)) },

@@ -47,7 +47,7 @@ fun ChargerAnalysisSection(
     val displayedStats = if (isPremium) stats else stats.take(1)
 
     Section(stringResource(R.string.charger_analysis_title)) {
-        customItem { _ ->
+        customItem {
             if (stats.isEmpty()) {
                 EmptyChargerStatsView()
             } else {

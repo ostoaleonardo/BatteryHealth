@@ -37,11 +37,10 @@ fun AppearanceSection() {
     val labels = listOf(R.string.settings_font_1, R.string.settings_font_2)
 
     Section(stringResource(R.string.settings_appearance)) {
-        customItem { position ->
+        customItem {
             BaseItem(
                 title = stringResource(R.string.settings_heading_font),
                 description = stringResource(R.string.settings_heading_font_description),
-                position = position,
                 horizontal = false
             ) {
                 Row(
