@@ -56,13 +56,9 @@ class BatteryUtils(context: Context) {
                 .getMethod(GET_BATTERY_CAPACITY_METHOD)
                 .invoke(powerProfile)
 
-            when (capacityObject) {
-                is Double -> capacityObject.toInt()
-                is Float -> capacityObject.toInt()
-                is Long -> capacityObject.toInt()
-                is Int -> capacityObject
-                else -> capacityObject?.toString()?.toDoubleOrNull()?.toInt() ?: -1
-            }
+            (capacityObject as? Number)?.toInt()
+                ?: capacityObject?.toString()?.toDoubleOrNull()?.toInt()
+                ?: -1
         }.onFailure {
             Log.w(TAG, "PowerProfile capacity lookup failed: ${it.message}")
         }.getOrDefault(-1)

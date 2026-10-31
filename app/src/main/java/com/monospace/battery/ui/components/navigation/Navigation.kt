@@ -3,8 +3,6 @@ package com.monospace.battery.ui.components.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.sharp.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ShortNavigationBar
@@ -65,7 +63,6 @@ fun AppNavHost(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BottomNavigation(
     currentRoute: String?,
@@ -110,7 +107,6 @@ fun BottomNavigation(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     currentRoute: String?,
