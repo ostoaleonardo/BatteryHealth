@@ -54,17 +54,17 @@ private fun PortraitLayout() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+                .padding(top = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            AodPreviewHeader()
             AodBannerSection()
+            AodPreviewHeader()
         }
 
         // Scrollable content
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(top = 8.dp, bottom = 32.dp),
+            contentPadding = PaddingValues(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             aodSettingsItems()
@@ -79,8 +79,8 @@ private fun LandscapeLayout() {
         contentPadding = PaddingValues(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        item { AodPreviewHeader() }
         item { AodBannerSection() }
+        item { AodPreviewHeader() }
         aodSettingsItems()
     }
 }
@@ -102,7 +102,7 @@ private fun LazyListScope.aodSettingsItems() {
         val actions = LocalSettingsActions.current
 
         AodColorSelector(
-            selectedColor = getAodColor(state.aodColor),
+            selectedColor = state.aodColor,
             onColorSelect = actions.onAodColorChange
         )
     }

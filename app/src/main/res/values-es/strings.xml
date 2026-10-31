@@ -9,8 +9,6 @@
     <string name="nav_aod">AOD</string>
     <string name="screen_aod_title">Always-On Display</string>
     <string name="aod_try_now">Probar</string>
-    <string name="aod_enabled">Activado</string>
-    <string name="aod_disabled">Desactivado</string>
     <string name="aod_look_feel">Diseño y Estilo</string>
     <string name="aod_show_date">Mostrar fecha</string>
     <string name="aod_24h_format">Usar formato de 24 horas</string>

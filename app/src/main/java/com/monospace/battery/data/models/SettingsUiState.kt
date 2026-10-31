@@ -17,7 +17,7 @@ data class SettingsUiState(
     val activeMonitoringEnabled: Boolean = false,
     val hasOverlayPermission: Boolean = false,
     val aodMeterStyle: Int = 0,
-    val aodColor: Long = 0xFF00A25B,
+    val aodColor: Long = 0L,
     val aodShowDate: Boolean = true,
     val aodShowClock: Boolean = true,
     val aod24hFormat: Boolean = true,

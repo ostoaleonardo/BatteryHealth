@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -30,6 +29,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.core.utils.AppUtils
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
@@ -165,7 +165,7 @@ class MainActivity : ComponentActivity() {
                         onHeadingFontChange = settingsViewModel::setHeadingFont,
                         onOverlayPermissionRequest = {
                             val intent = Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                 "package:$packageName".toUri()
                             )
 

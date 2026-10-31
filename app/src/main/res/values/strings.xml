@@ -8,8 +8,6 @@
     <string name="nav_aod">AOD</string>
     <string name="screen_aod_title">Always-On Display</string>
     <string name="aod_try_now">Try</string>
-    <string name="aod_enabled">Enabled</string>
-    <string name="aod_disabled">Disabled</string>
     <string name="aod_look_feel">Look &amp; Feel</string>
     <string name="aod_show_date">Show Date</string>
     <string name="aod_24h_format">Use 24-hour format</string>

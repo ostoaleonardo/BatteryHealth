@@ -6,22 +6,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonGroupDefaults
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.monospace.battery.R
@@ -29,8 +30,6 @@ import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
-import com.monospace.battery.ui.components.common.segmented.SegmentOption
-import com.monospace.battery.ui.components.common.segmented.SegmentedControl
 import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
 
 @Composable
@@ -55,51 +54,61 @@ fun AodPreviewHeader() {
 
         // Activation Controls Row (Only for Premium)
         if (isPremium) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                val isAodEnabled = state.alwaysOnDisplayEnabled
+            val height = 40.dp
+            val iconSize = ButtonDefaults.iconSizeFor(height)
+            val playIconSize = iconSize * 1.9f
 
-                // Reusable Segmented Control for Activation
-                SegmentedControl(
-                    options = listOf(
-                        SegmentOption(Constants.OFF, R.string.aod_disabled),
-                        SegmentOption(Constants.ON, R.string.aod_enabled)
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        ButtonGroupDefaults.ConnectedSpaceBetween,
+                        Alignment.CenterHorizontally
                     ),
-                    selected = if (isAodEnabled) Constants.ON else Constants.OFF
-                ) { id ->
-                    actions.onAlwaysOnDisplayChange(id == Constants.ON)
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // Manual Try Button
-                Button(
-                    onClick = {
-                        val intent = Intent(
-                            context, AlwaysOnDisplayActivity::class.java
-                        ).apply {
-                            putExtra(Constants.EXTRA_AOD_TEST, true)
-                        }
-                        context.startActivity(intent)
-                    },
-                    modifier = Modifier.size(40.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = stringResource(R.string.aod_try_now),
-                        modifier = Modifier.size(20.dp)
-                    )
+                    ToggleButton(
+                        checked = state.alwaysOnDisplayEnabled,
+                        onCheckedChange = actions.onAlwaysOnDisplayChange,
+                        modifier = Modifier.size(height),
+                        shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.power_settings_new),
+                            contentDescription = stringResource(R.string.screen_aod_title),
+                            modifier = Modifier.size(iconSize)
+                        )
+                    }
+
+                    FilledTonalButton(
+                        onClick = {
+                            val intent = Intent(
+                                context, AlwaysOnDisplayActivity::class.java
+                            ).apply {
+                                putExtra(Constants.EXTRA_AOD_TEST, true)
+                            }
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.size(height),
+                        shapes = ButtonDefaults.shapes(
+                            shape = ButtonGroupDefaults.connectedTrailingButtonShape,
+                            pressedShape = ButtonGroupDefaults.connectedTrailingButtonPressShape
+                        ),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.play_arrow),
+                            contentDescription = stringResource(R.string.aod_try_now),
+                            modifier = Modifier.size(playIconSize)
+                        )
+                    }
                 }
             }
         }

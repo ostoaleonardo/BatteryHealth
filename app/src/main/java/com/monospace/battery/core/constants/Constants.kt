@@ -55,8 +55,6 @@ object Constants {
 
     // General
     const val EMPTY_STRING = ""
-    const val OFF = "off"
-    const val ON = "on"
     const val TIP_ANIMATION_LABEL = "tip_animation"
     const val EMPTY_VALUE_DASH = "--"
     const val ZERO_TIME = "00:00"
@@ -100,15 +98,8 @@ object Constants {
 
     // AOD Accent Colors
     val AodColors = listOf(
-        0L, // Dynamic
-        0xFF00A25B, // Emerald
-        0xFF2196F3, // Dodger Blue
-        0xFFE91E63, // Pink
-        0xFFFF9800, // Orange
-        0xFF9C27B0, // Purple
-        0xFF00BCD4, // Cyan
-        0xFFFFEB3B, // Yellow
-        0xFF607D8B, // Blue Gray
-        0xFF009688  // Teal
+        0xFFC8102E,
+        0xFFFFC700,
+        0xFF002F6C
     )
 }

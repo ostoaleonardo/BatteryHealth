@@ -78,7 +78,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             aodColor = prefs.get(
                 Constants.PREFS_ALERTS,
                 Constants.KEY_AOD_COLOR,
-                0xFF00A25B
+                0L
             ),
             aodShowDate = prefs.get(
                 Constants.PREFS_ALERTS,

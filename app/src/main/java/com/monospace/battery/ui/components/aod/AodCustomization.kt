@@ -1,5 +1,7 @@
 package com.monospace.battery.ui.components.aod
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,26 +10,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -141,49 +140,24 @@ fun AodPreviewCard(
 
 @Composable
 fun AodColorSelector(
-    selectedColor: Color,
+    selectedColor: Long,
     onColorSelect: (Long) -> Unit
 ) {
-    Column {
-        Text(
-            text = stringResource(R.string.aod_accent_color).uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            fontFamily = Font.AzeretMonoLight,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
-        )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            itemsIndexed(Constants.AodColors) { _, colorValue ->
-                val isDynamic = colorValue == 0L
-                val color = if (isDynamic) MaterialTheme.colorScheme.primary else Color(colorValue)
-                val isSelected = selectedColor == color
-
-                Box(
-                    modifier = Modifier
-                        .size(52.dp)
-                        .selectionStyle(
-                            isSelected = isSelected,
-                            shape = CircleShape,
-                            showUnselectedBorder = isDynamic,
-                            backgroundColor = if (isDynamic) Color.Transparent else color
-                        )
-                        .clickable { onColorSelect(colorValue) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isDynamic) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
+    val colors = Constants.AodColors
+    StyleSelector(
+        title = stringResource(R.string.aod_accent_color),
+        count = colors.size,
+        selectedIndex = colors.indexOf(selectedColor),
+        onSelect = { index ->
+            val color = colors[index]
+            onColorSelect(if (color == selectedColor) 0L else color)
         }
+    ) { index, _ ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(colors[index]))
+        )
     }
 }
 
@@ -203,26 +177,60 @@ fun StyleSelector(
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
         )
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            val shape = RoundedCornerShape(24.dp)
 
-            items(count) { index ->
-                val isSelected = selectedIndex == index
+        BoxWithConstraints {
+            val contentWidth = StyleOptionSize * count + StyleOptionSpacing * (count - 1) + 40.dp
+            val option: @Composable (Int) -> Unit = { index ->
+                StyleOption(
+                    selected = selectedIndex == index,
+                    onClick = { onSelect(index) }
+                ) { content(index, selectedIndex == index) }
+            }
 
-                Box(
+            if (contentWidth <= maxWidth) {
+                Row(
                     modifier = Modifier
-                        .size(80.dp)
-                        .selectionStyle(isSelected, shape)
-                        .clickable { onSelect(index) },
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    content(index, isSelected)
+                    repeat(count) { option(it) }
+                }
+            } else {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(StyleOptionSpacing)
+                ) {
+                    items(count) { option(it) }
                 }
             }
         }
+    }
+}
+
+private val StyleOptionSize = 64.dp
+private val StyleOptionSpacing = 12.dp
+
+@Composable
+private fun StyleOption(
+    selected: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    val radius by animateDpAsState(
+        targetValue = if (selected) 16.dp else StyleOptionSize / 2,
+        animationSpec = tween(durationMillis = 250),
+        label = "style_radius"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(StyleOptionSize)
+            .selectionStyle(selected, RoundedCornerShape(radius))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
 
