@@ -1,5 +1,6 @@
 package com.monospace.battery.service.alerts
 
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.BroadcastReceiver
@@ -14,6 +15,7 @@ import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
@@ -307,10 +309,11 @@ class BatteryAlertService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_STOP_SERVICE) {
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
+            stopSelf(startId)
             return START_NOT_STICKY
         }
+
+        startAsForeground()
         return if (initialized) START_STICKY else START_NOT_STICKY
     }
 
@@ -349,5 +352,22 @@ class BatteryAlertService : Service() {
         const val TAG = "BatteryAlertService"
         const val ACTION_STOP_SERVICE = "STOP_BATTERY_MONITORING"
         private const val WIDGET_REFRESH_MS = 60_000L
+
+        fun start(context: Context) {
+            ContextCompat.startForegroundService(context, Intent(context, BatteryAlertService::class.java))
+        }
+
+        @Suppress("DEPRECATION")
+        fun stop(context: Context) {
+            val manager = context.getSystemService(ACTIVITY_SERVICE) as ActivityManager
+            val running = manager.getRunningServices(Int.MAX_VALUE)
+                .any { it.service.className == BatteryAlertService::class.java.name }
+
+            if (running) {
+                context.startService(
+                    Intent(context, BatteryAlertService::class.java).setAction(ACTION_STOP_SERVICE)
+                )
+            }
+        }
     }
 }

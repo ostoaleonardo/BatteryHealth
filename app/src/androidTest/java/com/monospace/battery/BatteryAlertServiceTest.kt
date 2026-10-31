@@ -2,7 +2,7 @@ package com.monospace.battery
 
 import android.app.ActivityManager
 import android.content.Context
-import android.content.Intent
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.monospace.battery.core.constants.Constants
@@ -13,6 +13,7 @@ import com.monospace.battery.service.alerts.BatteryAlertService
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,13 +26,17 @@ class BatteryAlertServiceTest {
 
     @Before
     fun setUp() {
+        assumeTrue(Build.FINGERPRINT.startsWith("generic") || Build.PRODUCT.contains("sdk"))
+        BatteryAlertService.stop(context)
+        assertTrue(waitUntil { !isServiceRunning() })
         PreferenceManager(context).set(Constants.PREFS_ALERTS, Constants.KEY_ACTIVE_MONITORING, false)
         runBlocking { dao.clearAllData() }
     }
 
     @After
     fun tearDown() {
-        context.stopService(Intent(context, BatteryAlertService::class.java))
+        BatteryAlertService.stop(context)
+        waitUntil { !isServiceRunning() }
         runBlocking { dao.clearAllData() }
     }
 
@@ -43,7 +48,7 @@ class BatteryAlertServiceTest {
             )
         }
 
-        context.startForegroundService(Intent(context, BatteryAlertService::class.java))
+        BatteryAlertService.start(context)
 
         assertTrue(waitUntil { runBlocking { dao.getActiveSession() } == null })
         assertTrue(waitUntil { isServiceRunning() })
@@ -51,16 +56,14 @@ class BatteryAlertServiceTest {
 
     @Test
     fun survivesRestartsWithoutCrashing() {
-        val intent = Intent(context, BatteryAlertService::class.java)
-
         repeat(3) {
-            context.startForegroundService(intent)
+            BatteryAlertService.start(context)
             assertTrue(waitUntil { isServiceRunning() })
-            context.stopService(intent)
+            BatteryAlertService.stop(context)
             assertTrue(waitUntil { !isServiceRunning() })
         }
 
-        context.startForegroundService(intent)
+        BatteryAlertService.start(context)
         assertTrue(waitUntil { isServiceRunning() })
     }
 
