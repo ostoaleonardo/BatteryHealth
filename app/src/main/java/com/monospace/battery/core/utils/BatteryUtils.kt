@@ -105,30 +105,11 @@ class BatteryUtils(context: Context) {
 
         val manager = batteryManager ?: return 0.0
 
-        // Get current in microamperes (μA)
         val currentRaw = runCatching {
             manager.getLongProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
         }.getOrDefault(0L)
 
-        if (currentRaw == Long.MIN_VALUE || currentRaw == 0L) return 0.0
-
-        val absoluteCurrent = abs(currentRaw)
-
-        // Scale heuristic: Handle mA vs μA
-        val currentInAmps = if (absoluteCurrent < CURRENT_MA_THRESHOLD) {
-            absoluteCurrent / 1000.0
-        } else {
-            absoluteCurrent / 1_000_000.0
-        }
-
-        val voltageVolts = voltageMilliVolts / 1_000.0
-        val chargeWatts = currentInAmps * voltageVolts
-
-        // Sanity check
-        if (chargeWatts > 250) return 0.0
-
-        // Mathematical rounding to 1 decimal place
-        return round(chargeWatts * 10) / 10.0
+        return chargeWatts(currentRaw, voltageMilliVolts)
     }
 
     fun getCurrentNow(): Int {
@@ -169,6 +150,27 @@ class BatteryUtils(context: Context) {
 
     companion object {
         private const val TAG = "BatteryUtils"
+
+        internal fun chargeWatts(currentRaw: Long, voltageMilliVolts: Int): Double {
+            if (voltageMilliVolts <= 0 || currentRaw == Long.MIN_VALUE || currentRaw == 0L) return 0.0
+
+            val absoluteCurrent = abs(currentRaw)
+
+            // Scale heuristic: Handle mA vs μA
+            val currentInAmps = if (absoluteCurrent < CURRENT_MA_THRESHOLD) {
+                absoluteCurrent / 1000.0
+            } else {
+                absoluteCurrent / 1_000_000.0
+            }
+
+            val chargeWatts = currentInAmps * (voltageMilliVolts / 1_000.0)
+
+            // Sanity check
+            if (chargeWatts > 250) return 0.0
+
+            // Mathematical rounding to 1 decimal place
+            return round(chargeWatts * 10) / 10.0
+        }
 
         private const val CURRENT_MA_THRESHOLD = 20_000L
 

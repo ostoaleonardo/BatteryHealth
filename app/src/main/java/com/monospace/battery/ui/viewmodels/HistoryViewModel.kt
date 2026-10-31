@@ -4,6 +4,7 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.monospace.battery.core.utils.ChargerStatsCalculator
 import com.monospace.battery.data.local.BatteryTipsProvider
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.BatteryHistoryEntry
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.sqrt
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BatteryDatabase.getDatabase(application)
@@ -74,54 +74,9 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
                 val fullHistory = dao.getHistoryInRange(minTime, maxTime)
                 val currentBatteryLevel = _history.value.lastOrNull()?.level
 
-                // 3. Process groups in memory
-                val stats = sessionList.groupBy { it.chargeSource }.map { (source, sessions) ->
-                    val rates = mutableListOf<Float>()
-                    var totalTemp = 0f
-                    var tempCount = 0
-
-                    for (session in sessions) {
-                        val endTime = session.endTime ?: System.currentTimeMillis()
-                        val durationMins = (endTime - session.startTime) / 60000f
-
-                        if (durationMins > 0.5f) {
-                            val endLevel =
-                                session.endLevel ?: currentBatteryLevel ?: session.startLevel
-                            rates.add((endLevel - session.startLevel).coerceAtLeast(0) / durationMins)
-                        }
-
-                        // Filter history for this specific session from the full list
-                        val sessionHistory = fullHistory.filter {
-                            it.timestamp in session.startTime..endTime
-                        }
-
-                        if (sessionHistory.isNotEmpty()) {
-                            totalTemp += sessionHistory.map { it.temperature }.average().toFloat()
-                            tempCount++
-                        }
-                    }
-
-                    val avgRate = if (rates.isNotEmpty()) rates.average().toFloat() else 0f
-                    val avgTemp = if (tempCount > 0) totalTemp / tempCount else 0f
-
-                    val stability = if (rates.size >= 2 && avgRate > 0) {
-                        val variance = rates.map {
-                            (it - avgRate) * (it - avgRate)
-                        }.average().toFloat()
-
-                        val stdDev = sqrt(variance.toDouble()).toFloat()
-
-                        (1f - (stdDev / avgRate)).coerceIn(0f, 1f)
-                    } else 1f
-
-                    ChargerStats(
-                        source = source,
-                        sessionCount = sessions.size,
-                        averageRate = avgRate,
-                        averageTemp = avgTemp / 10f,
-                        stability = stability
-                    )
-                }
+                val stats = ChargerStatsCalculator.calculate(
+                    sessionList, fullHistory, currentBatteryLevel, System.currentTimeMillis()
+                )
                 _chargerStats.value = stats
             }.onFailure { e ->
                 Log.e(TAG, "Error calculating charger stats", e)
