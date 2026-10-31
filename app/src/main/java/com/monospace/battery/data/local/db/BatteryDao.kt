@@ -60,18 +60,18 @@ interface BatteryDao {
     @Insert
     suspend fun insertScreenEvent(event: ScreenEvent)
 
-    @Query("SELECT * FROM screen_events WHERE timestamp >= :since ORDER BY timestamp ASC")
-    suspend fun getScreenEventsSince(since: Long): List<ScreenEvent>
-
-    @Query("SELECT timestamp FROM battery_history WHERE level = 100 ORDER BY timestamp DESC LIMIT 1")
-    suspend fun getLastFullChargeTime(): Long?
-
     @Transaction
     suspend fun clearAllData() {
         deleteAllHistory()
         deleteAllSessions()
         deleteAllScreenEvents()
     }
+
+    @Query("DELETE FROM battery_history WHERE timestamp < :before")
+    suspend fun deleteHistoryBefore(before: Long)
+
+    @Query("DELETE FROM screen_events WHERE timestamp < :before")
+    suspend fun deleteScreenEventsBefore(before: Long)
 
     @Query("DELETE FROM battery_history")
     suspend fun deleteAllHistory()
