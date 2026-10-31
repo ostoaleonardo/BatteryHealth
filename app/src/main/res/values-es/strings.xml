@@ -205,4 +205,9 @@
     <string name="action_delete">Borrar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_refresh">Actualizar</string>
+    <string name="settings_appearance">Apariencia</string>
+    <string name="settings_heading_font">Fuente de títulos</string>
+    <string name="settings_heading_font_description">Fuente usada en los títulos</string>
+    <string name="settings_font_1">Fuente 1</string>
+    <string name="settings_font_2">Fuente 2</string>
 </resources>

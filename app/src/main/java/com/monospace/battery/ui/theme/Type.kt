@@ -16,9 +16,9 @@ val NType82 = FontFamily(
     Font(R.font.n_type82_headline, FontWeight.Normal)
 )
 
-val Typography = Typography(
+fun batteryTypography(headingFont: FontFamily) = Typography(
     titleLarge = TextStyle(
-        fontFamily = NType82,
+        fontFamily = headingFont,
         fontWeight = FontWeight.Normal,
         fontSize = 24.sp,
         lineHeight = 28.sp,

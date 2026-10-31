@@ -1,6 +1,7 @@
 package com.monospace.battery.ui.theme
 
 import androidx.compose.ui.text.font.Font
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.FontFamily
 import com.monospace.battery.R
 
@@ -11,6 +12,9 @@ object Font {
     val GeoRegular = FontFamily(Font(R.font.geo_regular))
     val BitcountGridRegular = FontFamily(Font(R.font.bitcount_grid_double))
     val GoogleSansCodeRegular = FontFamily(Font(R.font.google_sans_code_regular))
+    val GeistMedium = FontFamily(Font(R.font.geist_medium))
+
+    fun getHeadingFont(index: Int): FontFamily = if (index == 1) GeistMedium else NType82
 
     fun getFont(index: Int): FontFamily {
         return when (index) {
@@ -23,3 +27,5 @@ object Font {
         }
     }
 }
+
+val LocalHeadingFont = staticCompositionLocalOf { com.monospace.battery.ui.theme.Font.NType82 }

@@ -2,14 +2,21 @@ package com.monospace.battery.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun BatteryTheme(
+    headingFont: Int = 0,
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
@@ -22,9 +29,13 @@ fun BatteryTheme(
         else -> MaterialTheme.colorScheme
     }
 
-    MaterialTheme(
+    val headingFamily = Font.getHeadingFont(headingFont)
+
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+        motionScheme = MotionScheme.expressive(),
+        typography = remember(headingFamily) { batteryTypography(headingFamily) }
+    ) {
+        CompositionLocalProvider(LocalHeadingFont provides headingFamily, content = content)
+    }
 }

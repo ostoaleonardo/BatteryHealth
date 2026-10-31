@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
         settingsViewModel.updateVersionName(AppUtils.getVersionName(this))
 
         setContent {
-            BatteryTheme {
+            BatteryTheme(headingFont = settingsViewModel.uiState.value.headingFont) {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -165,6 +165,7 @@ class MainActivity : ComponentActivity() {
                         onAodFontSizeDateChange = settingsViewModel::setAodFontSizeDate,
                         onAodDimAmountChange = settingsViewModel::setAodDimAmount,
                         onAodShowShortcutsChange = settingsViewModel::toggleAodShowShortcuts,
+                        onHeadingFontChange = settingsViewModel::setHeadingFont,
                         onOverlayPermissionRequest = {
                             val intent = Intent(
                                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -261,15 +262,9 @@ class MainActivity : ComponentActivity() {
     private fun updateMonitoringService() {
         val state = settingsViewModel.uiState.value
         val shouldRun = state.anyAlertEnabled || state.activeMonitoringEnabled
-        val intent = Intent(this, BatteryAlertService::class.java)
 
         runCatching {
-            if (shouldRun) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent)
-                else startService(intent)
-            } else {
-                stopService(intent)
-            }
+            if (shouldRun) BatteryAlertService.start(this) else BatteryAlertService.stop(this)
         }.onFailure {
             Log.w("MainActivity", "Could not update monitoring service", it)
             runCatching { FirebaseCrashlytics.getInstance().recordException(it) }

@@ -9,13 +9,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSliderState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -238,7 +243,16 @@ fun SwitchItem(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            enabled = enabled
+            enabled = enabled,
+            thumbContent = if (checked) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(SwitchDefaults.IconSize)
+                    )
+                }
+            } else null
         )
     }
 }
@@ -260,10 +274,15 @@ fun SliderItem(
         enabled = enabled,
         horizontal = false
     ) {
+        val sliderState = rememberSliderState(value.toFloat(), 0, range)
+
+        LaunchedEffect(value) {
+            if (sliderState.value != value.toFloat()) sliderState.value = value.toFloat()
+        }
+
         Slider(
-            value = value.toFloat(),
+            state = sliderState,
             onValueChange = { onValueChange(it.toInt()) },
-            valueRange = range,
             modifier = Modifier.padding(top = 8.dp),
             enabled = enabled
         )

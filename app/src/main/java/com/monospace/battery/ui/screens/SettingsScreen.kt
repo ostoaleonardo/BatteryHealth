@@ -22,6 +22,7 @@ import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.ui.components.settings.AboutSection
+import com.monospace.battery.ui.components.settings.AppearanceSection
 import com.monospace.battery.ui.components.settings.DataManagementSection
 import com.monospace.battery.ui.components.settings.SettingsBannerSection
 import com.monospace.battery.ui.theme.BatteryTheme
@@ -40,6 +41,8 @@ fun SettingsScreen() {
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             SettingsBannerSection()
+
+            AppearanceSection()
 
             DataManagementSection()
 

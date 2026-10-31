@@ -60,7 +60,7 @@ class AlwaysOnDisplayActivity : ComponentActivity() {
                 if (shouldFinish) finish()
             }
 
-            BatteryTheme {
+            BatteryTheme(headingFont = settingsState.headingFont) {
                 CompositionLocalProvider(
                     LocalSettingsState provides settingsState,
                     LocalBatteryState provides batteryState

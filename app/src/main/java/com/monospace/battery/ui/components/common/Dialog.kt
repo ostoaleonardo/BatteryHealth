@@ -1,5 +1,6 @@
 package com.monospace.battery.ui.components.common
 
+import com.monospace.battery.ui.theme.LocalHeadingFont
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -71,7 +72,7 @@ fun Dialog(
                         color = iconTint,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.headlineMedium,
-                        fontFamily = FontFamily(Font(R.font.n_type82_headline)),
+                        fontFamily = LocalHeadingFont.current,
                     )
                 }
 

@@ -119,6 +119,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 Constants.PREFS_ALERTS,
                 Constants.KEY_AOD_SHOW_SHORTCUTS,
                 false
+            ),
+            headingFont = prefs.get(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_HEADING_FONT,
+                0
             )
         )
     }
@@ -231,6 +236,11 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun toggleAodShowShortcuts(show: Boolean) {
         updatePref(Constants.KEY_AOD_SHOW_SHORTCUTS, show)
         _uiState.value = _uiState.value.copy(aodShowShortcuts = show)
+    }
+
+    fun setHeadingFont(font: Int) {
+        updatePref(Constants.KEY_HEADING_FONT, font)
+        _uiState.value = _uiState.value.copy(headingFont = font)
     }
 
     fun clearAllData() {

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +20,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.ui.theme.LocalHeadingFont
 
 @Composable
 fun RegularCard(
@@ -48,13 +51,21 @@ fun RegularCard(
             Text(
                 text = title.uppercase(),
                 fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 8.sp,
+                    maxFontSize = MaterialTheme.typography.labelSmall.fontSize
+                ),
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = value,
-                fontFamily = FontFamily(Font(R.font.n_type82_headline)),
-                fontSize = MaterialTheme.typography.titleLarge.fontSize
+                fontFamily = LocalHeadingFont.current,
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 14.sp,
+                    maxFontSize = MaterialTheme.typography.titleLarge.fontSize
+                )
             )
             Image(
                 painter = painterResource(iconRes),

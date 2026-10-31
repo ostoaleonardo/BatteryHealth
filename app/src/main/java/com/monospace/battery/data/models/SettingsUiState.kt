@@ -25,7 +25,8 @@ data class SettingsUiState(
     val aodFontSizeClock: Int = 80,
     val aodFontSizeDate: Int = 14,
     val aodDimAmount: Int = 0,
-    val aodShowShortcuts: Boolean = false
+    val aodShowShortcuts: Boolean = false,
+    val headingFont: Int = 0
 ) {
     val anyAlertEnabled: Boolean
         get() = healthyChargeEnabled || tempAlertEnabled || lowBatteryEnabled ||
@@ -52,6 +53,7 @@ data class SettingsUiActions(
     val onAodFontSizeDateChange: (Int) -> Unit = {},
     val onAodDimAmountChange: (Int) -> Unit = {},
     val onAodShowShortcutsChange: (Boolean) -> Unit = {},
+    val onHeadingFontChange: (Int) -> Unit = {},
     val onOverlayPermissionRequest: () -> Unit = {},
     val onUnlockClick: () -> Unit = {},
     val onNotificationPermissionRequest: () -> Unit = {},

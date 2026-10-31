@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
+import com.monospace.battery.ui.theme.LocalHeadingFont
 import com.monospace.battery.ui.utils.getHealthIcon
 import com.monospace.battery.ui.utils.getHealthStatusRes
 
@@ -56,14 +59,22 @@ fun HealthCard(
             )
             Text(
                 text = stringResource(getHealthStatusRes(health)),
-                fontFamily = FontFamily(Font(R.font.n_type82_headline)),
-                fontSize = MaterialTheme.typography.displaySmall.fontSize,
+                fontFamily = LocalHeadingFont.current,
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 18.sp,
+                    maxFontSize = MaterialTheme.typography.displaySmall.fontSize
+                ),
                 color = healthColor
             )
             Text(
                 text = stringResource(R.string.battery_health).uppercase(),
                 fontFamily = FontFamily(Font(R.font.azeret_mono_light)),
-                fontSize = MaterialTheme.typography.labelSmall.fontSize,
+                maxLines = 1,
+                autoSize = TextAutoSize.StepBased(
+                    minFontSize = 8.sp,
+                    maxFontSize = MaterialTheme.typography.labelSmall.fontSize
+                ),
                 color = healthColor.copy(alpha = 0.7f)
             )
         }
