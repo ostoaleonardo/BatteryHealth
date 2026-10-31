@@ -130,9 +130,14 @@ class SectionScope {
 }
 
 @Composable
-private fun itemColors(): ListItemColors = ListItemDefaults.segmentedColors(
-    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
-)
+private fun itemColors(): ListItemColors {
+    val container = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
+
+    return ListItemDefaults.segmentedColors(
+        containerColor = container,
+        selectedContainerColor = container
+    )
+}
 
 @Composable
 private fun ItemTitle(title: String) {
