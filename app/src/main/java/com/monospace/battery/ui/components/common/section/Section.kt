@@ -171,6 +171,8 @@ fun BaseItem(
     horizontal: Boolean = true,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
+    leadingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit = {}
 ) {
     val position = LocalItemPosition.current
@@ -187,7 +189,7 @@ fun BaseItem(
             }
         }
     }
-    val trailing: (@Composable () -> Unit)? = if (horizontal) content else null
+    val trailing: (@Composable () -> Unit)? = trailingContent ?: if (horizontal) content else null
     val alignment = if (horizontal) Alignment.CenterVertically else Alignment.Top
 
     if (onClick != null) {
@@ -196,6 +198,7 @@ fun BaseItem(
             shapes = shapes,
             modifier = itemModifier,
             enabled = enabled,
+            leadingContent = leadingContent,
             trailingContent = trailing,
             supportingContent = supporting,
             colors = itemColors(),
@@ -208,6 +211,7 @@ fun BaseItem(
             shapes = shapes,
             modifier = itemModifier,
             enabled = enabled,
+            leadingContent = leadingContent,
             trailingContent = trailing,
             supportingContent = supporting,
             colors = itemColors(),
