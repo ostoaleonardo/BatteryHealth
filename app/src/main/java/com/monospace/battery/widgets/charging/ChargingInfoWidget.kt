@@ -17,6 +17,7 @@ import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.appWidgetBackground
@@ -48,6 +49,8 @@ import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
 
 class ChargingInfoWidget : GlanceAppWidget() {
+
+    override val sizeMode = SizeMode.Exact
 
     companion object {
         val UPDATE_COUNT_KEY = intPreferencesKey("update_count")

@@ -9,6 +9,7 @@ import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.SettingsUiState
+import com.monospace.battery.widgets.WidgetsUpdater
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
@@ -231,6 +232,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     fun setHeadingFont(font: Int) {
         updatePref(Constants.KEY_HEADING_FONT, font)
         _uiState.value = _uiState.value.copy(headingFont = font)
+        viewModelScope.launch { WidgetsUpdater.updateAll(getApplication()) }
     }
 
     fun clearAllData() {

@@ -15,6 +15,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -43,6 +44,8 @@ import com.monospace.battery.widgets.components.WidgetStatusIndicator
 import com.monospace.battery.widgets.components.WidgetValueLabel
 
 class HealthStatusWidget : GlanceAppWidget() {
+
+    override val sizeMode = SizeMode.Exact
 
     companion object {
         private const val TAG = "HealthStatusWidget"

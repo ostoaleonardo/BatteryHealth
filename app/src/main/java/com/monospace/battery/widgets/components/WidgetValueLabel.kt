@@ -7,7 +7,6 @@ import androidx.glance.GlanceTheme
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.text.FontFamily
-import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
@@ -22,20 +21,7 @@ fun WidgetValueLabel(
     Column(
         horizontalAlignment = horizontalAlignment
     ) {
-        Text(
-            maxLines = 1,
-            text = value,
-            style = TextStyle(
-                fontSize = valueFontSize,
-                textAlign = when (horizontalAlignment) {
-                    Alignment.Start -> TextAlign.Start
-                    Alignment.End -> TextAlign.End
-                    else -> TextAlign.Center
-                },
-                fontWeight = FontWeight.Medium,
-                color = GlanceTheme.colors.onSurface
-            )
-        )
+        WidgetHeadingText(text = value, fontSize = valueFontSize)
         Text(
             maxLines = 1,
             text = label.uppercase(),
