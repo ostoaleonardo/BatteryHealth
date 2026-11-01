@@ -60,6 +60,9 @@ interface BatteryDao {
     @Insert
     suspend fun insertScreenEvent(event: ScreenEvent)
 
+    @Query("SELECT * FROM screen_events WHERE timestamp >= :since ORDER BY timestamp ASC")
+    suspend fun getScreenEventsSince(since: Long): List<ScreenEvent>
+
     @Transaction
     suspend fun clearAllData() {
         deleteAllHistory()

@@ -44,6 +44,8 @@ object Constants {
     const val KEY_AOD_DIM_AMOUNT = "aod_dim_amount"
     const val KEY_AOD_SHOW_SHORTCUTS = "aod_show_shortcuts"
     const val KEY_ACTIVE_MONITORING = "active_monitoring"
+    const val KEY_LAST_SEEN_TIME = "last_seen_time"
+    const val KEY_LAST_SEEN_LEVEL = "last_seen_level"
     const val KEY_HEADING_FONT = "heading_font"
 
     // Navigation Routes

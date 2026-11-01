@@ -1,5 +1,6 @@
 package com.monospace.battery.service.alerts
 
+import com.monospace.battery.data.models.ScreenEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -57,5 +58,26 @@ class AlertRulesTest {
         assertTrue(AlertRules.cooldownElapsed(1_000, 0L, cooldown))
         assertFalse(AlertRules.cooldownElapsed(cooldown, 1L, cooldown))
         assertEquals(true, AlertRules.cooldownElapsed(cooldown + 1, 1L, cooldown))
+    }
+
+    private fun event(time: Long, on: Boolean) = ScreenEvent(timestamp = time, isScreenOn = on, batteryLevel = 50)
+
+    @Test
+    fun screenOnMillisSumsClosedAndOpenIntervals() {
+        val events = listOf(event(1_000, true), event(3_000, false), event(8_000, true))
+        assertEquals(2_000L + 2_000L, AlertRules.screenOnMillis(events, 0L, 10_000L))
+    }
+
+    @Test
+    fun screenOnMillisAssumesScreenWasOnWhenWindowStartsWithOffEvent() {
+        assertEquals(4_000L, AlertRules.screenOnMillis(listOf(event(4_000, false)), 0L, 10_000L))
+        assertEquals(0L, AlertRules.screenOnMillis(emptyList(), 0L, 10_000L))
+    }
+
+    @Test
+    fun fastDischargeIgnoredWhenScreenWasOnTooLong() {
+        val limit = AlertRules.FAST_DISCHARGE_MAX_SCREEN_ON_MS
+        assertTrue(AlertRules.isFastDischarge(90, 70, samples = 5, screenOnMs = limit))
+        assertFalse(AlertRules.isFastDischarge(90, 70, samples = 5, screenOnMs = limit + 1))
     }
 }

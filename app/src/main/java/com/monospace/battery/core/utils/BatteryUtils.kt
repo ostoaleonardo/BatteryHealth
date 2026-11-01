@@ -2,6 +2,8 @@ package com.monospace.battery.core.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Build
 import android.util.Log
@@ -87,10 +89,27 @@ class BatteryUtils(context: Context) {
                 if (value > 10000) value / 1000 else value
             }.getOrDefault(-1)
 
-            if (capacity > 0) return capacity
+            if (capacity > 0) {
+                cachedCapacity = capacity
+                return capacity
+            }
         }
 
-        return -1
+        val estimated = estimateCapacityFromCounter()
+        if (estimated > 0) cachedCapacity = estimated
+        return estimated
+    }
+
+    private fun estimateCapacityFromCounter(): Int {
+        val level = appContext.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            ?.let { intent ->
+                val raw = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                if (raw >= 0 && scale > 0) raw * 100 / scale else -1
+            } ?: -1
+        val remaining = getCapacityRemaining()
+
+        return if (level >= MIN_LEVEL_FOR_ESTIMATE && remaining > 0) remaining * 100 / level else -1
     }
 
     fun getChargeSpeed(
@@ -169,6 +188,7 @@ class BatteryUtils(context: Context) {
         }
 
         private const val CURRENT_MA_THRESHOLD = 20_000L
+        private const val MIN_LEVEL_FOR_ESTIMATE = 20
 
         // Time formats
         private const val TIME_FORMAT = "%02d:%02d"

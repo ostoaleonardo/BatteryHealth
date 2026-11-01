@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +36,7 @@ import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.data.models.SettingsUiActions
 import com.monospace.battery.notifications.PermissionManager
 import com.monospace.battery.purchase.PurchaseManager
+import com.monospace.battery.purchase.PurchaseViewModel
 import com.monospace.battery.service.alerts.BatteryAlertService
 import com.monospace.battery.ui.components.navigation.AppNavHost
 import com.monospace.battery.ui.components.navigation.BottomNavigation
@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
     private val permissionManager by lazy { PermissionManager(this) }
     private val settingsViewModel: SettingsViewModel by viewModels()
     private val mainViewModel: MainViewModel by viewModels()
+    private val purchaseViewModel: PurchaseViewModel by viewModels()
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -83,6 +84,12 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    private fun alertToggle(toggle: (Boolean) -> Unit): (Boolean) -> Unit = { enabled ->
+        toggle(enabled)
+        ensureNotificationPermission(enabled)
+        updateMonitoringService()
+    }
+
     private fun ensureNotificationPermission(enabled: Boolean) {
         if (enabled && !permissionManager.hasNotificationPermission()) {
             permissionManager.requestNotificationPermission(this, requestPermissionLauncher)
@@ -102,10 +109,7 @@ class MainActivity : ComponentActivity() {
                 val currentRoute = navBackStackEntry?.destination?.route
                 val context = LocalContext.current
 
-                val purchaseManager = remember { PurchaseManager(context, PurchaseManager.WIDGETS) }
-                DisposableEffect(purchaseManager) {
-                    onDispose { purchaseManager.close() }
-                }
+                val purchaseManager = purchaseViewModel.manager
                 val isPurchased by purchaseManager.isPurchased.collectAsState()
                 val settingsState by settingsViewModel.uiState
                 val batteryState by mainViewModel.batteryState
@@ -116,43 +120,15 @@ class MainActivity : ComponentActivity() {
 
                 val settingsActions = remember {
                     SettingsUiActions(
-                        onHealthyChargeChange = {
-                            settingsViewModel.toggleHealthyCharge(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
-                        onTempAlertChange = {
-                            settingsViewModel.toggleTempAlert(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
-                        onLowBatteryChange = {
-                            settingsViewModel.toggleLowBattery(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
-                        onFastDischargeChange = {
-                            settingsViewModel.toggleFastDischarge(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
-                        onSlowChargeChange = {
-                            settingsViewModel.toggleSlowCharge(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
+                        onHealthyChargeChange = alertToggle(settingsViewModel::toggleHealthyCharge),
+                        onTempAlertChange = alertToggle(settingsViewModel::toggleTempAlert),
+                        onLowBatteryChange = alertToggle(settingsViewModel::toggleLowBattery),
+                        onFastDischargeChange = alertToggle(settingsViewModel::toggleFastDischarge),
+                        onSlowChargeChange = alertToggle(settingsViewModel::toggleSlowCharge),
                         onHealthyChargeLevelChange = settingsViewModel::setHealthyChargeLevel,
                         onLowBatteryLevelChange = settingsViewModel::setLowBatteryLevel,
-                        onAlwaysOnDisplayChange = {
-                            settingsViewModel.toggleAod(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
-                        onActiveMonitoringChange = {
-                            settingsViewModel.toggleActiveMonitoring(it)
-                            ensureNotificationPermission(it)
-                            updateMonitoringService()
-                        },
+                        onAlwaysOnDisplayChange = alertToggle(settingsViewModel::toggleAod),
+                        onActiveMonitoringChange = alertToggle(settingsViewModel::toggleActiveMonitoring),
                         onAodMeterStyleChange = settingsViewModel::setAodMeterStyle,
                         onAodColorChange = settingsViewModel::setAodColor,
                         onAodShowDateChange = settingsViewModel::toggleAodShowDate,
@@ -258,7 +234,7 @@ class MainActivity : ComponentActivity() {
 
     private fun updateMonitoringService() {
         val state = settingsViewModel.uiState.value
-        val shouldRun = state.anyAlertEnabled || state.activeMonitoringEnabled
+        val shouldRun = (state.anyAlertEnabled && state.isWidgetsPurchased) || state.activeMonitoringEnabled
 
         runCatching {
             if (shouldRun) BatteryAlertService.start(this) else BatteryAlertService.stop(this)

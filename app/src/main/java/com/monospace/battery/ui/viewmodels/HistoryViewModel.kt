@@ -1,6 +1,9 @@
 package com.monospace.battery.ui.viewmodels
 
 import android.app.Application
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BatteryDatabase.getDatabase(application)
@@ -44,9 +48,11 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadData() {
         viewModelScope.launch {
-            val since = System.currentTimeMillis() - 24 * 60 * 60 * 1000
-            dao.getHistorySince(since).collect {
-                _history.value = it
+            while (true) {
+                val since = System.currentTimeMillis() - HISTORY_WINDOW_MS
+                withTimeoutOrNull(WINDOW_REFRESH_MS) {
+                    dao.getHistorySince(since).collect { _history.value = it }
+                }
             }
         }
 
@@ -72,7 +78,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
                 // 2. Fetch all relevant history at once
                 val fullHistory = dao.getHistoryInRange(minTime, maxTime)
-                val currentBatteryLevel = _history.value.lastOrNull()?.level
+                val currentBatteryLevel = currentLevel()
 
                 val stats = ChargerStatsCalculator.calculate(
                     sessionList, fullHistory, currentBatteryLevel, System.currentTimeMillis()
@@ -83,7 +89,17 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
             }
         }
 
+    private fun currentLevel(): Int? {
+        val intent = getApplication<Application>()
+            .registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+        val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 100) ?: 100
+        return if (level >= 0 && scale > 0) level * 100 / scale else _history.value.lastOrNull()?.level
+    }
+
     companion object {
         private const val TAG = "HistoryViewModel"
+        private const val HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000L
+        private const val WINDOW_REFRESH_MS = 60_000L
     }
 }

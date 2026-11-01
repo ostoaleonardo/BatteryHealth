@@ -22,13 +22,11 @@ import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.PreferenceManager
-import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.BatteryHistoryEntry
 import com.monospace.battery.data.models.ChargeSession
 import com.monospace.battery.data.models.ScreenEvent
 import com.monospace.battery.notifications.NotificationHelper
-import com.monospace.battery.ui.screens.AlwaysOnDisplayActivity
 import com.monospace.battery.widgets.WidgetsUpdater
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -153,16 +151,24 @@ class BatteryAlertService : Service() {
 
         if (isCharging && !wasCharging) checkAodStart("CHARGE_STARTED")
 
-        val recordHistory = prefs.getAlert(Constants.KEY_ACTIVE_MONITORING, false) ||
-                prefs.getAlert(Constants.KEY_FAST_DISCHARGE_ENABLED, false)
-        if (recordHistory && (batteryPct != lastLevel || isCharging != wasCharging)) {
-            recordHistoryEntry(batteryPct, temperature)
+        if (batteryPct != lastLevel || isCharging != wasCharging) {
+            if (shouldRecordHistory()) recordHistoryEntry(batteryPct, temperature)
+            saveLastSeen(batteryPct)
         }
 
         refreshWidgets(batteryPct != lastLevel, isCharging != wasCharging)
 
         lastLevel = batteryPct
         lastStatus = status
+    }
+
+    private fun shouldRecordHistory() =
+        prefs.getAlert(Constants.KEY_ACTIVE_MONITORING, false) ||
+                prefs.getAlert(Constants.KEY_FAST_DISCHARGE_ENABLED, false)
+
+    private fun saveLastSeen(level: Int) {
+        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_TIME, System.currentTimeMillis())
+        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_LEVEL, level)
     }
 
     private fun refreshWidgets(levelChanged: Boolean, plugChanged: Boolean) {
@@ -189,31 +195,21 @@ class BatteryAlertService : Service() {
     }
 
     private fun checkAodStart(trigger: String) {
-        val aodEnabled = prefs.getAlert(Constants.KEY_AOD_ENABLED, false)
-        val isPremium = WidgetsUtils.isWidgetsPurchased(this)
-
-        if (!aodEnabled || !isPremium || !charging) return
-
-        val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-
-        if (!powerManager.isInteractive && android.provider.Settings.canDrawOverlays(this)) {
-            Log.d(TAG, "Launching AOD ($trigger)")
-            val intent = Intent(this, AlwaysOnDisplayActivity::class.java).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            }
-            runCatching { startActivity(intent) }
-                .onFailure { reportError("AOD launch blocked", it) }
-        }
+        if (charging) AodLauncher.launchIfNeeded(this, trigger)
     }
 
     private fun observeMonitoringToggle() {
         monitoringJob = scope.launch {
+            var first = true
             prefs.observeAlert(Constants.KEY_ACTIVE_MONITORING, false)
-                .collect { isEnabled -> runCatching { syncSession(isEnabled) } }
+                .collect { isEnabled ->
+                    runCatching { syncSession(isEnabled, first) }
+                    first = false
+                }
         }
     }
 
-    private suspend fun syncSession(isEnabled: Boolean) {
+    private suspend fun syncSession(isEnabled: Boolean, firstRun: Boolean) {
         val intent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
         val source = intent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
@@ -221,8 +217,17 @@ class BatteryAlertService : Service() {
 
         if (isEnabled && isCharging(status, source)) {
             startNewSession(level.coerceAtLeast(0), source)
+            return
+        }
+
+        val lastSeen = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_TIME, 0L)
+        val now = System.currentTimeMillis()
+
+        if (firstRun && lastSeen in 1 until now) {
+            val lastSeenLevel = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_LEVEL, level)
+            closeActiveSession(lastSeenLevel, lastSeen)
         } else {
-            closeActiveSession(level)
+            closeActiveSession(level, now)
         }
     }
 
@@ -240,10 +245,10 @@ class BatteryAlertService : Service() {
         }
     }
 
-    private suspend fun closeActiveSession(level: Int) {
+    private suspend fun closeActiveSession(level: Int, endTime: Long = System.currentTimeMillis()) {
         runCatching {
             sessionMutex.withLock {
-                db.batteryDao().closeAllActiveSessions(System.currentTimeMillis(), level)
+                db.batteryDao().closeAllActiveSessions(endTime, level)
             }
         }
     }
@@ -299,7 +304,7 @@ class BatteryAlertService : Service() {
         if (initialized) {
             val level = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
                 ?.let { levelOf(it) } ?: lastLevel
-            scope.launch { closeActiveSession(level) }.invokeOnCompletion { scope.coroutineContext.cancel() }
+            scope.launch { closeActiveSession(level) }.invokeOnCompletion { scope.cancel() }
         } else {
             scope.cancel()
         }
@@ -320,7 +325,7 @@ class BatteryAlertService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun recordScreenEvent(isOn: Boolean) {
-        if (!prefs.getAlert(Constants.KEY_ACTIVE_MONITORING, false)) return
+        if (!shouldRecordHistory()) return
 
         val timestamp = System.currentTimeMillis()
         val level = lastLevel

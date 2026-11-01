@@ -27,6 +27,7 @@ class BatteryAlertHandler(
     private var lastLevel = -1
     private var tempArmed = true
     private var lastFastDischargeAt = 0L
+    private var lastHealthyPlugAt = 0L
     private var slowChargeJob: Job? = null
 
     fun checkAlerts(
@@ -43,7 +44,7 @@ class BatteryAlertHandler(
             return
         }
 
-        checkHealthyChargeAlert(level, isCharging)
+        checkHealthyChargeAlert(level, isCharging, lastStatus)
         checkLowBatteryAlert(level, isCharging)
         if (temperature != -1) checkHighTemperatureAlert(temperature)
         checkSlowChargeAlert(isCharging, lastStatus)
@@ -52,11 +53,18 @@ class BatteryAlertHandler(
         lastLevel = level
     }
 
-    private fun checkHealthyChargeAlert(level: Int, isCharging: Boolean) {
+    private fun checkHealthyChargeAlert(level: Int, isCharging: Boolean, lastStatus: Int) {
         val enabled = prefs.getAlert(Constants.KEY_HEALTHY_CHARGE_ENABLED, false)
-        val threshold = prefs.getAlert(Constants.KEY_HEALTHY_CHARGE_LEVEL, 80)
+        if (!enabled || !isCharging) return
 
-        if (enabled && isCharging && AlertRules.crossedUp(lastLevel, level, threshold)) {
+        val threshold = prefs.getAlert(Constants.KEY_HEALTHY_CHARGE_LEVEL, 80)
+        val justPlugged = lastStatus != BatteryManager.BATTERY_STATUS_CHARGING &&
+                lastStatus != BatteryManager.BATTERY_STATUS_FULL
+        val pluggedAboveThreshold = justPlugged && level >= threshold &&
+                AlertRules.cooldownElapsed(clock(), lastHealthyPlugAt, AlertRules.HEALTHY_PLUG_COOLDOWN_MS)
+
+        if (AlertRules.crossedUp(lastLevel, level, threshold) || pluggedAboveThreshold) {
+            if (pluggedAboveThreshold) lastHealthyPlugAt = clock()
             notificationHelper.showHealthyChargeNotification()
         }
     }
@@ -89,16 +97,24 @@ class BatteryAlertHandler(
         slowChargeJob = scope.launch {
             delay(AlertRules.SLOW_CHARGE_DELAY)
 
-            val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-            val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-            val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
+            var bestSpeed = 0.0
+            repeat(AlertRules.SLOW_CHARGE_SAMPLES) { index ->
+                if (index > 0) delay(AlertRules.SLOW_CHARGE_SAMPLE_GAP)
 
-            if (status == BatteryManager.BATTERY_STATUS_CHARGING &&
-                prefs.getAlert(Constants.KEY_SLOW_CHARGE_ENABLED, false) &&
-                AlertRules.isSlowCharge(batteryUtils.getChargeSpeed(voltage, true))
-            ) {
-                notificationHelper.showSlowChargeNotification()
+                val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                val voltage = intent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 0) ?: 0
+                val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
+
+                if (status != BatteryManager.BATTERY_STATUS_CHARGING ||
+                    level >= AlertRules.SLOW_CHARGE_MAX_LEVEL ||
+                    !prefs.getAlert(Constants.KEY_SLOW_CHARGE_ENABLED, false)
+                ) return@launch
+
+                bestSpeed = maxOf(bestSpeed, batteryUtils.getChargeSpeed(voltage, true))
             }
+
+            if (AlertRules.isSlowCharge(bestSpeed)) notificationHelper.showSlowChargeNotification()
         }
     }
 
@@ -114,8 +130,14 @@ class BatteryAlertHandler(
         scope.launch {
             val since = clock() - AlertRules.FAST_DISCHARGE_WINDOW_MS
             val history = db.batteryDao().getHistorySinceSync(since)
+            val screenOnMs = AlertRules.screenOnMillis(
+                db.batteryDao().getScreenEventsSince(since), since, clock()
+            )
 
-            if (AlertRules.isFastDischarge(history.firstOrNull()?.level ?: level, level, history.size)) {
+            if (AlertRules.isFastDischarge(
+                    history.firstOrNull()?.level ?: level, level, history.size, screenOnMs
+                )
+            ) {
                 lastFastDischargeAt = clock()
                 notificationHelper.showFastDischargeNotification()
             }

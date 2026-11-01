@@ -44,6 +44,7 @@ class PurchaseManager(
     private val scope = MainScope()
     private var productDetails: ProductDetails? = null
     private var billingClient: BillingClient
+    private var connecting = false
 
     private val _isPurchased = MutableStateFlow(WidgetsUtils.isWidgetsPurchased(context))
     val isPurchased: StateFlow<Boolean> = _isPurchased.asStateFlow()
@@ -159,28 +160,45 @@ class PurchaseManager(
         startBillingConnection()
     }
 
-    private fun startBillingConnection() {
+    private fun startBillingConnection(
+        onReady: (() -> Unit)? = null,
+        onFailed: (() -> Unit)? = null
+    ) {
+        if (connecting) {
+            onFailed?.invoke()
+            return
+        }
+
         debug("Starting billing connection...")
+        connecting = true
 
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
-                val responseCode = billingResult.responseCode
-                val debugMessage = billingResult.debugMessage
+                connecting = false
 
-                if (responseCode == BILLING_RESPONSE_OK) {
+                if (billingResult.responseCode == BILLING_RESPONSE_OK) {
                     debug("Billing Connection Successful")
 
-                    scope.launch {
-                        getPurchases(silent = true)
-                        processProducts()
+                    if (onReady != null) {
+                        onReady()
+                    } else {
+                        scope.launch {
+                            getPurchases(silent = true)
+                            processProducts()
+                        }
                     }
                 } else {
-                    Log.e(TAG, "Billing Setup Failed: $responseCode - $debugMessage")
+                    Log.e(
+                        TAG,
+                        "Billing Setup Failed: ${billingResult.responseCode} - ${billingResult.debugMessage}"
+                    )
+                    onFailed?.invoke()
                 }
             }
 
             override fun onBillingServiceDisconnected() {
-                Log.w(TAG, "Billing Service Disconnected. Will retry on next interaction.")
+                connecting = false
+                Log.w(TAG, "Billing Service Disconnected. Will reconnect on next interaction.")
             }
         })
     }
@@ -219,7 +237,8 @@ class PurchaseManager(
 
     fun getPurchases(silent: Boolean = false) {
         if (!billingClient.isReady) {
-            Log.w(TAG, "getPurchases: BillingClient not ready")
+            Log.w(TAG, "getPurchases: BillingClient not ready, reconnecting")
+            startBillingConnection(onReady = { getPurchases(silent) })
             return
         }
 
@@ -272,6 +291,14 @@ class PurchaseManager(
     }
 
     fun launchBuyBillingFlow(activity: Activity) {
+        if (!billingClient.isReady) {
+            startBillingConnection(
+                onReady = { launchBuyBillingFlow(activity) },
+                onFailed = { emitError(BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE) }
+            )
+            return
+        }
+
         scope.launch {
             val details = productDetails ?: processProducts()
             details?.let {
