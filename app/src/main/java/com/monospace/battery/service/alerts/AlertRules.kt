@@ -48,11 +48,11 @@ object AlertRules {
         var total = 0L
         var onSince = if (!events.first().isScreenOn) since else -1L
 
-        for (event in events) {
-            if (event.isScreenOn) {
-                if (onSince < 0) onSince = event.timestamp
+        for ((_, timestamp, isScreenOn) in events) {
+            if (isScreenOn) {
+                if (onSince < 0) onSince = timestamp
             } else if (onSince >= 0) {
-                total += event.timestamp - onSince
+                total += timestamp - onSince
                 onSince = -1L
             }
         }

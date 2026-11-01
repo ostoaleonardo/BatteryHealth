@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.minutes
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BatteryDatabase.getDatabase(application)
@@ -50,7 +51,7 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             while (true) {
                 val since = System.currentTimeMillis() - HISTORY_WINDOW_MS
-                withTimeoutOrNull(WINDOW_REFRESH_MS) {
+                withTimeoutOrNull(WINDOW_REFRESH) {
                     dao.getHistorySince(since).collect { _history.value = it }
                 }
             }
@@ -100,6 +101,6 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     companion object {
         private const val TAG = "HistoryViewModel"
         private const val HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000L
-        private const val WINDOW_REFRESH_MS = 60_000L
+        private val WINDOW_REFRESH = 1.minutes
     }
 }
