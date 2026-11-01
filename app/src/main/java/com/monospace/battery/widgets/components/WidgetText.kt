@@ -39,7 +39,7 @@ fun WidgetHeadingText(
 ) {
     val fontIndex = PreferenceManager(LocalContext.current)
         .get(Constants.PREFS_ALERTS, Constants.KEY_HEADING_FONT, 0)
-    val fontRes = if (fontIndex == 1) R.font.geist_medium else R.font.n_type82_headline
+    val fontRes = if (fontIndex == 1) R.font.geist_regular else R.font.n_type82_headline
 
     WidgetBitmapText(text, fontSize, fontRes, widgetTextColor(), reservedWidthDp)
 }
