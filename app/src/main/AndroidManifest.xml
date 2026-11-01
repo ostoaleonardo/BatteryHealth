@@ -42,18 +42,6 @@
                 android:resource="@xml/charge_cycles_widget_info" />
         </receiver>
         <receiver
-            android:name=".widgets.health.HealthStatusWidgetReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/health_status_widget_info" />
-        </receiver>
-
-        <receiver
             android:name=".widgets.charging.BatteryLevelWidgetReceiver"
             android:exported="true">
             <intent-filter>
@@ -66,7 +54,7 @@
         </receiver>
 
         <receiver
-            android:name=".widgets.charging.ChargingInfoWidgetReceiver"
+            android:name=".widgets.pager.BatteryPagerWidgetReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -76,7 +64,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/charging_info_widget_info" />
+                android:resource="@xml/battery_pager_widget_info" />
         </receiver>
 
         <receiver

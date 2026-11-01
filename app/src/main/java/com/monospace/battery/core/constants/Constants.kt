@@ -1,6 +1,7 @@
 package com.monospace.battery.core.constants
 
 import androidx.compose.ui.graphics.Color
+import kotlin.time.Duration.Companion.minutes
 
 object Constants {
 
@@ -8,6 +9,8 @@ object Constants {
     const val NOTIFICATION_CHANNEL_ID = "battery_alerts_channel"
     const val SERVICE_CHANNEL_ID = "battery_service_channel"
     const val HISTORY_RETENTION_DAYS = 90
+    const val HISTORY_CHART_WINDOW_MS = 24 * 60 * 60 * 1000L
+    val HISTORY_CHART_REFRESH = 1.minutes
 
     // Notification IDs
     const val NOTIFICATION_HEALTHY_CHARGE_ID = 1001
@@ -46,12 +49,11 @@ object Constants {
     const val KEY_ACTIVE_MONITORING = "active_monitoring"
     const val KEY_LAST_SEEN_TIME = "last_seen_time"
     const val KEY_LAST_SEEN_LEVEL = "last_seen_level"
+    const val KEY_PREVIEW_VERSION = "widget_preview_version"
+    const val KEY_PREVIEW_TIME = "widget_preview_time"
     const val KEY_HEADING_FONT = "heading_font"
     const val KEY_WIDGET_GLASS = "widget_glass"
     const val KEY_WIDGET_GLASS_ALPHA = "widget_glass_alpha"
-    const val WIDGET_GLASS_ALPHA_DEFAULT = 60
-    const val WIDGET_GLASS_ALPHA_MIN = 20f
-    const val WIDGET_GLASS_ALPHA_MAX = 80f
 
     // Navigation Routes
     const val ROUTE_HOME = "home"
@@ -97,11 +99,7 @@ object Constants {
 
     // Colors
     val ColorGreen = Color(0xFF00A25B)
-    val ColorLightGreen = Color(0xFF8BC34A)
-    val ColorOrange = Color(0xFFFF9800)
-    val ColorDeepOrange = Color(0xFFFF5722)
     val ColorRed = Color(0xFFF44336)
-    val ColorGray = Color(0xFF9E9E9E)
 
     // AOD Accent Colors
     val AodColors = listOf(

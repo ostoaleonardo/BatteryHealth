@@ -1,0 +1,137 @@
+package com.monospace.battery.widgets.pager
+
+import android.content.Intent
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
+import androidx.glance.ColorFilter
+import androidx.glance.GlanceModifier
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.LocalContext
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.size
+import com.monospace.battery.R
+import com.monospace.battery.core.utils.BatteryStrings
+import com.monospace.battery.core.utils.BatteryUtils
+import com.monospace.battery.data.models.BatteryInfo
+import com.monospace.battery.ui.utils.getHealthIcon
+import com.monospace.battery.widgets.components.healthToDots
+import com.monospace.battery.widgets.components.widgetTextColor
+import com.monospace.battery.widgets.components.LevelBar
+import com.monospace.battery.widgets.components.WidgetInfoRow
+import com.monospace.battery.widgets.components.WidgetStatusIndicator
+import com.monospace.battery.widgets.components.WidgetValueLabel
+
+@Composable
+fun HealthContent(batteryStatus: Intent?) {
+    val context = LocalContext.current
+    val health = BatteryInfo(batteryStatus).health
+    val healthString = BatteryStrings().getHealthStatus(health)
+    val healthIconRes = getHealthIcon(health)
+
+    Column(
+        modifier = GlanceModifier.fillMaxSize(),
+        horizontalAlignment = Alignment.Start
+    ) {
+        Box(
+            modifier = GlanceModifier.fillMaxWidth(),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            WidgetStatusIndicator(activeDots = healthToDots(health))
+        }
+
+        Spacer(modifier = GlanceModifier.defaultWeight())
+
+        Image(
+            provider = ImageProvider(healthIconRes),
+            contentDescription = null,
+            modifier = GlanceModifier.size(32.dp),
+            colorFilter = ColorFilter.tint(widgetTextColor())
+        )
+
+        Spacer(modifier = GlanceModifier.height(8.dp))
+
+        WidgetValueLabel(
+            value = context.getString(healthString),
+            label = context.getString(R.string.battery_health),
+            horizontalAlignment = Alignment.Start
+        )
+    }
+}
+
+@Composable
+fun ChargingInfoContent(batteryStatus: Intent?) {
+    val context = LocalContext.current
+    val batteryInfo = BatteryInfo(batteryStatus)
+    val batteryStrings = BatteryStrings()
+    val batteryUtils = BatteryUtils(context)
+
+    val isCharging = batteryInfo.isCharging
+    val batteryLevel = batteryInfo.level
+    val statusStr = context.getString(batteryStrings.getChargingStatus(isCharging))
+
+    Column(modifier = GlanceModifier.fillMaxSize()) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = GlanceModifier.defaultWeight(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalAlignment = Alignment.Start
+            ) {
+                Row(
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    WidgetInfoRow(
+                        label = context.getString(R.string.battery_status),
+                        value = statusStr
+                    )
+
+                    Spacer(modifier = GlanceModifier.defaultWeight())
+
+                    Image(
+                        provider = ImageProvider(
+                            if (isCharging) R.drawable.bolt else R.drawable.cable
+                        ),
+                        contentDescription = null,
+                        modifier = GlanceModifier.size(24.dp),
+                        colorFilter = ColorFilter.tint(widgetTextColor())
+                    )
+                }
+
+                if (isCharging) {
+                    val sourceStr =
+                        context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
+                    val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
+                    val speedWatts = context.getString(R.string.charge_speed_watts, speed)
+                    val qualitySpeed = context.getString(batteryStrings.getChargerQuality(speed))
+                    val speedValue = "$speedWatts (${qualitySpeed})"
+
+                    Spacer(GlanceModifier.height(8.dp))
+                    WidgetInfoRow(
+                        label = context.getString(R.string.charging_source),
+                        value = sourceStr
+                    )
+
+                    Spacer(GlanceModifier.height(8.dp))
+                    WidgetInfoRow(
+                        label = context.getString(R.string.battery_speed),
+                        value = speedValue
+                    )
+                }
+            }
+        }
+
+        Spacer(GlanceModifier.height(12.dp))
+        LevelBar(level = batteryLevel)
+    }
+}

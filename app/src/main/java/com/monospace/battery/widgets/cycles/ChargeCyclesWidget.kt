@@ -25,13 +25,15 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.R
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.core.utils.BatteryMockUtils
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
-import com.monospace.battery.widgets.components.widgetSurfaceColor
 import com.monospace.battery.widgets.components.LockedWidgetContent
+import com.monospace.battery.widgets.components.WidgetPreviewSize
 import com.monospace.battery.widgets.components.WidgetValueLabel
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 
 class ChargeCyclesWidget : GlanceAppWidget() {
 
@@ -71,7 +73,9 @@ class ChargeCyclesWidget : GlanceAppWidget() {
             )
 
             GlanceTheme {
-                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+                WidgetPreviewSize(WidgetConstants.PREVIEW_SIZE_DP, WidgetConstants.PREVIEW_SIZE_DP) {
+                    WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+                }
             }
         }
     }

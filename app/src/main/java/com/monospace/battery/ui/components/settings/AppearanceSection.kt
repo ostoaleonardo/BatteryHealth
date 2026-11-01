@@ -23,7 +23,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.monospace.battery.R
-import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
 import com.monospace.battery.ui.components.common.section.BaseItem
@@ -106,7 +106,7 @@ fun AppearanceSection() {
                 value = state.widgetGlassAlpha,
                 onValueChange = actions.onWidgetGlassAlphaChange,
                 enabled = state.isWidgetsPurchased,
-                range = Constants.WIDGET_GLASS_ALPHA_MIN..Constants.WIDGET_GLASS_ALPHA_MAX
+                range = WidgetConstants.GLASS_ALPHA_MIN..WidgetConstants.GLASS_ALPHA_MAX
             )
         }
     }

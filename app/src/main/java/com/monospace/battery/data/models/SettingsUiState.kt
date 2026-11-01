@@ -1,7 +1,7 @@
 package com.monospace.battery.data.models
 
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.constants.WidgetConstants
 
 data class SettingsUiState(
     val isWidgetsPurchased: Boolean = false,
@@ -28,7 +28,7 @@ data class SettingsUiState(
     val aodShowShortcuts: Boolean = false,
     val headingFont: Int = 0,
     val widgetGlass: Boolean = false,
-    val widgetGlassAlpha: Int = Constants.WIDGET_GLASS_ALPHA_DEFAULT
+    val widgetGlassAlpha: Int = WidgetConstants.GLASS_ALPHA_DEFAULT
 ) {
     val anyAlertEnabled: Boolean
         get() = healthyChargeEnabled || tempAlertEnabled || lowBatteryEnabled ||

@@ -20,22 +20,18 @@ import androidx.glance.currentState
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.Row
-import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.fillMaxWidth
-import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
-import com.monospace.battery.R
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.core.utils.BatteryMockUtils
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
-import com.monospace.battery.widgets.components.widgetSurfaceColor
-import com.monospace.battery.widgets.components.DotsProgressBar
+import com.monospace.battery.widgets.components.LevelBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
-import com.monospace.battery.widgets.components.WidgetInfoRow
+import com.monospace.battery.widgets.components.WidgetPreviewSize
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 
 class BatteryLevelWidget : GlanceAppWidget() {
 
@@ -71,40 +67,30 @@ class BatteryLevelWidget : GlanceAppWidget() {
             )
 
             GlanceTheme {
-                WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+                WidgetPreviewSize(WidgetConstants.PREVIEW_SIZE_DP, WidgetConstants.PREVIEW_ROW_HEIGHT_DP) {
+                    WidgetContent(batteryStatus ?: BatteryMockUtils.createMockBatteryIntent())
+                }
             }
         }
     }
 
     @Composable
     fun WidgetContent(batteryStatus: Intent?) {
-        val context = LocalContext.current
-        val batteryInfo = BatteryInfo(batteryStatus)
-        val batteryLevel = batteryInfo.level
+        val batteryLevel = BatteryInfo(batteryStatus).level
 
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
                 .appWidgetBackground()
                 .cornerRadius(32.dp)
-                .padding(16.dp)
+                .padding(12.dp)
                 .background(widgetSurfaceColor())
         ) {
             Column(
                 modifier = GlanceModifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    WidgetInfoRow(
-                        label = context.getString(R.string.battery_level)
-                    )
-                }
-
-                Spacer(GlanceModifier.height(8.dp))
-                DotsProgressBar(level = batteryLevel)
+                LevelBar(level = batteryLevel)
             }
         }
     }

@@ -15,7 +15,6 @@ import androidx.core.graphics.createBitmap
 import androidx.datastore.preferences.core.Preferences
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
@@ -26,31 +25,31 @@ import androidx.glance.layout.width
 import androidx.glance.unit.ColorProvider
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.widgets.WidgetsUpdater
 import kotlin.math.ceil
 
-private const val HORIZONTAL_MARGIN_DP = 32f
 
 @Composable
 fun WidgetHeadingText(
     text: String,
     fontSize: TextUnit,
-    reservedWidthDp: Float = HORIZONTAL_MARGIN_DP
+    reservedWidthDp: Float = WidgetConstants.TEXT_HORIZONTAL_MARGIN_DP
 ) {
     val fontIndex = PreferenceManager(LocalContext.current)
         .get(Constants.PREFS_ALERTS, Constants.KEY_HEADING_FONT, 0)
     val fontRes = if (fontIndex == 1) R.font.geist_medium else R.font.n_type82_headline
 
-    WidgetBitmapText(text, fontSize, fontRes, GlanceTheme.colors.onSurface, reservedWidthDp)
+    WidgetBitmapText(text, fontSize, fontRes, widgetTextColor(), reservedWidthDp)
 }
 
 @Composable
 fun WidgetLabelText(
     text: String,
     fontSize: TextUnit,
-    color: ColorProvider = GlanceTheme.colors.onSurfaceVariant,
-    reservedWidthDp: Float = HORIZONTAL_MARGIN_DP
+    color: ColorProvider = widgetSecondaryTextColor(),
+    reservedWidthDp: Float = WidgetConstants.TEXT_HORIZONTAL_MARGIN_DP
 ) {
     WidgetBitmapText(text, fontSize, R.font.azeret_mono_light, color, reservedWidthDp)
 }

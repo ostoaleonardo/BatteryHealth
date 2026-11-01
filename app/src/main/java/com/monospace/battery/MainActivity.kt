@@ -1,6 +1,7 @@
 package com.monospace.battery
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -29,7 +30,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.core.utils.AppUtils
+import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
@@ -47,9 +51,8 @@ import com.monospace.battery.ui.viewmodels.MainViewModel
 import com.monospace.battery.ui.viewmodels.SettingsViewModel
 import com.monospace.battery.widgets.WidgetsUpdater
 import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
-import com.monospace.battery.widgets.charging.ChargingInfoWidgetReceiver
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
-import com.monospace.battery.widgets.health.HealthStatusWidgetReceiver
+import com.monospace.battery.widgets.pager.BatteryPagerWidgetReceiver
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -247,20 +250,37 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setupWidgetPreviews() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-            lifecycleScope.launch {
-                val manager = GlanceAppWidgetManager(this@MainActivity)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM || !shouldRefreshPreviews()) return
 
-                listOf(
-                    ChargingInfoWidgetReceiver::class,
-                    BatteryLevelWidgetReceiver::class,
-                    HealthStatusWidgetReceiver::class,
-                    ChargeCyclesWidgetReceiver::class
-                ).forEach {
-                    runCatching { manager.setWidgetPreviews(it) }
-                }
+        lifecycleScope.launch {
+            val manager = GlanceAppWidgetManager(this@MainActivity)
+
+            listOf(
+                BatteryLevelWidgetReceiver::class,
+                ChargeCyclesWidgetReceiver::class,
+                BatteryPagerWidgetReceiver::class
+            ).forEach {
+                runCatching { manager.setWidgetPreviews(it) }
+                    .onFailure { e -> Log.w("MainActivity", "Widget preview failed", e) }
             }
         }
+    }
+
+    private fun shouldRefreshPreviews(): Boolean {
+        val isDebuggable = applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
+        val prefs = PreferenceManager(this)
+        val version = AppUtils.getVersionName(this)
+        val now = System.currentTimeMillis()
+
+        val lastVersion = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_PREVIEW_VERSION, "")
+        val lastTime = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_PREVIEW_TIME, 0L)
+        val expired = now - lastTime >= WidgetConstants.PREVIEW_REFRESH_INTERVAL.inWholeMilliseconds
+
+        if (!isDebuggable && lastVersion == version && !expired) return false
+
+        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_PREVIEW_VERSION, version)
+        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_PREVIEW_TIME, now)
+        return true
     }
 
     private fun updateAllWidgets() {

@@ -112,22 +112,6 @@ fun getHealthColor(health: Int): Color = when (health) {
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }
 
-fun getStaticHealthColor(health: Int): Color = when (health) {
-    BatteryManager.BATTERY_HEALTH_GOOD -> Constants.ColorGreen
-    BatteryManager.BATTERY_HEALTH_OVERHEAT -> Constants.ColorOrange
-    BatteryManager.BATTERY_HEALTH_DEAD -> Constants.ColorRed
-    BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> Constants.ColorDeepOrange
-    else -> Constants.ColorGray
-}
-
-fun getBatteryLevelColor(level: Int): Color = when {
-    level >= 90 -> Constants.ColorGreen
-    level >= 60 -> Constants.ColorLightGreen
-    level >= 35 -> Constants.ColorOrange
-    level >= 20 -> Constants.ColorDeepOrange
-    else -> Constants.ColorRed
-}
-
 @Composable
 fun getAodColor(colorValue: Long): Color {
     return if (colorValue == 0L) MaterialTheme.colorScheme.primary else Color(colorValue)

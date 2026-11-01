@@ -7,6 +7,7 @@ import android.os.BatteryManager
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.ChargerStatsCalculator
 import com.monospace.battery.data.local.BatteryTipsProvider
 import com.monospace.battery.data.local.db.BatteryDatabase
@@ -21,7 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.time.Duration.Companion.minutes
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
     private val db = BatteryDatabase.getDatabase(application)
@@ -50,8 +50,8 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
     private fun loadData() {
         viewModelScope.launch {
             while (true) {
-                val since = System.currentTimeMillis() - HISTORY_WINDOW_MS
-                withTimeoutOrNull(WINDOW_REFRESH) {
+                val since = System.currentTimeMillis() - Constants.HISTORY_CHART_WINDOW_MS
+                withTimeoutOrNull(Constants.HISTORY_CHART_REFRESH) {
                     dao.getHistorySince(since).collect { _history.value = it }
                 }
             }
@@ -100,7 +100,5 @@ class HistoryViewModel(application: Application) : AndroidViewModel(application)
 
     companion object {
         private const val TAG = "HistoryViewModel"
-        private const val HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000L
-        private val WINDOW_REFRESH = 1.minutes
     }
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:description="@string/battery_status"
+    android:description="@string/widget_battery_overview"
     android:minWidth="110dp"
     android:minHeight="110dp"
-    android:previewImage="@drawable/charging_info_widget"
+    android:previewImage="@drawable/battery_pager_widget"
     android:resizeMode="vertical|horizontal"
     android:updatePeriodMillis="1800000"
     android:widgetCategory="home_screen" />

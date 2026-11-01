@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.monospace.battery.core.constants.Constants
+import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.SettingsUiState
@@ -132,7 +133,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             widgetGlassAlpha = prefs.get(
                 Constants.PREFS_ALERTS,
                 Constants.KEY_WIDGET_GLASS_ALPHA,
-                Constants.WIDGET_GLASS_ALPHA_DEFAULT
+                WidgetConstants.GLASS_ALPHA_DEFAULT
             )
         )
     }
@@ -260,7 +261,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
         glassRefreshJob?.cancel()
         glassRefreshJob = viewModelScope.launch {
-            delay(GLASS_REFRESH_DEBOUNCE_MS)
+            delay(WidgetConstants.GLASS_REFRESH_DEBOUNCE)
             WidgetsUpdater.updateAll(getApplication())
         }
     }
@@ -279,7 +280,4 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    private companion object {
-        const val GLASS_REFRESH_DEBOUNCE_MS = 200L
-    }
 }

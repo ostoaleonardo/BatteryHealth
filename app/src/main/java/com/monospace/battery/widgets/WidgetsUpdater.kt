@@ -6,23 +6,21 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import com.monospace.battery.widgets.charging.BatteryLevelWidget
-import com.monospace.battery.widgets.charging.ChargingInfoWidget
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
-import com.monospace.battery.widgets.health.HealthStatusWidget
+import com.monospace.battery.widgets.pager.BatteryPagerWidget
 
 object WidgetsUpdater {
 
     val REFRESH_KEY = longPreferencesKey("refresh")
 
     suspend fun updateLive(context: Context) {
-        refresh(context, ChargingInfoWidget())
         refresh(context, BatteryLevelWidget())
+        refresh(context, BatteryPagerWidget())
     }
 
     suspend fun updateAll(context: Context) {
         updateLive(context)
         refresh(context, ChargeCyclesWidget())
-        refresh(context, HealthStatusWidget())
     }
 
     suspend fun refresh(context: Context, widget: GlanceAppWidget) {

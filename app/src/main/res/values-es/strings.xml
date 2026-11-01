@@ -207,6 +207,7 @@
     <string name="settings_heading_font_description">Fuente usada en los títulos</string>
     <string name="settings_widget_glass">Widgets de cristal</string>
     <string name="settings_widget_glass_description">Fondo translúcido en los widgets</string>
+    <string name="widget_battery_overview">Resumen de batería</string>
     <string name="settings_font_1">Fuente 1</string>
     <string name="settings_font_2">Fuente 2</string>
 </resources>
