@@ -1,6 +1,6 @@
 <div align="center">
 <a target="_blank" href="https://play.google.com/store/apps/details?id=com.monospace.battery" title="Battery Health on Google Play">
-<img width="160" alt="Battery Health icon" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" />
+<img width="192" alt="Battery Health icon" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" />
 </a>
 
 # <samp>Battery Health<samp>
@@ -13,10 +13,13 @@
 <br />
 
 <div align="center">
-<img width="22%" alt="Home" src="assets/screenshots/home.png" />
-<img width="22%" alt="Alerts" src="assets/screenshots/alerts.png" />
-<img width="22%" alt="Always-On Display" src="assets/screenshots/aod.png" />
-<img width="22%" alt="Settings" src="assets/screenshots/settings.png" />
+<img width="380" alt="Home" src="assets/screenshots/home.png" />
+<img width="380" alt="Alerts" src="assets/screenshots/alerts.png" />
+</div>
+
+<div align="center">
+<img width="380" alt="Always-On Display" src="assets/screenshots/aod.png" />
+<img width="380" alt="Settings" src="assets/screenshots/settings.png" />
 </div>
 
 <br />
