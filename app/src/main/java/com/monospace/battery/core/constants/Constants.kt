@@ -47,6 +47,11 @@ object Constants {
     const val KEY_LAST_SEEN_TIME = "last_seen_time"
     const val KEY_LAST_SEEN_LEVEL = "last_seen_level"
     const val KEY_HEADING_FONT = "heading_font"
+    const val KEY_WIDGET_GLASS = "widget_glass"
+    const val KEY_WIDGET_GLASS_ALPHA = "widget_glass_alpha"
+    const val WIDGET_GLASS_ALPHA_DEFAULT = 60
+    const val WIDGET_GLASS_ALPHA_MIN = 20f
+    const val WIDGET_GLASS_ALPHA_MAX = 80f
 
     // Navigation Routes
     const val ROUTE_HOME = "home"

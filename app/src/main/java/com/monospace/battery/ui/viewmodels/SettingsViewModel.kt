@@ -10,9 +10,12 @@ import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.SettingsUiState
 import com.monospace.battery.widgets.WidgetsUpdater
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+    private var glassRefreshJob: Job? = null
     private val prefs = PreferenceManager(application)
     private val db = BatteryDatabase.getDatabase(application)
     private val dao = db.batteryDao()
@@ -120,6 +123,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 Constants.PREFS_ALERTS,
                 Constants.KEY_HEADING_FONT,
                 0
+            ),
+            widgetGlass = prefs.get(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_WIDGET_GLASS,
+                false
+            ),
+            widgetGlassAlpha = prefs.get(
+                Constants.PREFS_ALERTS,
+                Constants.KEY_WIDGET_GLASS_ALPHA,
+                Constants.WIDGET_GLASS_ALPHA_DEFAULT
             )
         )
     }
@@ -235,6 +248,23 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch { WidgetsUpdater.updateAll(getApplication()) }
     }
 
+    fun toggleWidgetGlass(enabled: Boolean) {
+        updatePref(Constants.KEY_WIDGET_GLASS, enabled)
+        _uiState.value = _uiState.value.copy(widgetGlass = enabled)
+        viewModelScope.launch { WidgetsUpdater.updateAll(getApplication()) }
+    }
+
+    fun setWidgetGlassAlpha(alpha: Int) {
+        updatePref(Constants.KEY_WIDGET_GLASS_ALPHA, alpha)
+        _uiState.value = _uiState.value.copy(widgetGlassAlpha = alpha)
+
+        glassRefreshJob?.cancel()
+        glassRefreshJob = viewModelScope.launch {
+            delay(GLASS_REFRESH_DEBOUNCE_MS)
+            WidgetsUpdater.updateAll(getApplication())
+        }
+    }
+
     fun clearAllData() {
         viewModelScope.launch {
             dao.clearAllData()
@@ -247,5 +277,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             is Int -> prefs.set(Constants.PREFS_ALERTS, key, value)
             is Long -> prefs.set(Constants.PREFS_ALERTS, key, value)
         }
+    }
+
+    private companion object {
+        const val GLASS_REFRESH_DEBOUNCE_MS = 200L
     }
 }

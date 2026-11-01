@@ -39,6 +39,7 @@ import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.ui.utils.getHealthIcon
 import com.monospace.battery.ui.utils.getStaticHealthColor
 import com.monospace.battery.widgets.BatteryWidgetReceiver
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetStatusIndicator
 import com.monospace.battery.widgets.components.WidgetValueLabel
@@ -102,7 +103,7 @@ class HealthStatusWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .cornerRadius(28.dp)
                 .padding(16.dp)
-                .background(GlanceTheme.colors.surface)
+                .background(widgetSurfaceColor())
         ) {
             Column(
                 modifier = GlanceModifier.fillMaxSize(),

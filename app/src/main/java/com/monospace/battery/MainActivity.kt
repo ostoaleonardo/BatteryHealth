@@ -139,6 +139,8 @@ class MainActivity : ComponentActivity() {
                         onAodDimAmountChange = settingsViewModel::setAodDimAmount,
                         onAodShowShortcutsChange = settingsViewModel::toggleAodShowShortcuts,
                         onHeadingFontChange = settingsViewModel::setHeadingFont,
+                        onWidgetGlassChange = settingsViewModel::toggleWidgetGlass,
+                        onWidgetGlassAlphaChange = settingsViewModel::setWidgetGlassAlpha,
                         onOverlayPermissionRequest = {
                             val intent = Intent(
                                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,

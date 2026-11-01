@@ -221,6 +221,8 @@
     <string name="settings_appearance">Appearance</string>
     <string name="settings_heading_font">Heading font</string>
     <string name="settings_heading_font_description">Font used for titles</string>
+    <string name="settings_widget_glass">Glass widgets</string>
+    <string name="settings_widget_glass_description">Translucent widget background</string>
     <string name="settings_font_1">Font 1</string>
     <string name="settings_font_2">Font 2</string>
 </resources>

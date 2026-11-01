@@ -44,6 +44,7 @@ import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
@@ -108,7 +109,7 @@ class ChargingInfoWidget : GlanceAppWidget() {
                 .cornerRadius(28.dp)
                 .appWidgetBackground()
                 .padding(16.dp)
-                .background(GlanceTheme.colors.surface)
+                .background(widgetSurfaceColor())
                 .clickable(actionRunCallback<UpdateAction>())
         ) {
             Column(modifier = GlanceModifier.fillMaxSize()) {

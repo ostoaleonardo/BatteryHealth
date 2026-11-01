@@ -3,7 +3,6 @@ package com.monospace.battery.widgets
 import android.content.Context
 import android.content.Intent
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,14 +22,11 @@ abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onReceive(context, intent)
 
         if (updateActions.contains(intent.action)) {
-            val manager = GlanceAppWidgetManager(context)
-
             val pending = goAsync()
 
             CoroutineScope(Dispatchers.Default).launch {
                 try {
-                    manager.getGlanceIds(glanceAppWidget::class.java)
-                        .forEach { glanceAppWidget.update(context, it) }
+                    WidgetsUpdater.refresh(context, glanceAppWidget)
                 } finally {
                     pending.finish()
                 }

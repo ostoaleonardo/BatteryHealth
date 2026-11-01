@@ -23,9 +23,6 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 
@@ -59,22 +56,9 @@ fun LockedWidgetContent() {
 
             Spacer(modifier = GlanceModifier.height(8.dp))
 
-            Text(
-                text = "Premium Widget",
-                style = TextStyle(
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = GlanceTheme.colors.onSurface
-                )
-            )
+            WidgetHeadingText(text = "Premium Widget", fontSize = 16.sp)
 
-            Text(
-                text = "Tap to unlock",
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = GlanceTheme.colors.onSurfaceVariant
-                )
-            )
+            WidgetLabelText(text = "Tap to unlock", fontSize = 12.sp)
         }
     }
 }

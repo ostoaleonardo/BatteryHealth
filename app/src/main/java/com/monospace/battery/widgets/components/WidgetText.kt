@@ -11,6 +11,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.createBitmap
+import androidx.datastore.preferences.core.Preferences
 import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -18,13 +20,15 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
+import androidx.glance.LocalState
 import androidx.glance.layout.height
 import androidx.glance.layout.width
+import androidx.glance.unit.ColorProvider
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.data.local.PreferenceManager
+import com.monospace.battery.widgets.WidgetsUpdater
 import kotlin.math.ceil
-import androidx.core.graphics.createBitmap
 
 private const val HORIZONTAL_MARGIN_DP = 32f
 
@@ -34,34 +38,57 @@ fun WidgetHeadingText(
     fontSize: TextUnit,
     reservedWidthDp: Float = HORIZONTAL_MARGIN_DP
 ) {
+    val fontIndex = PreferenceManager(LocalContext.current)
+        .get(Constants.PREFS_ALERTS, Constants.KEY_HEADING_FONT, 0)
+    val fontRes = if (fontIndex == 1) R.font.geist_medium else R.font.n_type82_headline
+
+    WidgetBitmapText(text, fontSize, fontRes, GlanceTheme.colors.onSurface, reservedWidthDp)
+}
+
+@Composable
+fun WidgetLabelText(
+    text: String,
+    fontSize: TextUnit,
+    color: ColorProvider = GlanceTheme.colors.onSurfaceVariant,
+    reservedWidthDp: Float = HORIZONTAL_MARGIN_DP
+) {
+    WidgetBitmapText(text, fontSize, R.font.azeret_mono_light, color, reservedWidthDp)
+}
+
+@Composable
+private fun WidgetBitmapText(
+    text: String,
+    fontSize: TextUnit,
+    fontRes: Int,
+    color: ColorProvider,
+    reservedWidthDp: Float
+) {
     val context = LocalContext.current
     val maxWidthDp = LocalSize.current.width.value - reservedWidthDp
-    val fontIndex = PreferenceManager(context)
-        .get(Constants.PREFS_ALERTS, Constants.KEY_HEADING_FONT, 0)
+    val refresh = (LocalState.current as? Preferences)?.get(WidgetsUpdater.REFRESH_KEY)
 
-    val rendered = remember(text, fontSize, maxWidthDp, fontIndex) {
-        renderHeading(context, text, fontSize.value, maxWidthDp, fontIndex)
+    val rendered = remember(text, fontSize, fontRes, maxWidthDp, refresh) {
+        renderText(context, text, fontSize.value, fontRes, maxWidthDp)
     }
 
     Image(
         provider = ImageProvider(rendered.bitmap),
         contentDescription = text,
         modifier = GlanceModifier.width(rendered.widthDp.dp).height(rendered.heightDp.dp),
-        colorFilter = ColorFilter.tint(GlanceTheme.colors.onSurface)
+        colorFilter = ColorFilter.tint(color)
     )
 }
 
-private class RenderedHeading(val bitmap: Bitmap, val widthDp: Float, val heightDp: Float)
+private class RenderedText(val bitmap: Bitmap, val widthDp: Float, val heightDp: Float)
 
-private fun renderHeading(
+private fun renderText(
     context: Context,
     text: String,
     fontSizeSp: Float,
-    maxWidthDp: Float,
-    fontIndex: Int
-): RenderedHeading {
+    fontRes: Int,
+    maxWidthDp: Float
+): RenderedText {
     val metrics = context.resources.displayMetrics
-    val fontRes = if (fontIndex == 1) R.font.geist_medium else R.font.n_type82_headline
 
     val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
@@ -80,5 +107,5 @@ private fun renderHeading(
     val bitmap = createBitmap(width, height)
     Canvas(bitmap).drawText(text, 0f, ascent, paint)
 
-    return RenderedHeading(bitmap, width / metrics.density, height / metrics.density)
+    return RenderedText(bitmap, width / metrics.density, height / metrics.density)
 }

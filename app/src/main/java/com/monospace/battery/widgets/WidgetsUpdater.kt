@@ -1,7 +1,10 @@
 package com.monospace.battery.widgets
 
 import android.content.Context
-import androidx.glance.appwidget.updateAll
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.state.updateAppWidgetState
 import com.monospace.battery.widgets.charging.BatteryLevelWidget
 import com.monospace.battery.widgets.charging.ChargingInfoWidget
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidget
@@ -9,18 +12,25 @@ import com.monospace.battery.widgets.health.HealthStatusWidget
 
 object WidgetsUpdater {
 
+    val REFRESH_KEY = longPreferencesKey("refresh")
+
     suspend fun updateLive(context: Context) {
-        runCatching {
-            ChargingInfoWidget().updateAll(context)
-            BatteryLevelWidget().updateAll(context)
-        }
+        refresh(context, ChargingInfoWidget())
+        refresh(context, BatteryLevelWidget())
     }
 
     suspend fun updateAll(context: Context) {
         updateLive(context)
+        refresh(context, ChargeCyclesWidget())
+        refresh(context, HealthStatusWidget())
+    }
+
+    suspend fun refresh(context: Context, widget: GlanceAppWidget) {
         runCatching {
-            ChargeCyclesWidget().updateAll(context)
-            HealthStatusWidget().updateAll(context)
+            GlanceAppWidgetManager(context).getGlanceIds(widget::class.java).forEach { id ->
+                updateAppWidgetState(context, id) { it[REFRESH_KEY] = System.nanoTime() }
+                widget.update(context, id)
+            }
         }
     }
 }

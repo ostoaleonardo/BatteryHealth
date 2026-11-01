@@ -11,6 +11,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.LocalContext
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -31,11 +32,14 @@ import com.monospace.battery.core.utils.BatteryMockUtils
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 import com.monospace.battery.widgets.components.DotsProgressBar
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetInfoRow
 
 class BatteryLevelWidget : GlanceAppWidget() {
+
+    override val sizeMode = SizeMode.Exact
 
     override val stateDefinition = PreferencesGlanceStateDefinition
 
@@ -84,7 +88,7 @@ class BatteryLevelWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .cornerRadius(32.dp)
                 .padding(16.dp)
-                .background(GlanceTheme.colors.surface)
+                .background(widgetSurfaceColor())
         ) {
             Column(
                 modifier = GlanceModifier.fillMaxSize(),

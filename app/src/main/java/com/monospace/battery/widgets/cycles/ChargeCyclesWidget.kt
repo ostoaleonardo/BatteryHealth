@@ -29,6 +29,7 @@ import com.monospace.battery.core.utils.BatteryMockUtils
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.widgets.BatteryWidgetReceiver
+import com.monospace.battery.widgets.components.widgetSurfaceColor
 import com.monospace.battery.widgets.components.LockedWidgetContent
 import com.monospace.battery.widgets.components.WidgetValueLabel
 
@@ -88,7 +89,7 @@ class ChargeCyclesWidget : GlanceAppWidget() {
                 .appWidgetBackground()
                 .cornerRadius(28.dp)
                 .padding(16.dp)
-                .background(GlanceTheme.colors.surface),
+                .background(widgetSurfaceColor()),
             verticalAlignment = Alignment.CenterVertically,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
