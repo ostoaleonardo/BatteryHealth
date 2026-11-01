@@ -61,7 +61,3 @@
 4.  <samp>Add your own `google-services.json` file inside the `app` folder.<samp>
 5.  <samp>Run the app on an emulator or a connected device.<samp>
 6.  <samp>Make changes and create a pull request.<samp>
-
----
-
-<samp>Developed with ❤️ by **Monospace**.<samp>
