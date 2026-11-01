@@ -26,7 +26,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -46,7 +45,6 @@ import com.monospace.battery.ui.theme.Font
 import com.monospace.battery.ui.utils.MeterDisplay
 import com.monospace.battery.ui.utils.MeterStyle
 import com.monospace.battery.ui.utils.selectionStyle
-import java.util.Date
 
 @Composable
 fun AodMeterStyleSelector(

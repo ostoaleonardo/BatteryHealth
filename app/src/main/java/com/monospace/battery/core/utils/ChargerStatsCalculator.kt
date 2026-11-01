@@ -17,16 +17,16 @@ object ChargerStatsCalculator {
         var totalTemp = 0f
         var tempCount = 0
 
-        for (session in group) {
-            val endTime = session.endTime ?: now
-            val durationMins = (endTime - session.startTime) / 60000f
+        for ((_, startTime, rawEnd, startLevel, rawEndLevel) in group) {
+            val endTime = rawEnd ?: now
+            val durationMins = (endTime - startTime) / 60000f
 
             if (durationMins > 0.5f) {
-                val endLevel = session.endLevel ?: currentLevel ?: session.startLevel
-                rates.add((endLevel - session.startLevel).coerceAtLeast(0) / durationMins)
+                val endLevel = rawEndLevel ?: currentLevel ?: startLevel
+                rates.add((endLevel - startLevel).coerceAtLeast(0) / durationMins)
             }
 
-            val sessionHistory = history.filter { it.timestamp in session.startTime..endTime }
+            val sessionHistory = history.filter { it.timestamp in startTime..endTime }
 
             if (sessionHistory.isNotEmpty()) {
                 totalTemp += sessionHistory.map { it.temperature }.average().toFloat()

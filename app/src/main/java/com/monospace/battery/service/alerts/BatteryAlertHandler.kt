@@ -87,7 +87,7 @@ class BatteryAlertHandler(
 
         slowChargeJob?.cancel()
         slowChargeJob = scope.launch {
-            delay(AlertRules.SLOW_CHARGE_DELAY_MS)
+            delay(AlertRules.SLOW_CHARGE_DELAY)
 
             val intent = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
             val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1

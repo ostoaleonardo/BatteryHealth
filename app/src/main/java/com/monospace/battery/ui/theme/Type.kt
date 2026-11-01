@@ -12,10 +12,6 @@ val AzeretMono = FontFamily(
     Font(R.font.azeret_mono_light, FontWeight.Light)
 )
 
-val NType82 = FontFamily(
-    Font(R.font.n_type82_headline, FontWeight.Normal)
-)
-
 fun batteryTypography(headingFont: FontFamily) = Typography(
     titleLarge = TextStyle(
         fontFamily = headingFont,

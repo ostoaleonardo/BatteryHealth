@@ -1,10 +1,12 @@
 package com.monospace.battery.service.alerts
 
+import kotlin.time.Duration.Companion.seconds
+
 object AlertRules {
     const val TEMP_ALERT_CELSIUS = 40
     const val TEMP_REARM_CELSIUS = 38
     const val SLOW_CHARGE_WATTS = 2.0
-    const val SLOW_CHARGE_DELAY_MS = 45_000L
+    val SLOW_CHARGE_DELAY = 45.seconds
     const val FAST_DISCHARGE_DROP = 15
     const val FAST_DISCHARGE_WINDOW_MS = 3_600_000L
     const val FAST_DISCHARGE_COOLDOWN_MS = 30 * 60_000L
