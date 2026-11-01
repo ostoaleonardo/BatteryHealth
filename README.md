@@ -24,19 +24,18 @@
 ## <samp>Features<samp>
 
 -   <samp>See your battery health, level, temperature and charge cycles at a glance.<samp>
--   <samp>Smart alerts: unplug at the right level, slow charger, low battery, fast drain and overheating.<samp>
--   <samp>Find out how fast your phone really charges and how good each charger is.<samp>
--   <samp>Simple history with charts of how you use your battery during the day.<samp>
--   <samp>Charging clock that turns your phone into an elegant desk clock, with your own colors and style.<samp>
--   <samp>Flashlight and camera shortcuts right from the clock screen.<samp>
+-   <samp>Simple history with a chart of how you use your battery during the day.<samp>
+-   <samp>Find out how fast your phone really charges.<samp>
 -   <samp>Tips to make your battery last longer.<samp>
 -   <samp>Choose the font you like most.<samp>
 -   <samp>Available in English and Spanish.<samp>
 
 ## <samp>Premium<samp>
 
+-   <samp>Smart alerts: unplug at the right level, slow charger, low battery, fast drain and overheating.<samp>
+-   <samp>Charging clock that turns your phone into an elegant desk clock, with your own colors and style, plus flashlight and camera shortcuts.<samp>
 -   <samp>Home screen widgets with your battery status.<samp>
--   <samp>All colors and clock styles.<samp>
+-   <samp>Full charge history and quality analysis of every charger.<samp>
 
 ## <samp>Requirements<samp>
 
