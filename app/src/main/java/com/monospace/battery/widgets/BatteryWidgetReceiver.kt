@@ -26,7 +26,7 @@ abstract class BatteryWidgetReceiver : GlanceAppWidgetReceiver() {
 
             CoroutineScope(Dispatchers.Default).launch {
                 try {
-                    WidgetsUpdater.refresh(context, glanceAppWidget)
+                    WidgetsUpdater.refresh(context, this@BatteryWidgetReceiver::class.java, glanceAppWidget)
                 } finally {
                     pending.finish()
                 }
