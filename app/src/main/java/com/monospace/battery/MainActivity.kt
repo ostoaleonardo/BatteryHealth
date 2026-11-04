@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -53,6 +54,7 @@ import com.monospace.battery.widgets.WidgetsUpdater
 import com.monospace.battery.widgets.charging.BatteryLevelWidgetReceiver
 import com.monospace.battery.widgets.cycles.ChargeCyclesWidgetReceiver
 import com.monospace.battery.widgets.pager.BatteryPagerWidgetReceiver
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -101,6 +103,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableStrictModeInDebug()
         enableEdgeToEdge()
         setupWidgetPreviews()
         settingsViewModel.updateVersionName(AppUtils.getVersionName(this))
@@ -113,7 +116,7 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
 
                 val purchaseManager = purchaseViewModel.manager
-                val isPurchased by purchaseManager.isPurchased.collectAsState()
+                val isPurchased by purchaseManager.isPurchased.collectAsStateWithLifecycle()
                 val settingsState by settingsViewModel.uiState
                 val batteryState by mainViewModel.batteryState
 
@@ -239,7 +242,8 @@ class MainActivity : ComponentActivity() {
 
     private fun updateMonitoringService() {
         val state = settingsViewModel.uiState.value
-        val shouldRun = (state.anyAlertEnabled && state.isWidgetsPurchased) || state.activeMonitoringEnabled
+        val shouldRun =
+            (state.anyAlertEnabled && state.isWidgetsPurchased) || state.activeMonitoringEnabled
 
         runCatching {
             if (shouldRun) BatteryAlertService.start(this) else BatteryAlertService.stop(this)
@@ -249,10 +253,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun setupWidgetPreviews() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM || !shouldRefreshPreviews()) return
+    private fun enableStrictModeInDebug() {
+        if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE == 0) return
 
-        lifecycleScope.launch {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build()
+        )
+    }
+
+    private fun setupWidgetPreviews() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return
+
+        lifecycleScope.launch(Dispatchers.Default) {
+            if (!shouldRefreshPreviews()) return@launch
+
             val manager = GlanceAppWidgetManager(this@MainActivity)
 
             listOf(

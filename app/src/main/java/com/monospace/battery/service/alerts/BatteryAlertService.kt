@@ -10,12 +10,15 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.BatteryManager
 import android.os.Build
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.IBinder
 import android.os.PowerManager
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
@@ -51,10 +54,12 @@ class BatteryAlertService : Service() {
     private var initialized = false
     private var receiverRegistered = false
 
-    private var lastLevel = -1
+    @Volatile private var lastLevel = -1
     private var lastStatus = -1
-    private var charging = false
+    @Volatile private var charging = false
     private var lastWidgetUpdate = 0L
+    private var lastSeenSavedAt = 0L
+    private var receiverThread: HandlerThread? = null
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -99,7 +104,10 @@ class BatteryAlertService : Service() {
             addAction(Intent.ACTION_SCREEN_OFF)
         }
 
-        registerReceiver(batteryReceiver, filter)?.let { intent ->
+        val thread = HandlerThread(RECEIVER_THREAD_NAME).also { it.start() }
+        receiverThread = thread
+
+        registerReceiver(batteryReceiver, filter, null, Handler(thread.looper))?.let { intent ->
             lastLevel = levelOf(intent)
             lastStatus = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
             charging = isCharging(lastStatus, intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0))
@@ -167,8 +175,14 @@ class BatteryAlertService : Service() {
                 prefs.getAlert(Constants.KEY_FAST_DISCHARGE_ENABLED, false)
 
     private fun saveLastSeen(level: Int) {
-        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_TIME, System.currentTimeMillis())
-        prefs.set(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_LEVEL, level)
+        val now = System.currentTimeMillis()
+        if (now - lastSeenSavedAt < Constants.LAST_SEEN_SAVE_INTERVAL_MS) return
+
+        lastSeenSavedAt = now
+        prefs.edit(Constants.PREFS_ALERTS) {
+            putLong(Constants.KEY_LAST_SEEN_TIME, now)
+            putInt(Constants.KEY_LAST_SEEN_LEVEL, level)
+        }
     }
 
     private fun refreshWidgets(levelChanged: Boolean, plugChanged: Boolean) {
@@ -300,6 +314,8 @@ class BatteryAlertService : Service() {
             receiverRegistered = false
         }
         monitoringJob?.cancel()
+        receiverThread?.quitSafely()
+        receiverThread = null
 
         if (initialized) {
             val level = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -355,6 +371,7 @@ class BatteryAlertService : Service() {
 
     companion object {
         const val TAG = "BatteryAlertService"
+        private const val RECEIVER_THREAD_NAME = "battery-receiver"
         const val ACTION_STOP_SERVICE = "STOP_BATTERY_MONITORING"
         private const val WIDGET_REFRESH_MS = 60_000L
 

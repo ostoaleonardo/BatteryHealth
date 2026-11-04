@@ -41,6 +41,10 @@ class PreferenceManager(private val context: Context) {
         }
     }
 
+    fun edit(file: String, action: SharedPreferences.Editor.() -> Unit) {
+        getPrefs(file).edit(action = action)
+    }
+
     fun remove(file: String, key: String) {
         getPrefs(file).edit { remove(key) }
     }

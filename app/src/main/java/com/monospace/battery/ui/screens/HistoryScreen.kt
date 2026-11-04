@@ -9,11 +9,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.monospace.battery.data.mocks.MockDataProvider
 import com.monospace.battery.data.models.BatteryHistoryEntry
@@ -38,10 +38,10 @@ import com.monospace.battery.ui.viewmodels.HistoryViewModel
 fun HistoryScreen(
     viewModel: HistoryViewModel = viewModel()
 ) {
-    val history by viewModel.history.collectAsState()
-    val sessions by viewModel.sessions.collectAsState()
-    val chargerStats by viewModel.chargerStats.collectAsState()
-    val currentTip by viewModel.currentTip.collectAsState()
+    val history by viewModel.history.collectAsStateWithLifecycle()
+    val sessions by viewModel.sessions.collectAsStateWithLifecycle()
+    val chargerStats by viewModel.chargerStats.collectAsStateWithLifecycle()
+    val currentTip by viewModel.currentTip.collectAsStateWithLifecycle()
 
     HistoryScreen(
         history = history,

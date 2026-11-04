@@ -49,6 +49,7 @@ object Constants {
     const val KEY_ACTIVE_MONITORING = "active_monitoring"
     const val KEY_LAST_SEEN_TIME = "last_seen_time"
     const val KEY_LAST_SEEN_LEVEL = "last_seen_level"
+    const val LAST_SEEN_SAVE_INTERVAL_MS = 60_000L
     const val KEY_PREVIEW_VERSION = "widget_preview_version"
     const val KEY_PREVIEW_TIME = "widget_preview_time"
     const val KEY_HEADING_FONT = "heading_font"
