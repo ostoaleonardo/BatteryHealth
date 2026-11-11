@@ -13,7 +13,6 @@ class BatteryAlertReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED,
-            Intent.ACTION_MY_PACKAGE_REPLACED,
             QUICKBOOT_POWERON -> startAlertService(context)
 
             Intent.ACTION_POWER_CONNECTED -> AodLauncher.launchIfNeeded(context, "POWER_CONNECTED")
