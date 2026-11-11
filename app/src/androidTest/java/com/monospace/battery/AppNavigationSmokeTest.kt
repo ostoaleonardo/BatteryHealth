@@ -59,7 +59,7 @@ class AppNavigationSmokeTest {
 
         composeRule.onNodeWithContentDescription(label(R.string.action_settings)).performClick()
         composeRule.waitForIdle()
-        composeRule.onAllNodesWithText(label(R.string.settings_font_2)).onFirst().performClick()
+        composeRule.onAllNodesWithText("Aa")[1].performClick()
         composeRule.waitForIdle()
 
         assertEquals(1, prefs.get(Constants.PREFS_ALERTS, Constants.KEY_HEADING_FONT, 0))
