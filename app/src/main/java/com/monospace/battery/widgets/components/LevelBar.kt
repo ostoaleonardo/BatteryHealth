@@ -17,11 +17,9 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.unit.ColorProvider
 import com.monospace.battery.core.constants.WidgetConstants
 import kotlin.math.min
 import androidx.glance.color.ColorProvider as dayNightColorProvider
-
 
 @Composable
 fun LevelBar(
@@ -35,22 +33,13 @@ fun LevelBar(
     }
 
     val barWidth = (LocalSize.current.width.value - WidgetConstants.BAR_HORIZONTAL_MARGIN_DP)
-        .coerceAtLeast(WidgetConstants.BAR_MARKERS_TOTAL_DP + 1f)
+        .coerceAtLeast(1f)
+    val fillWidth = barWidth * level.coerceIn(0, 100) / 100f
     val complete = level >= 100
-    val fillWidth = if (complete) {
-        barWidth
-    } else {
-        (barWidth - WidgetConstants.BAR_MARKERS_TOTAL_DP) * level.coerceIn(0, 100) / 100f
-    }
-    val outerCorner = heightDp * WidgetConstants.BAR_OUTER_CORNER_RATIO
+    val corner = heightDp * WidgetConstants.BAR_OUTER_CORNER_RATIO
     val innerCorner = heightDp * WidgetConstants.BAR_INNER_CORNER_RATIO
-    val capWidth = min(fillWidth / 2f, outerCorner * 2f)
-
+    val capWidth = min(fillWidth / 2f, corner * 2f)
     val accent = widgetAccentColor()
-    val track = dayNightColorProvider(
-        day = Color.White.copy(alpha = WidgetConstants.BAR_TRACK_LIGHT_ALPHA),
-        night = Color.Black.copy(alpha = WidgetConstants.BAR_TRACK_DARK_ALPHA)
-    )
 
     Box(
         modifier = modifier.width(barWidth.dp).height(heightDp.dp),
@@ -59,8 +48,8 @@ fun LevelBar(
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .cornerRadius(outerCorner.dp)
-                .background(track)
+                .cornerRadius(corner.dp)
+                .background(barTrackColor())
         ) {}
 
         if (fillWidth > 0f) {
@@ -68,7 +57,7 @@ fun LevelBar(
                 modifier = GlanceModifier
                     .width(fillWidth.dp)
                     .fillMaxHeight()
-                    .cornerRadius(outerCorner.dp)
+                    .cornerRadius(corner.dp)
                     .background(accent)
             ) {}
 
@@ -88,34 +77,21 @@ fun LevelBar(
                 }
             }
         }
-
-        if (!complete) {
-            Row(modifier = GlanceModifier.fillMaxHeight().padding(start = fillWidth.dp)) {
-                Spacer(modifier = GlanceModifier.width(WidgetConstants.BAR_FIRST_GAP_DP.dp))
-                Marker(accent, WidgetConstants.BAR_FIRST_MARKER_WIDTH_DP)
-                Spacer(modifier = GlanceModifier.width(WidgetConstants.BAR_SECOND_GAP_DP.dp))
-                Marker(accent, WidgetConstants.BAR_SECOND_MARKER_WIDTH_DP)
-            }
-        }
     }
 }
 
 @Composable
 private fun PreviewLevelBar(modifier: GlanceModifier, heightDp: Int) {
-    val outerCorner = heightDp * WidgetConstants.BAR_OUTER_CORNER_RATIO
+    val corner = heightDp * WidgetConstants.BAR_OUTER_CORNER_RATIO
     val innerCorner = heightDp * WidgetConstants.BAR_INNER_CORNER_RATIO
     val accent = widgetAccentColor()
-    val track = dayNightColorProvider(
-        day = Color.White.copy(alpha = WidgetConstants.BAR_TRACK_LIGHT_ALPHA),
-        night = Color.Black.copy(alpha = WidgetConstants.BAR_TRACK_DARK_ALPHA)
-    )
 
     Box(modifier = modifier.fillMaxWidth().height(heightDp.dp)) {
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .cornerRadius(outerCorner.dp)
-                .background(track)
+                .cornerRadius(corner.dp)
+                .background(barTrackColor())
         ) {}
 
         Row(modifier = GlanceModifier.fillMaxSize()) {
@@ -126,22 +102,17 @@ private fun PreviewLevelBar(modifier: GlanceModifier, heightDp: Int) {
                 Box(
                     modifier = GlanceModifier
                         .fillMaxSize()
-                        .cornerRadius(outerCorner.dp)
+                        .cornerRadius(corner.dp)
                         .background(accent)
                 ) {}
                 Box(
                     modifier = GlanceModifier
-                        .width((outerCorner * 2f).dp)
+                        .width((corner * 2f).dp)
                         .fillMaxHeight()
                         .cornerRadius(innerCorner.dp)
                         .background(accent)
                 ) {}
             }
-
-            Spacer(modifier = GlanceModifier.width(WidgetConstants.BAR_FIRST_GAP_DP.dp))
-            Marker(accent, WidgetConstants.BAR_FIRST_MARKER_WIDTH_DP)
-            Spacer(modifier = GlanceModifier.width(WidgetConstants.BAR_SECOND_GAP_DP.dp))
-            Marker(accent, WidgetConstants.BAR_SECOND_MARKER_WIDTH_DP)
 
             Spacer(modifier = GlanceModifier.defaultWeight())
         }
@@ -149,12 +120,7 @@ private fun PreviewLevelBar(modifier: GlanceModifier, heightDp: Int) {
 }
 
 @Composable
-private fun Marker(color: ColorProvider, widthDp: Float) {
-    Box(
-        modifier = GlanceModifier
-            .width(widthDp.dp)
-            .fillMaxHeight()
-            .cornerRadius((widthDp / 2f).dp)
-            .background(color)
-    ) {}
-}
+private fun barTrackColor() = dayNightColorProvider(
+    day = Color.White.copy(alpha = WidgetConstants.BAR_TRACK_LIGHT_ALPHA),
+    night = Color.Black.copy(alpha = WidgetConstants.BAR_TRACK_DARK_ALPHA)
+)

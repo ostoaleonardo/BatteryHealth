@@ -21,12 +21,6 @@ object WidgetConstants {
     const val BAR_DEFAULT_HEIGHT_DP = 31
     const val BAR_OUTER_CORNER_RATIO = 7f / 31f
     const val BAR_INNER_CORNER_RATIO = 2f / 31f
-    const val BAR_FIRST_MARKER_WIDTH_DP = 2f
-    const val BAR_SECOND_MARKER_WIDTH_DP = 2.4f
-    const val BAR_FIRST_GAP_DP = 2
-    const val BAR_SECOND_GAP_DP = 5
-    const val BAR_MARKERS_TOTAL_DP =
-        BAR_FIRST_GAP_DP + BAR_FIRST_MARKER_WIDTH_DP + BAR_SECOND_GAP_DP + BAR_SECOND_MARKER_WIDTH_DP
     const val BAR_TRACK_DARK_ALPHA = 0.29f
     const val BAR_TRACK_LIGHT_ALPHA = 0.35f
 
