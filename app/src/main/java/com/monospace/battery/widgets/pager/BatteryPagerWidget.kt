@@ -29,6 +29,7 @@ import androidx.glance.layout.padding
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.core.utils.BatteryMockUtils
+import com.monospace.battery.core.utils.CrashReporter
 import com.monospace.battery.data.local.WidgetsUtils
 import com.monospace.battery.widgets.BatteryWidgetReceiver
 import com.monospace.battery.widgets.WidgetsUpdater
@@ -103,6 +104,8 @@ class NextPageAction : ActionCallback {
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
+        CrashReporter.log("Pager widget next page")
+
         updateAppWidgetState(context, glanceId) { prefs ->
             prefs[BatteryPagerWidget.PAGE_KEY] =
                 ((prefs[BatteryPagerWidget.PAGE_KEY] ?: 0) + 1) % WidgetConstants.PAGER_PAGE_COUNT

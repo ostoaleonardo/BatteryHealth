@@ -18,11 +18,11 @@ import android.os.SystemClock
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.MainActivity
 import com.monospace.battery.R
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.utils.BatteryUtils
+import com.monospace.battery.core.utils.CrashReporter
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.local.db.BatteryDatabase
 import com.monospace.battery.data.models.BatteryHistoryEntry
@@ -53,9 +53,11 @@ class BatteryAlertService : Service() {
     private var initialized = false
     private var receiverRegistered = false
 
-    @Volatile private var lastLevel = -1
+    @Volatile
+    private var lastLevel = -1
     private var lastStatus = -1
-    @Volatile private var charging = false
+    @Volatile
+    private var charging = false
     private var lastWidgetUpdate = 0L
     private var lastSeenSavedAt = 0L
     private var receiverThread: HandlerThread? = null
@@ -69,6 +71,7 @@ class BatteryAlertService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashReporter.log("Service onCreate")
 
         if (!startAsForeground()) {
             stopSelf()
@@ -82,6 +85,7 @@ class BatteryAlertService : Service() {
             recordInitialScreenState()
             purgeOldData()
             initialized = true
+            CrashReporter.key("service_running", true)
         }.onFailure { e ->
             reportError("Failed to initialize service", e)
             stopSelf()
@@ -237,7 +241,8 @@ class BatteryAlertService : Service() {
         val now = System.currentTimeMillis()
 
         if (firstRun && lastSeen in 1 until now) {
-            val lastSeenLevel = prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_LEVEL, level)
+            val lastSeenLevel =
+                prefs.get(Constants.PREFS_ALERTS, Constants.KEY_LAST_SEEN_LEVEL, level)
             closeActiveSession(lastSeenLevel, lastSeen)
         } else {
             closeActiveSession(level, now)
@@ -271,7 +276,11 @@ class BatteryAlertService : Service() {
         scope.launch {
             runCatching {
                 db.batteryDao().insertBatteryEntry(
-                    BatteryHistoryEntry(timestamp = timestamp, level = level, temperature = temperature)
+                    BatteryHistoryEntry(
+                        timestamp = timestamp,
+                        level = level,
+                        temperature = temperature
+                    )
                 )
             }.onFailure { Log.e(TAG, "Error recording battery data", it) }
         }
@@ -308,6 +317,8 @@ class BatteryAlertService : Service() {
     }.onFailure { reportError("startForeground failed", it) }.isSuccess
 
     override fun onDestroy() {
+        CrashReporter.key("service_running", false)
+
         if (receiverRegistered) {
             runCatching { unregisterReceiver(batteryReceiver) }
             receiverRegistered = false
@@ -364,8 +375,7 @@ class BatteryAlertService : Service() {
                 status == BatteryManager.BATTERY_STATUS_FULL) && source != 0
 
     private fun reportError(message: String, error: Throwable) {
-        Log.e(TAG, message, error)
-        runCatching { FirebaseCrashlytics.getInstance().recordException(error) }
+        CrashReporter.record(TAG, message, error)
     }
 
     companion object {
@@ -375,7 +385,10 @@ class BatteryAlertService : Service() {
         private const val WIDGET_REFRESH_MS = 60_000L
 
         fun start(context: Context) {
-            ContextCompat.startForegroundService(context, Intent(context, BatteryAlertService::class.java))
+            ContextCompat.startForegroundService(
+                context,
+                Intent(context, BatteryAlertService::class.java)
+            )
         }
 
         @Suppress("DEPRECATION")

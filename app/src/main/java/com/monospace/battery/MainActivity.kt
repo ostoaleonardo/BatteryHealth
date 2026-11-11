@@ -30,10 +30,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.monospace.battery.core.constants.Constants
 import com.monospace.battery.core.constants.WidgetConstants
 import com.monospace.battery.core.utils.AppUtils
+import com.monospace.battery.core.utils.CrashReporter
 import com.monospace.battery.data.local.PreferenceManager
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
@@ -113,6 +113,11 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
+
+                LaunchedEffect(currentRoute) {
+                    CrashReporter.key("last_screen", currentRoute ?: "none")
+                }
+
                 val context = LocalContext.current
 
                 val purchaseManager = purchaseViewModel.manager
@@ -248,8 +253,7 @@ class MainActivity : ComponentActivity() {
         runCatching {
             if (shouldRun) BatteryAlertService.start(this) else BatteryAlertService.stop(this)
         }.onFailure {
-            Log.w("MainActivity", "Could not update monitoring service", it)
-            runCatching { FirebaseCrashlytics.getInstance().recordException(it) }
+            CrashReporter.record(TAG, "Could not update monitoring service", it)
         }
     }
 
@@ -275,7 +279,7 @@ class MainActivity : ComponentActivity() {
                 BatteryPagerWidgetReceiver::class
             ).forEach {
                 runCatching { manager.setWidgetPreviews(it) }
-                    .onFailure { e -> Log.w("MainActivity", "Widget preview failed", e) }
+                    .onFailure { e -> Log.w(TAG, "Widget preview failed", e) }
             }
         }
     }
@@ -301,5 +305,9 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             WidgetsUpdater.updateAll(applicationContext)
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

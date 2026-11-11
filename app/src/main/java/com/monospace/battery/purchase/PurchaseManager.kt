@@ -1,8 +1,8 @@
 package com.monospace.battery.purchase
 
 import android.app.Activity
-import android.content.pm.ApplicationInfo
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
@@ -17,16 +17,17 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.acknowledgePurchase
 import com.android.billingclient.api.queryProductDetails
+import com.monospace.battery.core.utils.CrashReporter
 import com.monospace.battery.data.local.WidgetsUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -83,6 +84,8 @@ class PurchaseManager(
 
                 else -> {
                     Log.e(TAG, "Purchases Update Error: Code $responseCode - $debugMessage")
+                    CrashReporter.key("billing_update_code", responseCode)
+                    CrashReporter.log("Purchases update error: $responseCode $debugMessage")
                     emitError(responseCode)
                 }
             }
@@ -311,7 +314,11 @@ class PurchaseManager(
                         )
                     )
                     .build()
-                billingClient.launchBillingFlow(activity, flowParams)
+                val result = billingClient.launchBillingFlow(activity, flowParams)
+                CrashReporter.key("billing_launch_code", result.responseCode)
+                CrashReporter.log(
+                    "launchBillingFlow ${it.productId}: ${result.responseCode} ${result.debugMessage}"
+                )
             } ?: run {
                 Log.e(TAG, "Cannot launch flow: ProductDetails is null")
                 _purchaseEvents.emit(PurchaseEvent.Error.ProductUnavailable)
