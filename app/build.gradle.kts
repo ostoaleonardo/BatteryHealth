@@ -18,8 +18,8 @@ android {
         applicationId = "com.monospace.battery"
         minSdk = 24
         targetSdk = 37
-        versionCode = 14
-        versionName = "1.2.2"
+        versionCode = 15
+        versionName = "1.2.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
