@@ -1,10 +1,7 @@
 package com.monospace.battery.ui.components.aod
 
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -23,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,11 +36,13 @@ import com.monospace.battery.data.models.BatteryState
 import com.monospace.battery.data.models.LocalBatteryState
 import com.monospace.battery.data.models.LocalSettingsActions
 import com.monospace.battery.data.models.LocalSettingsState
+import com.monospace.battery.ui.components.common.StyleOption
+import com.monospace.battery.ui.components.common.StyleOptionSize
+import com.monospace.battery.ui.components.common.StyleOptionSpacing
 import com.monospace.battery.ui.components.common.section.Section
 import com.monospace.battery.ui.theme.Font
 import com.monospace.battery.ui.utils.MeterDisplay
 import com.monospace.battery.ui.utils.MeterStyle
-import com.monospace.battery.ui.utils.selectionStyle
 
 @Composable
 fun AodMeterStyleSelector(
@@ -203,32 +201,6 @@ fun StyleSelector(
                 }
             }
         }
-    }
-}
-
-private val StyleOptionSize = 64.dp
-private val StyleOptionSpacing = 12.dp
-
-@Composable
-private fun StyleOption(
-    selected: Boolean,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit
-) {
-    val radius by animateDpAsState(
-        targetValue = if (selected) 16.dp else StyleOptionSize / 2,
-        animationSpec = tween(durationMillis = 250),
-        label = "style_radius"
-    )
-
-    Box(
-        modifier = Modifier
-            .size(StyleOptionSize)
-            .selectionStyle(selected, RoundedCornerShape(radius))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        content()
     }
 }
 
