@@ -22,12 +22,12 @@ import com.monospace.battery.core.utils.BatteryStrings
 import com.monospace.battery.core.utils.BatteryUtils
 import com.monospace.battery.data.models.BatteryInfo
 import com.monospace.battery.ui.utils.getHealthIcon
-import com.monospace.battery.widgets.components.healthToDots
-import com.monospace.battery.widgets.components.widgetTextColor
 import com.monospace.battery.widgets.components.LevelBar
 import com.monospace.battery.widgets.components.WidgetInfoRow
 import com.monospace.battery.widgets.components.WidgetStatusIndicator
 import com.monospace.battery.widgets.components.WidgetValueLabel
+import com.monospace.battery.widgets.components.healthToDots
+import com.monospace.battery.widgets.components.widgetTextColor
 
 @Composable
 fun HealthContent(batteryStatus: Intent?) {
@@ -78,60 +78,50 @@ fun ChargingInfoContent(batteryStatus: Intent?) {
     val statusStr = context.getString(batteryStrings.getChargingStatus(isCharging))
 
     Column(modifier = GlanceModifier.fillMaxSize()) {
-        Row(
+        Column(
             modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = GlanceModifier.defaultWeight(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalAlignment = Alignment.Start
-            ) {
-                Row(
-                    modifier = GlanceModifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    WidgetInfoRow(
-                        label = context.getString(R.string.battery_status),
-                        value = statusStr
-                    )
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                WidgetInfoRow(
+                    label = context.getString(R.string.battery_status),
+                    value = statusStr
+                )
 
-                    Spacer(modifier = GlanceModifier.defaultWeight())
+                Spacer(modifier = GlanceModifier.defaultWeight())
 
-                    Image(
-                        provider = ImageProvider(
-                            if (isCharging) R.drawable.bolt else R.drawable.cable
-                        ),
-                        contentDescription = null,
-                        modifier = GlanceModifier.size(24.dp),
-                        colorFilter = ColorFilter.tint(widgetTextColor())
-                    )
-                }
+                Image(
+                    provider = ImageProvider(
+                        if (isCharging) R.drawable.bolt else R.drawable.cable
+                    ),
+                    contentDescription = null,
+                    modifier = GlanceModifier.size(24.dp),
+                    colorFilter = ColorFilter.tint(widgetTextColor())
+                )
+            }
 
-                if (isCharging) {
-                    val sourceStr =
-                        context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
-                    val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
-                    val speedWatts = context.getString(R.string.charge_speed_watts, speed)
-                    val qualitySpeed = context.getString(batteryStrings.getChargerQuality(speed))
-                    val speedValue = "$speedWatts (${qualitySpeed})"
+            if (isCharging) {
+                val sourceStr =
+                    context.getString(batteryStrings.getChargingSource(batteryInfo.chargeSource))
+                val speed = batteryUtils.getChargeSpeed(batteryInfo.voltage, true)
+                val speedWatts = context.getString(R.string.charge_speed_watts, speed)
+                val qualitySpeed = context.getString(batteryStrings.getChargerQuality(speed))
 
-                    Spacer(GlanceModifier.height(8.dp))
-                    WidgetInfoRow(
-                        label = context.getString(R.string.charging_source),
-                        value = sourceStr
-                    )
-
-                    Spacer(GlanceModifier.height(8.dp))
-                    WidgetInfoRow(
-                        label = context.getString(R.string.battery_speed),
-                        value = speedValue
-                    )
-                }
+                SpacedInfoRow(context.getString(R.string.charging_source), sourceStr)
+                SpacedInfoRow(
+                    context.getString(R.string.battery_speed),
+                    "$speedWatts ($qualitySpeed)"
+                )
             }
         }
 
-        Spacer(GlanceModifier.height(12.dp))
+        Spacer(GlanceModifier.height(8.dp))
         LevelBar(level = batteryLevel)
     }
+}
+
+@Composable
+private fun SpacedInfoRow(label: String, value: String) {
+    Spacer(GlanceModifier.height(8.dp))
+    WidgetInfoRow(label = label, value = value)
 }
