@@ -1,5 +1,5 @@
 [versions]
-agp = "9.5.0"
+agp = "9.5.1"
 billingKtx = "9.1.0"
 kotlin = "2.4.21"
 coreKtx = "1.19.1"
@@ -18,7 +18,7 @@ room = "2.8.5"
 fragment = "1.9.1"
 lifecycle = "2.11.0"
 ksp = "2.3.13"
-material3 = "1.5.0-beta02"
+material3 = "1.5.0-rc01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
